@@ -1,0 +1,72 @@
+.admin-container {
+    display: flex;
+  }
+  
+  .main-content {
+    flex-grow: 1;
+    padding: 20px;
+  }
+  
+  .user-management {
+    width: 100%;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .user-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .user-table th,
+  .user-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .status {
+    padding: 5px 10px;
+    border-radius: 5px;
+  }
+  
+  .status.active {
+    background-color: #c8f7c5;
+    color: green;
+  }
+  
+  .status.inactive {
+    background-color: #f7c5c5;
+    color: red;
+  }
+  
+  .status.pending {
+    background-color: #f7e4c5;
+    color: orange;
+  }
+  
+  .empty-state {
+    text-align: center;
+    margin-top: 50px;
+  }
+  
+  .empty-state img {
+    width: 100px;
+    opacity: 0.5;
+  }
+  
+  .empty-state p {
+    font-size: 18px;
+    color: gray;
+  }
+  
