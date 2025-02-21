@@ -149,7 +149,7 @@ const HomePage = () => {
                   <img
                     src={category.image}
                     alt={category.name}
-                    className="mx-auto mb-3 h-16 w-16 object-contain"
+                    className="mx-auto mb-3 object-contain"
                   />
                   <h3 className="font-medium">{category.name}</h3>
                 </div>

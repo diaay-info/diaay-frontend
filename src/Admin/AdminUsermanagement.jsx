@@ -85,7 +85,7 @@ const UserManagement = () => {
       <div className="flex-1 p-6 md:ml-64 bg-gray-100 min-h-screen">
         <Header />
 
-        <div className="p-6">
+        <div className="py-6">
           {error && <p className="text-red-500 text-center">{error}</p>}
 
           {/* Filters Section */}
@@ -121,7 +121,7 @@ const UserManagement = () => {
             </select>
           </div>
 
-          <div className="p-6">
+          <div className="">
             {loading ? (
               <p className="text-gray-600 text-center">Loading...</p>
             ) : paginatedUsers.length === 0 ? (
