@@ -132,27 +132,26 @@ const PurchaseCredit = () => {
             </div>
           </div>
 
-          {/* Payment Method Selection */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
+           {/* Payment Method Selection */}
+           <div className="bg-white p-6 rounded-lg shadow-md">
             <p className="mb-2 font-semibold">Choose Payment Method:</p>
             <div className="flex flex-col md:flex-row gap-4">
-              {["orange", "wave"].map((method) => (
+              {[
+                { id: "orange_money", label: "Orange Money", img: "/orange.png" },
+                { id: "wave", label: "Wave Money", img: "/wave.png" },
+              ].map((method) => (
                 <div
-                  key={method}
-                  onClick={() => setPaymentMethod(method)}
+                  key={method.id}
+                  onClick={() => setPaymentMethod(method.id)}
                   className={`border p-4 rounded-lg cursor-pointer w-full ${
-                    paymentMethod === method
+                    paymentMethod === method.id
                       ? "border-purple-500"
                       : "border-gray-300"
                   }`}
                 >
-                  <img
-                    src={`/${method}.png`}
-                    className="w-28 mx-auto"
-                    alt={method}
-                  />
+                  <img src={method.img} className="w-28 mx-auto" alt={method.label} />
                   <p className="text-center capitalize text-gray-700">
-                    Pay with {method} Money
+                    Pay with {method.label}
                   </p>
                 </div>
               ))}

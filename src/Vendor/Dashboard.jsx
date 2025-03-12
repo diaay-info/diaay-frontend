@@ -68,33 +68,59 @@ function VendorDashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
+      const token = localStorage.getItem("accessToken"); // Retrieve token
+  
+      if (!token) {
+        console.error("No authentication token found. Redirecting to login.");
+        return; // Optionally redirect to login page
+      }
+  
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      };
+  
       try {
-        const productsRes = await fetch("https://e-service-v2s8.onrender.com/api/products");
-
-        if (!productsRes.ok) {
-          throw new Error("Failed to fetch products");
-        }
+        // Fetch Products
+        const productsRes = await fetch("https://e-service-v2s8.onrender.com/api/products", { headers });
+        if (!productsRes.ok) throw new Error("Failed to fetch products");
         const productsData = await productsRes.json();
-
+  
+        // Fetch Active Ads
+        const adsRes = await fetch("https://e-service-v2s8.onrender.com/api/ads", { headers });
+        if (!adsRes.ok) throw new Error("Failed to fetch active ads");
+        const adsData = await adsRes.json();
+  
+        // Fetch Available Credits
+        const creditsRes = await fetch("https://e-service-v2s8.onrender.com/api/credits/balance", { headers });
+        if (!creditsRes.ok) throw new Error("Failed to fetch available credits");
+        const creditsData = await creditsRes.json();
+  
+        // Update vendor data
         setVendorData({
-          totalProducts: productsData.total,
-          activeAds: 0,
-          impressions: 0,
-          availableCredits: 0,
+          totalProducts: productsData.total || 0,
+          activeAds: adsData.totalActive || 0,
+          impressions: 0, // If there's an endpoint for impressions, fetch it
+          availableCredits: creditsData.balance || 0,
         });
+  
       } catch (err) {
         console.error("Error fetching vendor data:", err);
+        if (err.message.includes("401") || err.message.includes("403")) {
+          // Handle unauthorized access (redirect to login, show error message, etc.)
+          console.warn("Unauthorized access. Redirecting to login...");
+        }
       }
     };
-
+  
     fetchData();
   }, []);
-
+  
   return (
     <Layout>
       <div className="flex flex-col min-h-screen p-2">
         {/* Analytics Section */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <section className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white p-4 rounded-lg shadow-md text-center">
             <FaBox className="text-purple-500 text-2xl mx-auto" />
             <p className="text-lg font-bold">{vendorData.totalProducts}</p>
@@ -124,7 +150,11 @@ function VendorDashboard() {
               <thead>
                 <tr className="text-left font-medium">
                   <th className="p-2 border-b">
-                    <input type="checkbox" checked={selectAll} onChange={handleSelectAll} />
+                    <input
+                      type="checkbox"
+                      checked={selectAll}
+                      onChange={handleSelectAll}
+                    />
                   </th>
                   <th className="p-2 border-b">Product Name</th>
                   <th className="p-2 border-b">Category</th>
@@ -145,9 +175,15 @@ function VendorDashboard() {
                     </td>
                     <td className="p-2 border-b">{product.name}</td>
                     <td className="p-2 border-b">{product.category}</td>
-                    <td className="p-2 border-b text-[#7C0DEA]">{product.price} CFA</td>
+                    <td className="p-2 border-b text-[#7C0DEA]">
+                      {product.price} CFA
+                    </td>
                     <td className="p-2 border-b text-green-600">Active</td>
-                    <td className="p-2 border-b">{product.createdAt ? new Date(product.createdAt).toLocaleDateString() : "N/A"}</td>
+                    <td className="p-2 border-b">
+                      {product.createdAt
+                        ? new Date(product.createdAt).toLocaleDateString()
+                        : "N/A"}
+                    </td>
                   </tr>
                 ))}
               </tbody>

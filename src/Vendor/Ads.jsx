@@ -1,0 +1,259 @@
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import Layout from "./Layout";
+import SelectProductForAd from "./SelectProductForAd";
+
+const Ads = () => {
+  const [isAddingAd, setIsAddingAd] = useState(false);
+  const [ads, setAds] = useState([]); // Store ads
+  const [loading, setLoading] = useState(true);
+  const [selectedAds, setSelectedAds] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+  const [error, setError] = useState(null);
+  const location = useLocation();
+
+  // Filters
+  const [category, setCategory] = useState("All");
+  const [status, setStatus] = useState("All");
+  const [priceSort, setPriceSort] = useState("default");
+
+  // Function to handle selecting a single ad
+  const handleAdSelect = (adId) => {
+    setSelectedAds((prevSelected) =>
+      prevSelected.includes(adId)
+        ? prevSelected.filter((id) => id !== adId)
+        : [...prevSelected, adId]
+    );
+  };
+
+  // Handle selecting/deselecting all ads
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedAds([]); // Deselect all
+    } else {
+      setSelectedAds(ads.map((ad) => ad._id)); // Select all
+    }
+    setSelectAll(!selectAll);
+  };
+
+  const handleAddProductToggle = () => {
+    setIsAddProduct(!isAddProduct);
+  };
+
+  // Fetch Ads
+  useEffect(() => {
+    const fetchAds = async () => {
+      try {
+        const response = await fetch(
+          "https://e-service-v2s8.onrender.com/api/ads"
+        );
+        const data = await response.json();
+
+        console.log("Fetched ads data:", data); // Log the fetched data
+
+        if (response.ok) {
+          setAds(data.ads || []);
+        } else {
+          throw new Error(data.message || "Failed to fetch ads");
+        }
+      } catch (err) {
+        console.error("Error fetching ads:", err); // Log any error
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAds();
+  }, []);
+
+  // Function to check if an ad is expired
+  const isAdExpired = (ad) => {
+    const today = new Date();
+    return new Date(ad.expiryDate) < today;
+  };
+
+  // Count ads per category
+  const categoryCounts = ads.reduce((acc, ad) => {
+    acc[ad.category] = (acc[ad.category] || 0) + 1;
+    return acc;
+  }, {});
+
+  const allCategoriesCount = ads.length;
+
+  // Filtered Ads
+  const filteredAds = ads
+    .filter((ad) => (category === "All" ? true : ad.category === category))
+    .filter((ad) =>
+      status === "All"
+        ? true
+        : status === "Active"
+        ? !isAdExpired(ad)
+        : isAdExpired(ad)
+    )
+    .sort((a, b) =>
+      priceSort === "low"
+        ? a.price - b.price
+        : priceSort === "high"
+        ? b.price - a.price
+        : 0
+    );
+
+  return (
+    <Layout>
+      <div className="flex min-h-screen p-2">
+        {/* Main Content */}
+        <main className="flex-1 ">
+          {isAddingAd ? (
+            <SelectProductForAd setIsAddingAd={setIsAddingAd} />
+          ) : (
+            <div>
+              {/* First Filter Section */}
+              <div className="flex flex-col sm:flex-row sm:justify-between text-sm bg-white p-4 rounded-lg shadow-sm space-y-2 sm:space-y-0">
+                <input
+                  type="text"
+                  placeholder="Search ads..."
+                  className="border border-gray-300 rounded-lg p-2 w-full sm:w-48"
+                />
+                <select
+                  className="border border-gray-300 rounded-lg py-2 px-4 w-full sm:w-auto"
+                  onChange={(e) => setPriceSort(e.target.value)}
+                >
+                  <option value="default">Sort by: Default</option>
+                  <option value="low">Price: Low to High</option>
+                  <option value="high">Price: High to Low</option>
+                </select>
+                <select
+                  className="border border-gray-300 rounded-lg py-2 px-4 w-full sm:w-auto"
+                  onChange={(e) => setStatus(e.target.value)}
+                >
+                  <option value="All">Show: All Ads</option>
+                  <option value="Active">Active</option>
+                  <option value="Expired">Expired</option>
+                </select>
+                <button className="py-2 px-4 border border-gray-300 rounded-lg w-full sm:w-auto">
+                  Filter
+                </button>
+                <button
+                  onClick={() => setIsAddingAd(true)}
+                  className="py-2 px-4 bg-purple-500 text-white rounded-lg w-full sm:w-auto"
+                >
+                  + Add Ad
+                </button>
+              </div>
+
+              {/* Second Filter Section */}
+              <div className="mt-4 flex flex-col sm:flex-row sm:justify-between text-sm bg-white p-4 rounded-lg shadow-sm space-y-2 sm:space-y-0">
+                {/* Category Filter */}
+                <select
+                  className="border border-gray-300 rounded-lg py-2 px-4 w-full sm:w-auto"
+                  onChange={(e) => setCategory(e.target.value)}
+                  value={category}
+                >
+                  <option value="All">
+                    All Categories ({allCategoriesCount})
+                  </option>
+                  {Object.entries(categoryCounts).map(([cat, count]) => (
+                    <option key={cat} value={cat}>
+                      {cat} ({count})
+                    </option>
+                  ))}
+                </select>
+
+                {/* Ad Status Filter */}
+                <select
+                  className="border border-gray-300 rounded-lg py-2 px-4 w-full sm:w-auto"
+                  onChange={(e) => setStatus(e.target.value)}
+                  value={status}
+                >
+                  <option value="All">All Ads</option>
+                  <option value="Active">Active</option>
+                  <option value="Expired">Expired</option>
+                </select>
+
+                {/* Price Filter */}
+                <select
+                  className="border border-gray-300 rounded-lg py-2 px-4 w-full sm:w-auto"
+                  onChange={(e) => setPriceSort(e.target.value)}
+                  value={priceSort}
+                >
+                  <option value="default">Price</option>
+                  <option value="low"> Low to High</option>
+                  <option value="high"> High to Low</option>
+                </select>
+
+                {selectedAds.some((adId) =>
+                  isAdExpired(ads.find((ad) => ad._id === adId))
+                ) && (
+                  <button className="py-2 px-4 bg-red-500 text-white rounded-lg w-full sm:w-auto">
+                    Renew Ad
+                  </button>
+                )}
+              </div>
+
+              {/* Ads List */}
+              <div className="mt-4 bg-white p-4 rounded-lg shadow-sm overflow-x-auto">
+                <table className="w-full text-sm sm:text-base">
+                  <thead>
+                    <tr className="text-left font-medium">
+                      <th className="p-2 border-b">
+                        <input
+                          type="checkbox"
+                          checked={selectAll}
+                          onChange={handleSelectAll}
+                        />
+                      </th>
+                      <th className="p-2 border-b">Product Name</th>
+                      <th className="p-2 border-b">Impressions</th>
+                      <th className="p-2 border-b">Price</th>
+                      <th className="p-2 border-b">Ads Status</th>
+                      <th className="p-2 border-b">Date Added</th>
+                      <th className="p-2 border-b">Expiry Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredAds.length > 0 ? (
+                      filteredAds.map((ad) => (
+                        <tr key={ad._id} className="border-t">
+                          <td className="p-2 border-b">
+                            <input
+                              type="checkbox"
+                              checked={selectedAds.includes(ad._id)}
+                              onChange={() => handleAdSelect(ad._id)}
+                            />
+                          </td>
+                          <td className="p-2 border-b">{ad.name}</td>
+                          <td className="p-2 border-b">{ad.impressions}</td>
+                          <td className="p-2 border-b text-[#7C0DEA]">
+                            {ad.price} CFA
+                          </td>
+                          <td
+                            className={`p-2 border-b ${
+                              isAdExpired(ad)
+                                ? "text-red-500"
+                                : "text-green-600"
+                            }`}
+                          >
+                            {isAdExpired(ad) ? "Expired" : "Active"}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="7" className="text-center p-4">
+                          No products advertised available.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </main>
+      </div>
+    </Layout>
+  );
+};
+
+export default Ads;

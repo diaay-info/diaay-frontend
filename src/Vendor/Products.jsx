@@ -80,17 +80,14 @@ const ProductPage = () => {
 
   return (
     <Layout>
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen p-2">
         {/* Main Content */}
-        <main className="flex-1 p-2 sm:p-4">
+        <main className="flex-1 ">
           {isAddProduct || isAddProductPage ? (
             <Addproducts onProductAdded={handleProductAdded} />
           ) : (
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold mb-4">
-                Product List
-              </h2>
-
+              
               {/* Top Bar */}
               <div className="flex flex-col sm:flex-row sm:justify-between text-sm bg-white p-4 rounded-lg shadow-sm space-y-2 sm:space-y-0">
                 <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">

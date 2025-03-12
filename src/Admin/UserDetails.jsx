@@ -92,7 +92,7 @@ const UserDetails = () => {
       <Sidebar />
       <div className="flex-1 p-6 md:ml-64 bg-gray-100 min-h-screen">
         <Header />
-        <div className="bg-white p-4 rounded-lg shadow-md m-4">
+        <div className="bg-white p-4 rounded-lg shadow-md my-4">
           <button
             onClick={handleBack}
             className="flex items-center text-gray-600 hover:text-black"
@@ -101,7 +101,7 @@ const UserDetails = () => {
           </button>
         </div>
 
-        <div className="p-4 w-full flex flex-col md:flex-row gap-5 items-start">
+        <div className="py-4 w-full flex flex-col md:flex-row gap-5 items-start">
           <div className="rounded-lg w-full shadow-md bg-white p-4 space-y-4">
             <h2 className="text-xl font-bold">User Details</h2>
             <hr />

@@ -21,33 +21,50 @@ const AdsManagement = () => {
 
   const handleApproval = (approve) => {
     setAds((prevAds) =>
-      prevAds.map((ad) =>
-        selectedRows.includes(ad.id)
+      prevAds.map((ad) => {
+        if (!ad || !ad.id) return ad; // Ensure ad exists before modifying
+        return selectedRows.includes(ad.id)
           ? { ...ad, status: approve ? "Approved" : "Rejected" }
-          : ad
-      )
+          : ad;
+      })
     );
     setIsModalOpen(false);
     setSelectedRows([]);
   };
+  
 
   const itemsPerPage = 10;
 
   useEffect(() => {
-    setTimeout(() => {
-      setAds(
-        Array.from({ length: 25 }, (_, i) => ({
-          id: i + 1,
-          name: `User ${i + 1}`,
-          productName: `Product ${i + 1}`,
-          dateRemaining: `${Math.floor(Math.random() * 30)} days left`,
-          dateSubmitted: `2024-02-${(i % 28) + 1}`,
-          status: ["Approved", "Rejected", "Pending"][i % 3],
-        }))
-      );
-      setLoading(false);
-    }, 1500);
+    const fetchAds = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch("https://e-service-v2s8.onrender.com/api/ads", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+    
+        if (!response.ok) {
+          throw new Error("Failed to fetch ads");
+        }
+    
+        const data = await response.json();
+        console.log("Fetched ads:", data); // Debugging step
+        setAds(data); 
+      } catch (error) {
+        console.error("Error fetching ads:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+  
+    fetchAds();
   }, []);
+  
 
   // Filtering ads
   const filteredAds = ads.filter((ad) => {
@@ -153,7 +170,7 @@ const AdsManagement = () => {
           </div>
         )}
 
-        <div className="p-6">
+        <div className="py-6">
           {/* Back button for non-first pages */}
           {currentPage > 1 && (
             <button

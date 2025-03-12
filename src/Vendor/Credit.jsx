@@ -1,47 +1,120 @@
-import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import PurchaseCredit from "./PurchaseCredit";
 import Layout from "./Layout";
 
 const Credit = ({ onPurchaseCreditclick }) => {
   const [isPurchaseCredit, setIsPurchaseCredit] = useState(false);
   const location = useLocation();
-  const [products, setProducts] = useState([]); // Store the list of products
-
+  const navigate = useNavigate();
+  const [products, setProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
-  const [selectAll, setSelectAll] = useState(false); // Track "Select All" checkbox state
+  const [selectAll, setSelectAll] = useState(false);
+  const [creditBalance, setCreditBalance] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Track auth status
 
-  // Check if the current URL contains 'purchasecredit'
   const isPurchaseCreditPage = location.pathname.includes("purchasecredit");
 
-  const handlePurchaseCreditToggle = () => {
-    setIsPurchaseCredit(!isPurchaseCredit);
-  };
+  // Check authentication status
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken"); // Get token from storage
+    if (!token) {
+      navigate("/login"); // Redirect if not logged in
+    } else {
+      setIsAuthenticated(true);
+    }
+  }, [navigate]);
 
-  const handleProductSelect = (productId) => {
-    setSelectedProducts(
-      (prevSelected) =>
-        prevSelected.includes(productId)
-          ? prevSelected.filter((id) => id !== productId)
-          : [productId] // Single selection mode
-    );
-  };
+  // Fetch available credit balance (only if authenticated)
+  useEffect(() => {
+    if (!isAuthenticated) return;
 
-  // Handle selecting/deselecting all products
+    const fetchCreditBalance = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        const response = await fetch(
+          "https://e-service-v2s8.onrender.com/api/credits/balance",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // Attach token for authentication
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setCreditBalance(data.balance || 0);
+        } else {
+          throw new Error(data.message || "Failed to fetch credit balance");
+        }
+      } catch (error) {
+        console.error("Error fetching credit balance:", error);
+        setCreditBalance(0);
+      }
+    };
+
+    fetchCreditBalance();
+  }, [isAuthenticated]);
+
+  // Fetch products (only if authenticated)
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const fetchProducts = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        const response = await fetch(
+          "https://e-service-v2s8.onrender.com/api/products",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await response.json();
+        if (response.ok) {
+          setProducts(data || []);
+        } else {
+          throw new Error(data.message || "Failed to fetch products");
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    fetchProducts();
+  }, [isAuthenticated]);
+
+  // Select/Deselect all products
   const handleSelectAll = () => {
     if (selectAll) {
-      setSelectedProducts([]); // Deselect all
+      setSelectedProducts([]);
     } else {
-      setSelectedProducts(products.map((product) => product._id)); // Select all
+      setSelectedProducts(products.map((product) => product._id));
     }
     setSelectAll(!selectAll);
   };
 
+  // Toggle individual product selection
+  const handleProductSelect = (productId) => {
+    setSelectedProducts((prevSelected) =>
+      prevSelected.includes(productId)
+        ? prevSelected.filter((id) => id !== productId)
+        : [...prevSelected, productId]
+    );
+  };
+  const handlePurchaseCreditToggle = () => {
+  setIsPurchaseCredit(!isPurchaseCredit);
+};
+
+
   return (
     <Layout>
-      <div className="flex flex-col min-h-screen px-4 md:px-8">
+      <div className="flex flex-col min-h-screen p-2">
         {/* Main Content */}
-        <main className="flex-1 py-4">
+        <main className="flex-1 ">
           {/* Show Add Product Form or Products List */}
           {isPurchaseCredit || isPurchaseCreditPage ? (
             <PurchaseCredit />
@@ -79,7 +152,9 @@ const Credit = ({ onPurchaseCreditclick }) => {
               <div className="bg-white rounded-lg px-6 py-4 shadow-md text-center">
                 <p className="text-gray-600">Available credits</p>
                 <h1 className="text-2xl font-bold text-purple-500">
-                  0 Credits Remaining
+                  {creditBalance !== null
+                    ? `${creditBalance} Credits Remaining`
+                    : "Loading..."}
                 </h1>
               </div>
 

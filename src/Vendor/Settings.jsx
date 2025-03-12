@@ -47,8 +47,8 @@ function Settings() {
 
   return (
     <Layout>
-      <div className="flex min-h-screen">
-        <main className="flex-1 p-4">
+      <div className="flex min-h-screen p-2">
+        <main className="flex-1 ">
           <div className="space-y-8">
             {/* Personal Information */}
             <div className="bg-white shadow-md p-6 rounded-xl space-y-6">

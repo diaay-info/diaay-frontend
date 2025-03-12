@@ -1,116 +1,115 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { GrFavorite } from "react-icons/gr";
-import { FaSearch, FaBars, FaTimes } from "react-icons/fa";
+import { FaSearch, FaBars, FaTimes, FaChevronDown } from "react-icons/fa";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const location = useLocation();
 
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
-  };
+  const toggleMenu = () => setMenuOpen(!menuOpen);
+  const toggleCategories = () => setCategoriesOpen(!categoriesOpen);
+  const isActive = (path) =>
+    location.pathname === path
+      ? "text-primary font-semibold"
+      : "text-gray-700 hover:text-primary transition";
 
   return (
-    <div>
-      {/* Header */}
-      <header className="p-4 flex justify-between items-center bg-white font-medium text-text shadow-md">
-        {/* Logo */}
-        <Link to="/">
-        <img src="/llogo.png" className="w-[8rem]"/>
+    <header className="p-4 flex justify-between items-center bg-white shadow-md sticky top-0 z-50">
+      {/* Logo */}
+      <Link to="/">
+        <img src="/llogo.png" className="w-32" alt="Logo" />
+      </Link>
+
+      {/* Search Bar */}
+      <div className="hidden md:flex relative items-center flex-grow max-w-lg mx-6">
+        <FaSearch className="absolute left-4 text-gray-400" />
+        <input
+          type="text"
+          placeholder="Find the product you want"
+          className="border border-gray-300 rounded-full text-sm pl-10 pr-4 py-2 w-full focus:outline-none focus:ring focus:ring-primary"
+        />
+      </div>
+
+      {/* Desktop Navigation */}
+      <div className="hidden md:flex items-center space-x-6 text-sm">
+        <Link to="/categories" className={isActive("/categories")}>
+          Categories
         </Link>
-
-        {/* Search Bar */}
-        <div className="hidden md:flex relative items-center space-x-4 flex-grow ml-40">
-          <FaSearch className="absolute left-7 text-gray-300" />
-          <input
-            type="text"
-            placeholder="Find the product you want"
-            className="border border-gray-300 rounded-md text-sm pl-10 pr-3 py-2 w-full max-w-md focus:outline-none focus:ring focus:ring-primary"
-          />
-        </div>
-
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-6 text-sm">
-          <Link to="/categories" className="hover:underline">
-            Categories
-          </Link>
-          <Link to="/about" className="hover:underline">
-            About
-          </Link>
-          <Link to="/favourite" className="hover:underline">
-            <GrFavorite />
-          </Link>
-          <Link
-            to="/start"
-            className="hover:underline border border-gray-300 rounded-3xl px-4 py-2"
-          >
-            Sell your item
-          </Link>
-          <Link to="/start">
-            <button className="text-sm px-4 py-2 bg-primary text-white rounded-3xl hover:bg-purple-600">
-              Get Started
-            </button>
-          </Link>
-        </div>
-
-        {/* Mobile Hamburger Menu */}
-        <button
-          className="md:hidden text-2xl focus:outline-none"
-          onClick={toggleMenu}
+        <Link to="/about" className={isActive("/about")}>
+          About
+        </Link>
+        <Link
+          to="/favourite"
+          className="relative text-gray-700 hover:text-primary transition"
         >
-          {menuOpen ? <FaTimes /> : <FaBars />}
-        </button>
-      </header>
+          <GrFavorite size={20} />
+        </Link>
+        <Link
+          to="/start"
+          className="border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-100 transition"
+        >
+          Sell your item
+        </Link>
+        <Link to="/start">
+          <button className="px-4 py-2 bg-primary text-white rounded-full hover:bg-purple-600 transition">
+            Get Started
+          </button>
+        </Link>
+      </div>
 
-      {/* Mobile Full-Screen Overlay Menu */}
-      {menuOpen && (
-        <div className="fixed inset-0 bg-white z-50 flex flex-col p-8">
-          {/* Close Icon */}
-          <button
-            className="self-end text-2xl mb-4 focus:outline-none"
-            onClick={toggleMenu}
-          >
+      {/* Mobile Menu Button */}
+      <button className="md:hidden text-2xl" onClick={toggleMenu}>
+        {menuOpen ? <FaTimes /> : <FaBars />}
+      </button>
+
+      {/* Mobile Full-Screen Menu */}
+      <div
+        className={`fixed inset-0 bg-white z-50 flex flex-col items-center p-6 space-y-6 transform ${
+          menuOpen ? "translate-x-0" : "translate-x-full"
+        } transition-transform duration-300 md:hidden`}
+      >
+        {/* Logo and Close Button */}
+        <div className="w-full flex justify-between items-center">
+          <Link to="/">
+            {" "}
+            <img src="/llogo.png" className="w-24" alt="Logo" />
+          </Link>
+          <button className="text-2xl" onClick={toggleMenu}>
             <FaTimes />
           </button>
+        </div>
 
-          {/* Mobile Search Bar */}
-          <div className="relative mb-6">
-            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-300" />
-            <input
-              type="text"
-              placeholder="Find the product you want"
-              className="border border-gray-300 rounded-md text-sm pl-10 pr-3 py-2 w-full focus:outline-none focus:ring focus:ring-primary"
+        {/* Links */}
+        <nav className="w-full flex flex-col  space-y-8 text-xl">
+          <Link
+            to="/"
+            className={`block ${isActive("/")}`}
+            onClick={toggleMenu}
+          >
+            Home
+          </Link>
+          <Link
+            to="/about"
+            className={`block ${isActive("/about")}`}
+            onClick={toggleMenu}
+          >
+            About
+          </Link>
+          <button
+            onClick={toggleCategories}
+            className="flex  text-lg w-full focus:outline-none hover:text-primary transition"
+          >
+            Categories
+            <FaChevronDown
+              className={`ml-2 transition-transform ${
+                categoriesOpen ? "rotate-180" : ""
+              }`}
             />
-          </div>
-
-          {/* Links */}
-          <nav className="space-y-6 text-sm">
-            <Link to="/categories" className="block hover:underline">
-              Categories
-            </Link>
-            <Link to="/about" className="block hover:underline">
-              About
-            </Link>
-            <Link to="/favourite" className="block hover:underline">
-              Favourites
-            </Link>
-            <Link
-              to="/start"
-              className="block hover:underline border border-gray-300 rounded-md py-2 text-center"
-            >
-              Sell your item
-            </Link>
-            <Link to="/start">
-              <button className="block w-full px-6 py-2 bg-primary text-white rounded-3xl hover:bg-purple-600">
-                Get Started
-              </button>
-            </Link>
-          </nav>
-
-          {/* Categories Section */}
-          <div className="mt-8">
-            <h2 className="font-bold mb-4">Categories</h2>
-            <ul className="space-y-6 text-sm">
+          </button>
+          {categoriesOpen && (
+            <ul className="w-full text-gray-600 space-y-2">
               {[
                 "House",
                 "Vehicles",
@@ -119,19 +118,29 @@ const Header = () => {
                 "Multimedia",
                 "Equipment & Appliances",
               ].map((category, index) => (
-                <li key={index} className="hover:underline text-gray-600">
+                <li key={index} className="hover:text-primary transition">
                   {category}
                 </li>
               ))}
             </ul>
-          </div>
-        </div>
-      )}
-
-      <div>
-        <hr />
+          )}
+          <Link
+            to="/favourite"
+            className="hover:text-primary transition"
+            onClick={toggleMenu}
+          >
+            Favourites
+          </Link>
+          <Link
+            to="/start"
+            className="block w-full border border-gray-300 bg-primary text-white rounded-md py-2 text-center hover:bg-purple-600 transition"
+            onClick={toggleMenu}
+          >
+            Sell your item
+          </Link>
+        </nav>
       </div>
-    </div>
+    </header>
   );
 };
 
