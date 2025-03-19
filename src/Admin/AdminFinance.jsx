@@ -6,7 +6,6 @@ import Sidebar from "./AdminSideBar";
 import Header from "./AdminHeader";
 import { useNavigate } from "react-router-dom";
 
-
 const Finance = () => {
   const [stats, setStats] = useState(null);
   const [transactions, setTransactions] = useState([]);
@@ -28,7 +27,7 @@ const Finance = () => {
           }
         );
         const result = await response.json();
-        console.log("Stats API Response:", result); // Debugging line
+        console.log("Stats API Response:", result);
         setStats(result);
       } catch (error) {
         console.error("Error fetching stats:", error);
@@ -48,10 +47,9 @@ const Finance = () => {
         );
         const result = await response.json();
 
-        console.log("Transactions API Response:", result); // Debugging line
+        console.log("Transactions API Response:", result);
 
         if (!Array.isArray(result)) {
-          // Use `result` instead of `result.data`
           throw new Error("Invalid data format");
         }
 
@@ -119,33 +117,36 @@ const Finance = () => {
                 </p>
               </div>
             ) : (
-              <table className="w-full">
-                <thead>
-                  <tr>
-                    <th className="border-b p-3 text-left">Name</th>
-                    <th className="border-b p-3 text-left">Transaction Type</th>
-                    <th className="border-b p-3 text-left">Amount</th>
-                    <th className="border-b p-3 text-left">Date</th>
-                    <th className="border-b p-3 text-left">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(paginatedTransactions || []).map((transaction, index) => (
-                    <tr key={index} className="hover:bg-gray-100">
-                      <td className="border-b p-3">{transaction.name}</td>
-                      <td className="border-b p-3">{transaction.type}</td>
-                      <td className="border-b p-3">
-                        {formatNumber(transaction.amount)}
-                      </td>
-                      <td className="border-b p-3">
-                        {new Date(transaction.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="border-b p-3">{transaction.status}</td>
-                      
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse border border-gray-200 bg-white rounded-lg shadow-md">
+                <thead className="bg-primary text-white text-sm uppercase font-semibold">
+                <tr className="border-b border-gray-200">
+                <th className="border-b p-3 text-left">Name</th>
+                      <th className="border-b p-3 text-left">
+                        Transaction Type
+                      </th>
+                      <th className="border-b p-3 text-left">Amount</th>
+                      <th className="border-b p-3 text-left">Date</th>
+                      <th className="border-b p-3 text-left">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {(paginatedTransactions || []).map((transaction, index) => (
+                      <tr key={index} className="hover:bg-gray-100">
+                        <td className="border-b p-3">{transaction.name}</td>
+                        <td className="border-b p-3">{transaction.type}</td>
+                        <td className="border-b p-3">
+                          {formatNumber(transaction.amount)}
+                        </td>
+                        <td className="border-b p-3">
+                          {new Date(transaction.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="border-b p-3">{transaction.status}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
 
             <div className="flex justify-end items-center mt-4">
@@ -174,17 +175,29 @@ const Finance = () => {
   );
 };
 
-const StatBox = ({ title, value, onClick }) => (
-  <div className="p-4 bg-white shadow-md rounded-lg text-center">
-    <p className="text-gray-600">{title}</p>
-    <h3 className="text-2xl font-bold">{value}</h3>
-    <button
-      onClick={onClick}
-      className="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
-    >
-      View {title}
-    </button>
-  </div>
-);
+const StatBox = ({ title, value, onClick }) => {
+  // Define button colors based on the title
+  const buttonColors = {
+    "Total Credits": "bg-purple-600 hover:bg-purple-700",
+    "Pending Credits": "bg-yellow-500 hover:bg-yellow-600",
+    "Approved Credits": "bg-green-600 hover:bg-green-700",
+    "Rejected Credits": "bg-red-600 hover:bg-red-700",
+  };
+
+  return (
+    <div className="p-4 bg-white shadow-md rounded-lg text-center">
+      <p className="text-gray-600">{title}</p>
+      <h3 className="text-2xl font-bold">{value}</h3>
+      <button
+        onClick={onClick}
+        className={`mt-3 px-4 py-2 text-white rounded-lg transition ${
+          buttonColors[title] || "bg-gray-600 hover:bg-gray-700"
+        }`}
+      >
+        View {title}
+      </button>
+    </div>
+  );
+};
 
 export default Finance;

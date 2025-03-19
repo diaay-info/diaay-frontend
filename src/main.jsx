@@ -27,6 +27,7 @@ import SelectProductForAd from "./Vendor/SelectProductForAd.jsx";
 import CreateAd from "./Vendor/CreateAd.jsx";
 import FinanceDetails from "./Admin/FinanceDetails.jsx";
 import CreditDetails from "./Admin/CreditDetails.jsx";
+import AdDetails from "./Admin/AdDetails.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -52,6 +53,7 @@ createRoot(document.getElementById("root")).render(
         <Route path="/admin/users" element={<AdminUsermanagement />} />
         <Route path="/admin/users/:id" element={<UserDetails />} />
         <Route path="/admin/ads" element={<AdminAds />} />
+        <Route path="/ads-management/:id" element={<AdDetails />} />
         <Route path="/admin/finance" element={<AdminFinance />} />
         <Route path="/finance/:type" element={<FinanceDetails />} />
         <Route path="/admin/finance/credit/:id" element={<CreditDetails />} />

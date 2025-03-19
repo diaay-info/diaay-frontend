@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { FiUsers } from "react-icons/fi";
-import { FaEllipsisH } from "react-icons/fa";
-import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { IoMdClose } from "react-icons/io";
 import Sidebar from "./AdminSideBar";
 import Header from "./AdminHeader";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const AdsManagement = () => {
   const [ads, setAds] = useState([]);
@@ -13,26 +11,19 @@ const AdsManagement = () => {
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [loading, setLoading] = useState(true);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [selectAll, setSelectAll] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   const updateAdStatus = async (approve) => {
     try {
       await Promise.all(
         selectedRows.map(async (id) => {
-          await fetch(
+          const response = await fetch(
             `https://e-service-v2s8.onrender.com/api/ads/${id}/status`,
             {
               method: "PATCH",
@@ -41,19 +32,29 @@ const AdsManagement = () => {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
               },
               body: JSON.stringify({
-                status: approve ? "Approved" : "Rejected",
+                status: approve ? "active" : "rejected", // Ensure correct status values
               }),
             }
           );
+
+          const data = await response.json();
+          console.log("API Response:", data); // Debugging
+
+          if (!response.ok) {
+            throw new Error(data.message || "Failed to update status");
+          }
         })
       );
+
+      // Update ads state after status change
       setAds((prevAds) =>
         prevAds.map((ad) =>
-          selectedRows.includes(ad.id)
-            ? { ...ad, status: approve ? "Approved" : "Rejected" }
+          selectedRows.includes(ad._id)
+            ? { ...ad, status: approve ? "active" : "rejected" }
             : ad
         )
       );
+
       setIsModalOpen(false);
       setSelectedRows([]);
       setSuccessMessage(approve ? "Successfully Approved" : "Rejected");
@@ -62,8 +63,6 @@ const AdsManagement = () => {
       console.error("Error updating ad status:", error);
     }
   };
-
-  const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchAds = async () => {
@@ -85,12 +84,10 @@ const AdsManagement = () => {
         }
 
         const data = await response.json();
-        console.log("Fetched Ads Data:", data); // ✅ Make sure data is logged only inside try block
-
-        setAds(Array.isArray(data.ads) ? data.ads : []); // ✅ Ensure data.ads exists
+        setAds(Array.isArray(data.data) ? data.data : []);
       } catch (error) {
         console.error("Error fetching ads:", error);
-        setAds([]); // ✅ Prevents breaking UI when API fails
+        setAds([]);
       } finally {
         setLoading(false);
       }
@@ -99,95 +96,162 @@ const AdsManagement = () => {
     fetchAds();
   }, []);
 
+  // Check if selected rows contain at least one pending ad
+  const selectedRowsContainPending = ads
+    .filter((ad) => selectedRows.includes(ad._id))
+    .some((ad) => ad.status === "pending");
+
   return (
     <div className="flex">
       <Sidebar />
       <div className="flex-1 p-6 md:ml-64 bg-gray-100 min-h-screen">
         <Header />
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex justify-between mb-4">
-            <input
-              type="text"
-              placeholder="Search ads..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="border p-2 rounded"
-            />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="border p-2 rounded"
+        <div className="bg-white p-4 rounded-lg shadow-md mb-4 flex flex-wrap gap-4">
+          <input
+            type="text"
+            placeholder="Search ads..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border p-2 rounded"
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="border p-2 rounded"
+          >
+            <option value="All Status">All Status</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Pending">Pending</option>
+          </select>
+          {selectedRowsContainPending ? (
+            <button
+              className="bg-green-500 text-white px-4 py-2 rounded"
+              onClick={openModal}
             >
-              <option value="All Status">All Status</option>
-              <option value="Approved">Approved</option>
-              <option value="Rejected">Rejected</option>
-              <option value="Pending">Pending</option>
-            </select>
+              Approve Ads
+            </button>
+          ) : (
             <button
               className="bg-blue-500 text-white px-4 py-2 rounded"
               onClick={() => navigate("/create-advert")}
             >
               Create Advert
             </button>
-          </div>
+          )}
+        </div>
 
+        <div className="">
           {loading ? (
             <p className="text-gray-600 text-center">Loading...</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th>User</th>
-                    <th>Product Name</th>
-                    <th>Days Remaining</th>
-                    <th>Date Submitted</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {ads.map((ad) => (
-                    <tr key={ad.id}>
-                      <td>
-                        <input
-                          type="checkbox"
-                          checked={selectedRows.includes(ad.id)}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            setSelectedRows((prev) =>
-                              prev.includes(ad.id)
-                                ? prev.filter((id) => id !== ad.id)
-                                : [...prev, ad.id]
-                            );
-                          }}
-                        />
-                      </td>
-                      <td>{ad.title}</td>
-                      <td>{ad.title}</td>
-                      <td>{ad.daysRemaining}</td>
-                      <td>{ad.createdAt}</td>
-                      <td
-                        className={
-                          ad.status === "Pending"
-                            ? "text-yellow-500"
-                            : ad.status === "Approved"
-                            ? "text-green-500"
-                            : "text-red-500"
-                        }
-                      >
-                        {ad.status}
-                      </td>
-                      <td>---</td>
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse border border-gray-200 bg-white rounded-lg shadow-md">
+                  <thead className="bg-primary text-white text-sm uppercase font-semibold">
+                    <tr className="border-b border-gray-200">
+                      <th className="p-3 text-left"></th>
+                      <th className="p-3 text-left">User</th>
+                      <th className="p-3 text-left">Product Name</th>
+                      <th className="p-3 text-left">Days Remaining</th>
+                      <th className="p-3 text-left">Date Submitted</th>
+                      <th className="p-3 text-left">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {ads.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan="6"
+                          className="text-center text-gray-500 py-4"
+                        >
+                          No ads found.
+                        </td>
+                      </tr>
+                    ) : (
+                      ads.map((ad) => (
+                        <tr
+                          key={ad._id}
+                          className="border-b border-gray-200 hover:bg-gray-50 transition cursor-pointer"
+                          onClick={() => navigate(`/ads-management/${ad._id}`)}
+                        >
+                          <td
+                            className="p-3"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedRows.includes(ad._id)}
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                setSelectedRows((prev) =>
+                                  prev.includes(ad._id)
+                                    ? prev.filter((id) => id !== ad._id)
+                                    : [...prev, ad._id]
+                                );
+                              }}
+                            />
+                          </td>
+                          <td className="p-3 whitespace-nowrap">
+                            {ad.user || "N/A"}
+                          </td>
+                          <td className="p-3 whitespace-nowrap">
+                            {ad.title || "N/A"}
+                          </td>
+                          <td className="p-3">{ad.duration ?? "N/A"} days</td>
+                          <td className="p-3">
+                            {ad.createdAt
+                              ? new Date(ad.createdAt).toLocaleDateString()
+                              : "N/A"}
+                          </td>
+                          <td
+                            className={`p-3 font-semibold ${
+                              ad.status === "pending"
+                                ? "text-yellow-500"
+                                : ad.status === "active"
+                                ? "text-green-500"
+                                : "text-red-500"
+                            }`}
+                          >
+                            {ad.status || "Pending"}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </div>
       </div>
+
+      {/* Approval Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg text-center">
+            <p className="mb-4 text-lg font-semibold">
+              Are you sure you want to approve or reject these ads?
+            </p>
+            <button
+              className="bg-green-500 text-white px-4 py-2 rounded mr-2"
+              onClick={() => updateAdStatus(true)}
+            >
+              Approve
+            </button>
+            <button
+              className="bg-red-500 text-white px-4 py-2 rounded"
+              onClick={() => updateAdStatus(false)}
+            >
+              Reject
+            </button>
+            <button className="absolute top-2 right-2" onClick={closeModal}>
+              <IoMdClose size={24} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
