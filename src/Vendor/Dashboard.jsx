@@ -44,78 +44,53 @@ function VendorDashboard() {
   };
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch(
-          "https://e-service-v2s8.onrender.com/api/products"
-        );
-        const data = await response.json();
+    const fetchData = async () => {
+      const token = localStorage.getItem("accessToken");
+      const userId = localStorage.getItem("userId"); // Ensure userId is stored in localStorage
 
-        if (response.ok) {
-          setProducts(data.products || []);
-        } else {
-          throw new Error(data.message || "Failed to fetch products");
-        }
+      if (!token || !userId) {
+        console.error(
+          "Authentication token or userId missing. Redirecting to login."
+        );
+        return;
+      }
+
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      };
+
+      try {
+        // Fetch all vendor details from /api/report
+        const reportRes = await fetch(
+          `https://e-service-v2s8.onrender.com/api/report?vendorId=${userId}`,
+          { headers }
+        );
+
+        if (!reportRes.ok) throw new Error("Failed to fetch vendor report");
+
+        const reportData = await reportRes.json();
+
+        // Update vendor data
+        setVendorData({
+          totalProducts: reportData.userTotalProducts || 0,
+          activeAds: reportData.totalActiveCount || 0,
+          impressions: reportData.totalImpressions || 0,
+          availableCredits: reportData.creditBalance || 0,
+        });
+
+        // Update product list
+        setProducts(reportData.vendorProducts || []);
       } catch (err) {
-        console.error("Error fetching products:", err);
+        console.error("Error fetching vendor data:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProducts();
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const token = localStorage.getItem("accessToken"); // Retrieve token
-  
-      if (!token) {
-        console.error("No authentication token found. Redirecting to login.");
-        return; // Optionally redirect to login page
-      }
-  
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      };
-  
-      try {
-        // Fetch Products
-        const productsRes = await fetch("https://e-service-v2s8.onrender.com/api/products", { headers });
-        if (!productsRes.ok) throw new Error("Failed to fetch products");
-        const productsData = await productsRes.json();
-  
-        // Fetch Active Ads
-        const adsRes = await fetch("https://e-service-v2s8.onrender.com/api/ads", { headers });
-        if (!adsRes.ok) throw new Error("Failed to fetch active ads");
-        const adsData = await adsRes.json();
-  
-        // Fetch Available Credits
-        const creditsRes = await fetch("https://e-service-v2s8.onrender.com/api/credits/balance", { headers });
-        if (!creditsRes.ok) throw new Error("Failed to fetch available credits");
-        const creditsData = await creditsRes.json();
-  
-        // Update vendor data
-        setVendorData({
-          totalProducts: productsData.total || 0,
-          activeAds: adsData.totalActive || 0,
-          impressions: 0, // If there's an endpoint for impressions, fetch it
-          availableCredits: creditsData.balance || 0,
-        });
-  
-      } catch (err) {
-        console.error("Error fetching vendor data:", err);
-        if (err.message.includes("401") || err.message.includes("403")) {
-          // Handle unauthorized access (redirect to login, show error message, etc.)
-          console.warn("Unauthorized access. Redirecting to login...");
-        }
-      }
-    };
-  
     fetchData();
   }, []);
-  
+
   return (
     <Layout>
       <div className="flex flex-col min-h-screen p-2">

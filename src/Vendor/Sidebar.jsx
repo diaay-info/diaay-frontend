@@ -42,12 +42,9 @@ function Sidebar() {
           <FaTimes />
         </button>
 
-        {/* Sidebar Header */}
-        <img src="/llogo.png" className="w-[8rem]" />
-
         {/* Navigation Links */}
         <div
-          className={`fixed top-0 left-0 h-screen bg-white shadow-lg p-4 w-64 transform ${
+          className={` fixed top-0 left-0 h-screen p-4 w-64 transform ${
             isOpen ? "translate-x-0" : "-translate-x-64"
           } transition-transform lg:translate-x-0 lg:w-64 z-40 overflow-y-auto`}
         >
@@ -127,15 +124,16 @@ function Sidebar() {
               <FaSignOutAlt className="mr-3" /> Logout
             </NavLink>
           </nav>
-        </div>
-
-        {/* Promo Section */}
+          {/* Promo Section */}
         <div className="mt-8 bg-purple-500 text-white p-4 rounded-lg text-center">
           <p>Promote your products with targeted ads.</p>
           <button className="mt-2 bg-white text-purple-500 px-4 py-2 rounded-lg">
             Advertise now
           </button>
         </div>
+        </div>
+
+        
       </aside>
 
       {/* Overlay (When Sidebar is Open) */}

@@ -46,7 +46,7 @@ function Logout() {
     <Layout>
       <div className="flex min-h-screen p-2">
         <main className="flex-1">
-          <div className="flex flex-col items-center justify-center h-screen bg-white shadow-md rounded-lg ">
+          <div className="flex flex-col items-center justify-center h-[28rem] bg-white shadow-md rounded-lg ">
             <div className="mb-2 bg-gray-400 rounded-full flex items-center p-4">
               <CiLogout className="text-black" />
             </div>

@@ -9,6 +9,7 @@ const ProductPage = () => {
   const location = useLocation();
   const [loading, setLoading] = useState(true); // Track loading state
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [error, setError] = useState(null);
   const [selectAll, setSelectAll] = useState(false); // Track "Select All" checkbox state
 
   const [vendorData, setVendorData] = useState({
@@ -57,14 +58,22 @@ const ProductPage = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
+      const token = localStorage.getItem("accessToken");
       try {
         const response = await fetch(
-          "https://e-service-v2s8.onrender.com/api/products"
+          "https://e-service-v2s8.onrender.com/api/report",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
         const data = await response.json();
 
         if (response.ok) {
-          setProducts(data.products || []); // Set fetched products
+          setProducts(data.vendorProducts || []); // Set fetched products
         } else {
           throw new Error(data.message || "Failed to fetch products");
         }
@@ -87,7 +96,6 @@ const ProductPage = () => {
             <Addproducts onProductAdded={handleProductAdded} />
           ) : (
             <div>
-              
               {/* Top Bar */}
               <div className="flex flex-col sm:flex-row sm:justify-between text-sm bg-white p-4 rounded-lg shadow-sm space-y-2 sm:space-y-0">
                 <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
@@ -155,9 +163,21 @@ const ProductPage = () => {
                           <td className="p-2 border-b text-[#7C0DEA]">
                             {product.price} CFA
                           </td>
-                          <td className="p-2 border-b text-green-600">
-                            Active
+                          <td
+                            className={`p-2 border-b ${
+                              product.status === "active"
+                                ? "text-green-600"
+                                : product.status === "expired"
+                                ? "text-red-500"
+                                : "text-yellow-500"
+                            }`}
+                          >
+                            {product.status
+                              ? product.status.charAt(0).toUpperCase() +
+                                product.status.slice(1)
+                              : "N/A"}
                           </td>
+
                           <td className="p-2 border-b">
                             {product.createdAt
                               ? new Date(product.createdAt).toLocaleDateString()

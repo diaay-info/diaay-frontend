@@ -117,8 +117,8 @@ const Dashboard = () => {
 
 // Stats Box Component
 const StatBox = ({ title, value }) => (
-  <div className="p-4 bg-white shadow-md rounded-lg text-center">
-    <p className="text-gray-600">{title}</p>
+  <div className="p-4 bg-purple-600 text-white shadow-md rounded-lg text-center">
+    <p className="text-white">{title}</p>
     <h3 className="text-2xl font-bold">{value}</h3>
   </div>
 );

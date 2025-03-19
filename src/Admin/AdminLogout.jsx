@@ -55,7 +55,7 @@ function Logout() {
       <div className="flex-1 p-6 md:ml-64 bg-gray-100 min-h-screen">
         <Header />
         <main className="flex-1 p-4">
-          <div className="flex flex-col items-center justify-center h-screen bg-white shadow-md rounded-lg mt-4">
+          <div className="flex flex-col items-center justify-center h-[28rem] bg-white shadow-md rounded-lg ">
             <div className="mb-2 bg-gray-400 rounded-full flex items-center p-4">
               <CiLogout className="text-black" />
             </div>
@@ -73,7 +73,7 @@ function Logout() {
             </button>
             <button
               onClick={() => navigate(-1)}
-              className="border border-gray-500 p-2 w-60 mt-3 rounded-2xl text-black"
+              className="border p-2 w-60 mt-3 rounded-2xl text-black"
             >
               Cancel
             </button>

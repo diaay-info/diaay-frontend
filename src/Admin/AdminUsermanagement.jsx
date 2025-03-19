@@ -66,7 +66,6 @@ const UserManagement = () => {
 
     return matchesSearch && matchesRole && matchesStatus;
   });
-  
 
   // Pagination logic
   const totalPages = Math.max(
@@ -133,7 +132,7 @@ const UserManagement = () => {
               <div className="bg-white p-6 rounded-lg shadow-md">
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead>
+                    <thead className="bg-primary text-white">
                       <tr>
                         <th className="border-b border-gray-300 p-3 text-left">
                           Name
@@ -145,13 +144,10 @@ const UserManagement = () => {
                           Role
                         </th>
                         <th className="border-b border-gray-300 p-3 text-left">
-                          Status
-                        </th>
-                        <th className="border-b border-gray-300 p-3 text-left">
                           Date Created
                         </th>
                         <th className="border-b border-gray-300 p-3 text-left">
-                          More
+                          Status
                         </th>
                       </tr>
                     </thead>
@@ -159,10 +155,7 @@ const UserManagement = () => {
                       {paginatedUsers.map((user) => (
                         <tr key={user.id} className="hover:bg-gray-100">
                           <td className="border-b border-gray-300 text-sm p-3">
-                            <Link
-                              to={`/admin/users/${user._id}`}
-                              className="text-blue-600 hover:underline"
-                            >
+                            <Link to={`/admin/users/${user._id}`} className="">
                               {user.fullName}
                             </Link>
                           </td>
@@ -172,24 +165,22 @@ const UserManagement = () => {
                           <td className="border-b border-gray-300 text-sm p-3">
                             {user.role}
                           </td>
-                          <td className="border-b border-gray-300 text-sm p-3">
-                            <span
-                              className={`px-5 py-1 rounded text-xs font-semibold ${
-                                user.status.toLowerCase() === "active"
-                                  ? "bg-green-100 text-green-600"
-                                  : user.status.toLowerCase() === "inactive"
-                                  ? "bg-red-100 text-red-600"
-                                  : "bg-yellow-100 text-yellow-600"
-                              }`}
-                            >
-                              {user.status}
-                            </span>
-                          </td>
+
                           <td className="border-b border-gray-300 text-sm p-3">
                             {new Date(user.createdAt).toLocaleDateString()}
                           </td>
                           <td className="border-b border-gray-300 text-sm p-3">
-                            <FaEllipsisH className="ml-2 cursor-pointer" />
+                            <span
+                              className={`px-5 py-1 rounded text-xs  ${
+                                user.status.toLowerCase() === "active"
+                                  ? "bg-green-100 text-green-600"
+                                  : user.status.toLowerCase() === "inactive"
+                                  ? "bg-red-100 text-red-600"
+                                  : "bg-yellow-100 text-black"
+                              }`}
+                            >
+                              {user.status}
+                            </span>
                           </td>
                         </tr>
                       ))}

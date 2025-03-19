@@ -22,8 +22,11 @@ import UserDetails from "./Admin/UserDetails.jsx";
 import AdminAds from "./Admin/AdminAds.jsx";
 import AdminSettings from "./Admin/AdminSettings.jsx";
 import AdminLogout from "./Admin/AdminLogout.jsx";
+import AdminFinance from "./Admin/AdminFinance.jsx";
 import SelectProductForAd from "./Vendor/SelectProductForAd.jsx";
 import CreateAd from "./Vendor/CreateAd.jsx";
+import FinanceDetails from "./Admin/FinanceDetails.jsx";
+import CreditDetails from "./Admin/CreditDetails.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -49,6 +52,10 @@ createRoot(document.getElementById("root")).render(
         <Route path="/admin/users" element={<AdminUsermanagement />} />
         <Route path="/admin/users/:id" element={<UserDetails />} />
         <Route path="/admin/ads" element={<AdminAds />} />
+        <Route path="/admin/finance" element={<AdminFinance />} />
+        <Route path="/finance/:type" element={<FinanceDetails />} />
+        <Route path="/admin/finance/credit/:id" element={<CreditDetails />} />
+
         <Route path="/admin/settings" element={<AdminSettings />} />
         <Route path="/admin/logout" element={<AdminLogout />} />
       </Routes>

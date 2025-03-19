@@ -43,9 +43,18 @@ const Ads = () => {
   // Fetch Ads
   useEffect(() => {
     const fetchAds = async () => {
+      const token = localStorage.getItem("accessToken");
+
       try {
         const response = await fetch(
-          "https://e-service-v2s8.onrender.com/api/ads"
+          "https://e-service-v2s8.onrender.com/api/ads/my-ads",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
         const data = await response.json();
 
@@ -213,31 +222,49 @@ const Ads = () => {
                   </thead>
                   <tbody>
                     {filteredAds.length > 0 ? (
-                      filteredAds.map((ad) => (
-                        <tr key={ad._id} className="border-t">
-                          <td className="p-2 border-b">
-                            <input
-                              type="checkbox"
-                              checked={selectedAds.includes(ad._id)}
-                              onChange={() => handleAdSelect(ad._id)}
-                            />
-                          </td>
-                          <td className="p-2 border-b">{ad.name}</td>
-                          <td className="p-2 border-b">{ad.impressions}</td>
-                          <td className="p-2 border-b text-[#7C0DEA]">
-                            {ad.price} CFA
-                          </td>
-                          <td
-                            className={`p-2 border-b ${
-                              isAdExpired(ad)
-                                ? "text-red-500"
-                                : "text-green-600"
-                            }`}
-                          >
-                            {isAdExpired(ad) ? "Expired" : "Active"}
-                          </td>
-                        </tr>
-                      ))
+                      filteredAds.map((ad) => {
+                        const expiryDate = new Date(
+                          ad.expiresAt
+                        ).toLocaleDateString();
+                        const createdDate = new Date(
+                          ad.createdAt
+                        ).toLocaleDateString();
+
+                        // Determine status color
+                        let statusColor = "text-gray-600"; // Default color
+                        if (ad.status === "active")
+                          statusColor = "text-green-600";
+                        else if (ad.status === "expired")
+                          statusColor = "text-red-500";
+                        else if (ad.status === "pending")
+                          statusColor = "text-yellow-500";
+
+                        return (
+                          <tr key={ad._id} className="border-t">
+                            <td className="p-2 border-b">
+                              <input
+                                type="checkbox"
+                                checked={selectedAds.includes(ad._id)}
+                                onChange={() => handleAdSelect(ad._id)}
+                              />
+                            </td>
+                            <td className="p-2 border-b">
+                              {ad.productId.name}
+                            </td>
+                            <td className="p-2 border-b">N/A</td>{" "}
+                            {/* Since no impressions field exists */}
+                            <td className="p-2 border-b text-[#7C0DEA]">
+                              {ad.productId.price} CFA
+                            </td>
+                            <td className={`p-2 border-b ${statusColor}`}>
+                              {ad.status.charAt(0).toUpperCase() +
+                                ad.status.slice(1)}
+                            </td>
+                            <td className="p-2 border-b">{createdDate}</td>
+                            <td className="p-2 border-b">{expiryDate}</td>
+                          </tr>
+                        );
+                      })
                     ) : (
                       <tr>
                         <td colSpan="7" className="text-center p-4">

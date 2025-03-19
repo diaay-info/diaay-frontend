@@ -111,16 +111,17 @@ const SignUpForm = () => {
         );
 
         if (response.ok) {
+          localStorage.setItem("isNewUser", "true"); // Store a flag indicating a new user
           localStorage.setItem("phoneNumber", formData.phoneNumber);
-          const data = await response.json(); // Extract response data
+          const data = await response.json();
 
-          // Store necessary user data in localStorage
           localStorage.setItem("accessToken", data.accessToken);
           localStorage.setItem("refreshToken", data.refreshToken);
           localStorage.setItem("userId", data.user.id);
           localStorage.setItem("userEmail", data.user.email);
           localStorage.setItem("userRole", data.user.role);
           localStorage.setItem("userPhoneVerified", data.user.phoneVerified);
+
           navigate("/dashboard");
         } else {
           console.log("Form submission failed");
