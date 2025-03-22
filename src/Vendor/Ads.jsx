@@ -213,7 +213,7 @@ const Ads = () => {
                         />
                       </th>
                       <th className="p-2 border-b">Product Name</th>
-                      <th className="p-2 border-b">Impressions</th>
+                      <th className="p-2 border-b">Category</th>
                       <th className="p-2 border-b">Price</th>
                       <th className="p-2 border-b">Ads Status</th>
                       <th className="p-2 border-b">Date Added</th>
@@ -249,12 +249,12 @@ const Ads = () => {
                               />
                             </td>
                             <td className="p-2 border-b">
-                              {ad.productId.name}
+                              {ad.title}
                             </td>
-                            <td className="p-2 border-b">N/A</td>{" "}
+                            <td className="p-2 border-b">{ad.category}</td>{" "}
                             {/* Since no impressions field exists */}
                             <td className="p-2 border-b text-[#7C0DEA]">
-                              {ad.productId.price} CFA
+                              {ad.price} CFA
                             </td>
                             <td className={`p-2 border-b ${statusColor}`}>
                               {ad.status.charAt(0).toUpperCase() +

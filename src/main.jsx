@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./index.css";
 import App from "./App.jsx";
 import About from "./About.jsx";
+import AdDetailss from "./AdDetails.jsx";
 import Signup1 from "./Registration/Signup1.jsx";
 import Verify from "./Registration/Verify.jsx";
 import Login from "./Registration/Login.jsx";
@@ -28,6 +29,7 @@ import CreateAd from "./Vendor/CreateAd.jsx";
 import FinanceDetails from "./Admin/FinanceDetails.jsx";
 import CreditDetails from "./Admin/CreditDetails.jsx";
 import AdDetails from "./Admin/AdDetails.jsx";
+import AdminNotification from "./Admin/AdminNotification.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -39,6 +41,7 @@ createRoot(document.getElementById("root")).render(
         <Route path="/verify" element={<Verify />} />
         <Route path="/login" element={<Login />} />
         <Route path="/password" element={<Forgotpassword />} />
+        <Route path="/ads/:adId" element={<AdDetails />} />
         <Route path="/recovery" element={<Recovery />} />
         <Route path="/reset" element={<ResetPassword />} />
         <Route path="/dashboard" element={<VendorDashboard />} />
@@ -53,11 +56,11 @@ createRoot(document.getElementById("root")).render(
         <Route path="/admin/users" element={<AdminUsermanagement />} />
         <Route path="/admin/users/:id" element={<UserDetails />} />
         <Route path="/admin/ads" element={<AdminAds />} />
-        <Route path="/ads-management/:id" element={<AdDetails />} />
+        <Route path="/ads-management/:id" element={<AdDetailss />} />
         <Route path="/admin/finance" element={<AdminFinance />} />
         <Route path="/finance/:type" element={<FinanceDetails />} />
         <Route path="/admin/finance/credit/:id" element={<CreditDetails />} />
-
+        <Route path="/admin/notifications" element={<AdminNotification />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
         <Route path="/admin/logout" element={<AdminLogout />} />
       </Routes>

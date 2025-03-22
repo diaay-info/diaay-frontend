@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 function Footer() {
   return (
@@ -19,9 +20,13 @@ function Footer() {
           {/* Company Links */}
           <div className="space-y-4 w-[45%] md:w-auto">
             <h1 className="font-medium text-base">Company</h1>
-            <p className="font-normal text-sm text-gray-400 cursor-pointer hover:text-black">
+            <Link
+              to="/about"
+              className="font-normal text-sm text-gray-400 cursor-pointer hover:text-black"
+            >
               About us
-            </p>
+            </Link>
+
             <p className="font-normal text-sm text-gray-400 cursor-pointer hover:text-black">
               How it works
             </p>

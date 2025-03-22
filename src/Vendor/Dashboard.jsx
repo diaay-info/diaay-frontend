@@ -74,7 +74,7 @@ function VendorDashboard() {
         // Update vendor data
         setVendorData({
           totalProducts: reportData.userTotalProducts || 0,
-          activeAds: reportData.totalActiveCount || 0,
+          activeAds: reportData.userTotalProductsAds || 0,
           impressions: reportData.totalImpressions || 0,
           availableCredits: reportData.creditBalance || 0,
         });
@@ -134,7 +134,7 @@ function VendorDashboard() {
                   <th className="p-2 border-b">Product Name</th>
                   <th className="p-2 border-b">Category</th>
                   <th className="p-2 border-b">Price</th>
-                  <th className="p-2 border-b">Ads Status</th>
+                  <th className="p-2 border-b">Status</th>
                   <th className="p-2 border-b">Date Added</th>
                 </tr>
               </thead>

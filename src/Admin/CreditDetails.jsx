@@ -113,7 +113,7 @@ const CreditDetails = () => {
                 <strong>Status:</strong>{" "}
                 <span
                   className={`px-3 py-1 rounded ${
-                    credit.status === "approved"
+                    credit.status === "completed"
                       ? "bg-green-500 text-white"
                       : credit.status === "pending"
                       ? "bg-yellow-500 text-white"
@@ -127,13 +127,13 @@ const CreditDetails = () => {
             <div className="bg-white p-6 rounded-md shadow-md space-y-4 w-[50%]">
               <div className="flex gap-4">
                 <button
-                  onClick={() => updateStatus("approved")}
+                  onClick={() => updateStatus("completed")}
                   className="px-4 py-2 bg-primary text-white rounded"
                 >
                   Approve Payment
                 </button>
                 <button
-                  onClick={() => updateStatus("rejected")}
+                  onClick={() => updateStatus("failed")}
                   className="px-4 py-2 border border-black text-black rounded"
                 >
                   Reject Payment

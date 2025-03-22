@@ -10,7 +10,11 @@ const CreateAd = () => {
   const [selectedDuration, setSelectedDuration] = useState(7);
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [modal, setModal] = useState({ show: false, success: false, message: "" });
+  const [modal, setModal] = useState({
+    show: false,
+    success: false,
+    message: "",
+  });
 
   const token = localStorage.getItem("accessToken");
 
@@ -49,25 +53,44 @@ const CreateAd = () => {
 
     const adCost = selectedDuration === 7 ? 1 : selectedDuration === 14 ? 2 : 3;
     if (credits < adCost) {
-      setModal({ show: true, success: false, message: "Insufficient credits!" });
+      setModal({
+        show: true,
+        success: false,
+        message: "Insufficient credits!",
+      });
       return;
     }
 
     setIsLoading(true); // Start loader
 
-    const adData = { productId, duration: selectedDuration, cost: adCost, title: product.name };
+    const adData = {
+      productId,
+      duration: selectedDuration,
+      cost: adCost,
+      title: product.name,
+    };
 
     try {
-      const response = await fetch("https://e-service-v2s8.onrender.com/api/ads", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify(adData),
-      });
+      const response = await fetch(
+        "https://e-service-v2s8.onrender.com/api/ads",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(adData),
+        }
+      );
 
       const result = await response.json();
 
       if (response.ok) {
-        setModal({ show: true, success: true, message: "Ad created successfully!" });
+        setModal({
+          show: true,
+          success: true,
+          message: "Ad created successfully!",
+        });
       } else {
         throw new Error(result.message || "Failed to create ad.");
       }
@@ -120,12 +143,15 @@ const CreateAd = () => {
           <div className="bg-white p-6">
             <h2 className="text-xl font-semibold mb-4">Product Overview</h2>
             <div className="flex items-start gap-6">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-36 h-36 object-cover rounded-lg"
-                onError={(e) => (e.target.src = "/placeholder.jpg")}
-              />
+              {/* Display the first image as the main product image */}
+              {product.images && product.images.length > 0 && (
+                <img
+                  src={product.images[0]} // Use the first image in the array
+                  alt={product.name}
+                  className="w-36 h-36 object-cover rounded-lg"
+                  onError={(e) => (e.target.src = "/placeholder.jpg")} // Fallback for broken images
+                />
+              )}
               <div className="text-lg">
                 <p>
                   <strong>Title:</strong> {product.name}
@@ -140,10 +166,12 @@ const CreateAd = () => {
                   <strong>Price:</strong> {product.price} CFA
                 </p>
                 <p>
-                  <strong>Location:</strong> {product.location}
+                  <strong>Location:</strong> {product.state}
                 </p>
               </div>
             </div>
+
+           
 
             {/* Ad Duration Selection */}
             <div className="mt-8">

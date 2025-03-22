@@ -45,8 +45,8 @@ const FinanceDetails = () => {
   const filteredTransactions = transactions.filter((transaction) => {
     if (type === "total-credits") return true;
     if (type === "pending-credits") return transaction.status === "pending";
-    if (type === "approved-credits") return transaction.status === "approved";
-    if (type === "rejected-credits") return transaction.status === "rejected";
+    if (type === "approved-credits") return transaction.status === "completed";
+    if (type === "failed-credits") return transaction.status === "failed";
     return false;
   });
 
@@ -77,9 +77,9 @@ const FinanceDetails = () => {
             <table className="w-full bg-white shadow-md rounded-lg">
               <thead>
                 <tr className="border-b">
-                  <th className="p-3 text-left">Name</th>
-                  <th className="p-3 text-left">Type</th>
+                  <th className="p-3 text-left">Email</th>
                   <th className="p-3 text-left">Amount</th>
+                  <th className="border-b p-3 text-left">Payment Method</th>
                   <th className="p-3 text-left">Date</th>
                   <th className="p-3 text-left">Status</th>
                 </tr>
@@ -93,10 +93,10 @@ const FinanceDetails = () => {
                       navigate(`/admin/finance/credit/${transaction._id}`)
                     }
                   >
-                    <td className="p-3">{transaction.name}</td>
-                    <td className="p-3">{transaction.type}</td>
-                    <td className="p-3">
-                      {transaction.amount}
+                    <td className="p-3">{transaction.userId.email}</td>
+                    <td className="p-3">{transaction.amount}</td>
+                    <td className="border-b p-3">
+                      {transaction.paymentMethod}
                     </td>
                     <td className="p-3">
                       {new Date(transaction.createdAt).toLocaleDateString()}

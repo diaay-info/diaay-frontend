@@ -1,19 +1,79 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Header from "./Component/Header";
 import Footer from "./Component/Footer";
+import { FaLongArrowAltRight } from "react-icons/fa";
+import { MdFilterList } from "react-icons/md";
 import {
-  FaLongArrowAltRight,
+  FaHeart,
+  FaRegHeart,
   FaChevronDown,
   FaChevronUp,
 } from "react-icons/fa";
-import { MdFilterList } from "react-icons/md";
 
 const HomePage = () => {
   const [activeIndex, setActiveIndex] = useState(null);
 
   const toggleFAQ = (index) => {
     setActiveIndex(activeIndex === index ? null : index);
+  };
+
+  const [ads, setAds] = useState([]);
+  const [featuredAds, setFeaturedAds] = useState([]);
+  const [favorites, setFavorites] = useState([]);
+
+  // Fetch Ads from API
+  useEffect(() => {
+    const fetchAds = async () => {
+      try {
+        const response = await fetch(
+          "https://e-service-v2s8.onrender.com/api/ads"
+        );
+        const data = await response.json();
+
+        console.log("API Response:", data); // Debugging line
+
+        if (response.ok) {
+          // Ensure data is an array before filtering
+          const adsArray = Array.isArray(data) ? data : data.ads || [];
+          const activeAds = adsArray.filter((ad) => ad.status === "active");
+          setAds(activeAds);
+          setFeaturedAds(getRandomAds(activeAds, 4));
+        } else {
+          console.error("Error fetching ads:", data);
+        }
+      } catch (error) {
+        console.error("Error fetching ads:", error);
+      }
+    };
+
+    fetchAds();
+  }, []);
+
+  // Function to get random ads
+  const getRandomAds = (ads, count) => {
+    const shuffled = [...ads].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  };
+
+  // Automatically update featured ads every 5 seconds
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (ads.length > 0) {
+  //       setFeaturedAds(getRandomAds(ads, 4));
+  //     }
+  //   }, 5000);
+
+  //   return () => clearInterval(interval);
+  // }, [ads]);
+
+  // Toggle favorite status
+  const toggleFavorite = (ad) => {
+    setFavorites((prev) =>
+      prev.some((fav) => fav._id === ad._id)
+        ? prev.filter((fav) => fav._id !== ad._id)
+        : [...prev, ad]
+    );
   };
 
   const faqs = [
@@ -130,7 +190,7 @@ const HomePage = () => {
           {/* Categories Section */}
           <section className="mt-8">
             <h2 className="text-xl font-semibold mb-4">Categories</h2>
-            <hr/>
+            <hr />
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-5">
               {[
                 { name: "Vehicles", image: "/categories/car.png" },
@@ -159,27 +219,47 @@ const HomePage = () => {
 
           {/* Featured Ads Section */}
           <section className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">Featured ads</h2>
+            <h2 className="text-xl font-semibold mb-4">Featured Ads</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-              {Array(12)
-                .fill(0)
-                .map((_, index) => (
-                  <div
-                    key={index}
-                    className="bg-white rounded-lg shadow-md overflow-hidden"
+              {featuredAds.length > 0 ? (
+                featuredAds.map((ad) => (
+                  <Link
+                    key={ad._id}
+                    to={`/ads/${ad._id}`} // Navigate to ad details page
+                    className="bg-white rounded-lg shadow-md overflow-hidden relative"
                   >
+                    {/* Love Icon */}
+                    <button
+                      className="absolute top-2 right-2 text-red-500 text-xl"
+                      onClick={(e) => {
+                        e.preventDefault(); // Prevent navigation when clicking the heart
+                        toggleFavorite(ad);
+                      }}
+                    >
+                      {favorites.some((fav) => fav._id === ad._id) ? (
+                        <FaHeart />
+                      ) : (
+                        <FaRegHeart />
+                      )}
+                    </button>
+
                     <img
-                      src="/watch.png"
-                      alt="Featured"
+                      src={ad.image || "/placeholder.png"}
+                      alt={ad.title}
                       className="w-full h-40 object-cover"
                     />
                     <div className="p-4">
-                      <h3 className="text-lg font-semibold">Apple Watch</h3>
-                      <p className="text-sm text-gray-600">Accra, Ghana</p>
-                      <p className="text-primary font-bold">CFA 300,000</p>
+                      <h3 className="text-lg font-semibold">{ad.title}</h3>
+                      <p className="text-sm text-gray-600">{ad.location}</p>
+                      <p className="text-primary font-bold">
+                        CFA {ad.productId.price}
+                      </p>
                     </div>
-                  </div>
-                ))}
+                  </Link>
+                ))
+              ) : (
+                <p>Loading ads...</p>
+              )}
             </div>
           </section>
 
@@ -224,7 +304,7 @@ const HomePage = () => {
                 Discover how our features can help you advertise and start
                 earning with referrals.
               </p>
-              <Link to="/vendor">
+              <Link to="/start">
                 <div className="flex items-center gap-5 p-2 mx-auto rounded-3xl w-[12rem] bg-primary cursor-pointer">
                   <p className="font-medium">Become a vendor</p>
                   <div className="bg-white text-primary rounded-full p-1">

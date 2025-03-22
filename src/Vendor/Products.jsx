@@ -11,17 +11,19 @@ const ProductPage = () => {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [error, setError] = useState(null);
   const [selectAll, setSelectAll] = useState(false); // Track "Select All" checkbox state
+  const [showActions, setShowActions] = useState(null); // Track which product's actions are visible
 
   const [vendorData, setVendorData] = useState({
     totalProducts: 0,
   });
+
   // Function to handle selecting a single product
   const handleProductSelect = (productId) => {
     setSelectedProducts(
       (prevSelected) =>
         prevSelected.includes(productId)
           ? prevSelected.filter((id) => id !== productId)
-          : [productId] // Single selection mode
+          : [...prevSelected, productId] // Allow multiple selection
     );
   };
 
@@ -54,6 +56,42 @@ const ProductPage = () => {
       },
     ]);
     setIsAddProduct(false); // Hide the form after adding a product
+  };
+
+  // Function to toggle the "more" actions for a product
+  const toggleActions = (productId) => {
+    setShowActions((prev) => (prev === productId ? null : productId));
+  };
+
+  // Function to delete a product
+  const handleDeleteProduct = async (productId) => {
+    const token = localStorage.getItem("accessToken");
+    try {
+      const response = await fetch(
+        `https://e-service-v2s8.onrender.com/api/products/${productId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        // Remove the deleted product from the list
+        setProducts((prevProducts) =>
+          prevProducts.filter((product) => product._id !== productId)
+        );
+        // Remove the product from the selected list if it was selected
+        setSelectedProducts((prevSelected) =>
+          prevSelected.filter((id) => id !== productId)
+        );
+      } else {
+        throw new Error("Failed to delete product");
+      }
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   useEffect(() => {
@@ -91,7 +129,7 @@ const ProductPage = () => {
     <Layout>
       <div className="flex min-h-screen p-2">
         {/* Main Content */}
-        <main className="flex-1 ">
+        <main className="flex-1">
           {isAddProduct || isAddProductPage ? (
             <Addproducts onProductAdded={handleProductAdded} />
           ) : (
@@ -143,8 +181,9 @@ const ProductPage = () => {
                       <th className="p-2 border-b">Product Name</th>
                       <th className="p-2 border-b">Category</th>
                       <th className="p-2 border-b">Price</th>
-                      <th className="p-2 border-b">Ads Status</th>
+                      <th className="p-2 border-b">Status</th>
                       <th className="p-2 border-b">Date Added</th>
+                      <th className="p-2 border-b">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -177,16 +216,41 @@ const ProductPage = () => {
                                 product.status.slice(1)
                               : "N/A"}
                           </td>
-
                           <td className="p-2 border-b">
                             {product.createdAt
                               ? new Date(product.createdAt).toLocaleDateString()
                               : "N/A"}
                           </td>
-                          <td className="p-2 border-b">
-                            <button className="text-gray-600 hover:text-black">
+                          <td className="p-2 border-b relative">
+                            <button
+                              onClick={() => toggleActions(product._id)}
+                              className="text-gray-600 hover:text-black"
+                            >
                               &#8942;
                             </button>
+                            {showActions === product._id && (
+                              <div className="absolute right-0 mt-2 w-24 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                                <button
+                                  onClick={() => {
+                                    // Handle view action
+                                    console.log("View:", product._id);
+                                    setShowActions(null);
+                                  }}
+                                  className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                >
+                                  View
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    handleDeleteProduct(product._id);
+                                    setShowActions(null);
+                                  }}
+                                  className="block w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            )}
                           </td>
                         </tr>
                       ))

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FaCheckCircle, FaPlus, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
-const Addproducts = ({ onProductAdded }) => {
+const AddProducts = ({ onProductAdded }) => {
   const [productName, setProductName] = useState("");
   const [productDescription, setProductDescription] = useState("");
   const [productPrice, setProductPrice] = useState("");
@@ -10,28 +10,27 @@ const Addproducts = ({ onProductAdded }) => {
   const [productCategory, setProductCategory] = useState("");
   const [productCountry, setProductCountry] = useState("");
   const [productState, setProductState] = useState("");
-  const [imageFiles, setImageFiles] = useState([]);
+  const [imageFiles, setImageFiles] = useState([]); // Store Base64 strings instead of files
   const [features, setFeatures] = useState([]);
   const [newFeature, setNewFeature] = useState({ name: "", value: "" });
   const [errorMessage, setErrorMessage] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+
   const navigate = useNavigate();
 
-  // Sample categories
   const categories = [
     "Electronics",
     "Clothing",
     "Furniture",
     "Vehicles",
+    "Beauty",
     "Others",
   ];
 
-  // Handle feature input change
   const handleFeatureChange = (e, field) => {
     setNewFeature({ ...newFeature, [field]: e.target.value });
   };
 
-  // Add a new feature
   const addFeature = () => {
     if (newFeature.name && newFeature.value) {
       setFeatures([...features, newFeature]);
@@ -39,56 +38,113 @@ const Addproducts = ({ onProductAdded }) => {
     }
   };
 
-  // Remove a feature
   const removeFeature = (index) => {
-    const updatedFeatures = features.filter((_, i) => i !== index);
-    setFeatures(updatedFeatures);
+    setFeatures(features.filter((_, i) => i !== index));
   };
 
-  // Handle image upload
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-
     if (imageFiles.length + files.length > 3) {
       setErrorMessage("You can only upload up to 3 images.");
       return;
     }
 
-    setImageFiles([...imageFiles, ...files]);
+    // Convert each file to a Base64 string
+    const promises = files.map((file) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          resolve(reader.result); // Resolve with the Base64 string
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    });
+
+    // Wait for all files to be converted
+    Promise.all(promises)
+      .then((base64Strings) => {
+        setImageFiles([...imageFiles, ...base64Strings]); // Store Base64 strings
+      })
+      .catch((error) => {
+        setErrorMessage("Failed to process images. Please try again.");
+        console.error("Error converting images to Base64:", error);
+      });
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
+  const removeImage = (index) => {
+    setImageFiles(imageFiles.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage("");
 
     if (
       !productName ||
       !productPrice ||
       !productCategory ||
-      !productCountry ||
-      !productState ||
+      !productDescription ||
       imageFiles.length === 0
     ) {
       setErrorMessage("All fields including an image are required.");
       return;
     }
 
-    setShowSuccessModal(true);
-    onProductAdded({ name: productName });
+    const productData = {
+      name: productName,
+      description: productDescription,
+      price: Number(productPrice),
+      stock: Number(productStock),
+      category: productCategory,
+      country: productCountry,
+      state: productState,
+      images: imageFiles, // Send Base64 strings directly
+      features: features,
+    };
 
-    setProductName("");
-    setProductDescription("");
-    setProductPrice("");
-    setProductStock("");
-    setProductCategory("");
-    setProductCountry("");
-    setProductState("");
-    setImageFiles([]);
-    setFeatures([]);
+    const token = localStorage.getItem("accessToken");
+
+    try {
+      const response = await fetch(
+        "https://e-service-v2s8.onrender.com/api/products",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(productData), // Send as JSON
+        }
+      );
+
+      const result = await response.json();
+      console.log("API Response:", result);
+
+      if (!response.ok) {
+        throw new Error(result.message || "Something went wrong!");
+      }
+
+      setShowSuccessModal(true);
+      onProductAdded({ name: productName });
+
+      // Reset form
+      setProductName("");
+      setProductDescription("");
+      setProductPrice("");
+      setProductStock("");
+      setProductCategory("");
+      setProductCountry("");
+      setProductState("");
+      setImageFiles([]);
+      setFeatures([]);
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-4xl mx-auto">
+    <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-6xl mx-auto">
       {showSuccessModal && (
         <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center w-96">
@@ -111,6 +167,7 @@ const Addproducts = ({ onProductAdded }) => {
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Left Column */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Product Name
@@ -119,7 +176,7 @@ const Addproducts = ({ onProductAdded }) => {
             type="text"
             value={productName}
             onChange={(e) => setProductName(e.target.value)}
-            className="w-full mt-1 px-4 py-2 border rounded-lg"
+            className="w-full mt-1 px-4 py-2 border rounded-lg required"
             placeholder="Enter product name"
           />
 
@@ -129,10 +186,11 @@ const Addproducts = ({ onProductAdded }) => {
           <textarea
             value={productDescription}
             onChange={(e) => setProductDescription(e.target.value)}
-            className="w-full mt-1 px-4 py-2 border rounded-lg"
+            className="w-full mt-1 px-4 py-2 border rounded-lg required"
             placeholder="Enter product description"
           />
 
+          {/* Price & Stock (Side by Side) */}
           <div className="grid grid-cols-2 gap-4 mt-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -160,7 +218,7 @@ const Addproducts = ({ onProductAdded }) => {
             </div>
           </div>
 
-          {/* Country and State Inputs */}
+          {/* Country & State (Side by Side) */}
           <div className="grid grid-cols-2 gap-4 mt-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -206,43 +264,76 @@ const Addproducts = ({ onProductAdded }) => {
           </select>
         </div>
 
-        {/* Image Upload */}
+        {/* Right Column */}
         <div>
-          <h4 className="text-lg font-semibold mb-2">Product Media</h4>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleImageUpload}
-            className="block w-full mt-2"
-          />
-        </div>
-      </div>
+          <h4 className="text-lg font-semibold mb-2"></h4>
+          <label className="w-full h-32 border-2 border-dashed flex items-center justify-center text-gray-500 cursor-pointer">
+            Click to Upload Images
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+          </label>
 
-      {/* Features Section */}
-      <div className="mt-6">
-        <h4 className="text-lg font-semibold mb-2">Product Features</h4>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Feature name"
-            value={newFeature.name}
-            onChange={(e) => handleFeatureChange(e, "name")}
-            className="border px-3 py-2 rounded-lg w-1/2"
-          />
-          <input
-            type="text"
-            placeholder="Feature value"
-            value={newFeature.value}
-            onChange={(e) => handleFeatureChange(e, "value")}
-            className="border px-3 py-2 rounded-lg w-1/2"
-          />
-          <button
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-            onClick={addFeature}
-          >
-            <FaPlus />
-          </button>
+          <div className="mt-4 flex gap-4">
+            {imageFiles.map((image, index) => (
+              <div key={index} className="relative">
+                <img
+                  src={image} // Use Base64 string directly
+                  alt="Uploaded"
+                  className="w-20 h-20 object-cover rounded-md"
+                />
+                <button
+                  onClick={() => removeImage(index)}
+                  className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full"
+                >
+                  <FaTrash />
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6">
+            <h4 className="text-lg font-semibold mb-2">Product Features</h4>
+            <div className="flex gap-2 mb-2">
+              <input
+                type="text"
+                placeholder="Feature Name"
+                value={newFeature.name}
+                onChange={(e) => handleFeatureChange(e, "name")}
+                className="border rounded px-2 py-1"
+              />
+              <input
+                type="text"
+                placeholder="Feature Value"
+                value={newFeature.value}
+                onChange={(e) => handleFeatureChange(e, "value")}
+                className="border rounded px-2 py-1"
+              />
+              <button
+                onClick={addFeature}
+                className="bg-primary text-white px-3 py-1 rounded"
+              >
+                <FaPlus />
+              </button>
+            </div>
+
+            {features.map((feature, index) => (
+              <div key={index} className="flex items-center gap-2 mb-2">
+                <span className="border rounded px-2 py-1">
+                  {feature.name}: {feature.value}
+                </span>
+                <button
+                  onClick={() => removeFeature(index)}
+                  className="text-red-500"
+                >
+                  <FaTrash />
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -256,4 +347,4 @@ const Addproducts = ({ onProductAdded }) => {
   );
 };
 
-export default Addproducts;
+export default AddProducts;

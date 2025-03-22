@@ -26,6 +26,7 @@ const Credit = ({ onPurchaseCreditclick }) => {
   }, [navigate]);
 
   // Fetch available credit balance (only if authenticated)
+
   useEffect(() => {
     if (!isAuthenticated) return;
 
@@ -36,15 +37,16 @@ const Credit = ({ onPurchaseCreditclick }) => {
           "https://e-service-v2s8.onrender.com/api/credits/balance",
           {
             headers: {
-              Authorization: `Bearer ${token}`, // Attach token for authentication
+              Authorization: `Bearer ${token}`,
             },
           }
         );
 
         const data = await response.json();
+        console.log("Credit Balance API Response:", data); // Debugging
 
         if (response.ok) {
-          setCreditBalance(data.balance || 0);
+          setCreditBalance(data.balance.balance || 0); // Extract correct balance
         } else {
           throw new Error(data.message || "Failed to fetch credit balance");
         }
@@ -65,7 +67,7 @@ const Credit = ({ onPurchaseCreditclick }) => {
       try {
         const token = localStorage.getItem("accessToken");
         const response = await fetch(
-          "https://e-service-v2s8.onrender.com/api/products",
+          `https://e-service-v2s8.onrender.com/api/report`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -75,7 +77,7 @@ const Credit = ({ onPurchaseCreditclick }) => {
 
         const data = await response.json();
         if (response.ok) {
-          setProducts(data || []);
+          setProducts(data.vendorProducts || []); // Set fetched products
         } else {
           throw new Error(data.message || "Failed to fetch products");
         }
@@ -106,9 +108,8 @@ const Credit = ({ onPurchaseCreditclick }) => {
     );
   };
   const handlePurchaseCreditToggle = () => {
-  setIsPurchaseCredit(!isPurchaseCredit);
-};
-
+    setIsPurchaseCredit(!isPurchaseCredit);
+  };
 
   return (
     <Layout>
@@ -173,8 +174,8 @@ const Credit = ({ onPurchaseCreditclick }) => {
                         </th>
                         <th className="p-2">Product Name</th>
                         <th className="p-2">Category</th>
-                        <th className="p-2">Price</th>
-                        <th className="p-2">Ads Status</th>
+                        <th className="p-2">Price (CFA)</th>
+                        <th className="p-2">Status</th>
                         <th className="p-2">Date Added</th>
                         <th className="p-2">Actions</th>
                       </tr>
@@ -192,7 +193,7 @@ const Credit = ({ onPurchaseCreditclick }) => {
                           <td className="p-2">{product.name}</td>
                           <td className="p-2">{product.category}</td>
                           <td className="p-2 text-[#7C0DEA]">
-                            {product.price} CFA
+                            {product.price}
                           </td>
                           <td className="p-2 text-green-600">Active</td>
                           <td className="p-2">
