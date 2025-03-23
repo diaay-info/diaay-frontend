@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 function Footer() {
   return (
-    <footer className="p-8 bg-white mt-8 border-t">
+    <footer className="p-8 bg-white  border-t">
       {/* Top Section */}
       <div className="flex flex-wrap lg:flex-nowrap justify-between gap-8">
         {/* Logo & Description */}
@@ -20,13 +20,8 @@ function Footer() {
           {/* Company Links */}
           <div className="space-y-4 w-[45%] md:w-auto">
             <h1 className="font-medium text-base">Company</h1>
-            <Link
-              to="/about"
-              className="font-normal text-sm text-gray-400 cursor-pointer hover:text-black"
-            >
-              About us
-            </Link>
-
+            <Link to="/about" className="font-normal text-sm text-gray-400 cursor-pointer hover:text-black">About us</Link> 
+             
             <p className="font-normal text-sm text-gray-400 cursor-pointer hover:text-black">
               How it works
             </p>

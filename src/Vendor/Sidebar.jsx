@@ -21,7 +21,7 @@ function Sidebar() {
       {/* Menu Button (Hidden when Sidebar is Open) */}
       {!isOpen && (
         <button
-          className="lg:hidden fixed top-4 left-4 z-50 text-2xl text-gray-700"
+          className="lg:hidden fixed top-4 right-4 z-50 text-2xl text-gray-700"
           onClick={() => setIsOpen(true)}
         >
           <FaBars />
@@ -30,9 +30,9 @@ function Sidebar() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:relative top-0 left-0 h-screen bg-white border-r border-gray-300 p-5 transform ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0 transition-transform duration-300 w-64 z-40`}
+        className={`fixed lg:relative top-0 right-0 h-screen bg-white border-r border-gray-300 p-5 transform ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        } lg:translate-x-0 transition-transform duration-300 w-64 lg:w-64 z-40`}
       >
         {/* Close Button (Mobile) */}
         <button
@@ -43,11 +43,7 @@ function Sidebar() {
         </button>
 
         {/* Navigation Links */}
-        <div
-          className={` fixed top-0 left-0 h-screen p-4 w-64 transform ${
-            isOpen ? "translate-x-0" : "-translate-x-64"
-          } transition-transform lg:translate-x-0 lg:w-64 z-40 overflow-y-auto`}
-        >
+        <div className="h-full overflow-y-auto">
           <img src="/llogo.png" className="w-[8rem] mb-6" />
           <nav className="space-y-2">
             <NavLink
@@ -98,7 +94,6 @@ function Sidebar() {
             >
               <FaMoneyBillWave className="mr-3" /> Credit Management
             </NavLink>
-
             <NavLink
               to="/settings"
               className={({ isActive }) =>
@@ -124,16 +119,15 @@ function Sidebar() {
               <FaSignOutAlt className="mr-3" /> Logout
             </NavLink>
           </nav>
-          {/* Promo Section */}
-        <div className="mt-8 bg-purple-500 text-white p-4 rounded-lg text-center">
-          <p>Promote your products with targeted ads.</p>
-          <button className="mt-2 bg-white text-purple-500 px-4 py-2 rounded-lg">
-            Advertise now
-          </button>
-        </div>
-        </div>
 
-        
+          {/* Promo Section */}
+          <div className="mt-8 bg-purple-500 text-white p-4 rounded-lg text-center">
+            <p>Promote your products with targeted ads.</p>
+            <button className="mt-2 bg-white text-purple-500 px-4 py-2 rounded-lg">
+              Advertise now
+            </button>
+          </div>
+        </div>
       </aside>
 
       {/* Overlay (When Sidebar is Open) */}

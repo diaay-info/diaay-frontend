@@ -251,7 +251,7 @@ const Ads = () => {
                             <td className="p-2 border-b">
                               {ad.title}
                             </td>
-                            <td className="p-2 border-b">{ad.category}</td>{" "}
+                            <td className="p-2 border-b">{ad.productId.category}</td>{" "}
                             {/* Since no impressions field exists */}
                             <td className="p-2 border-b text-[#7C0DEA]">
                               {ad.price} CFA

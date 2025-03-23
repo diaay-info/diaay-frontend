@@ -30,6 +30,9 @@ import FinanceDetails from "./Admin/FinanceDetails.jsx";
 import CreditDetails from "./Admin/CreditDetails.jsx";
 import AdDetails from "./Admin/AdDetails.jsx";
 import AdminNotification from "./Admin/AdminNotification.jsx";
+import Favorites from "./Favorites.jsx";
+import AdminCreateAdvert from "./Admin/AdminCreateAdvert.jsx";
+import CategoryPage from "./CategoryPage.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -37,11 +40,13 @@ createRoot(document.getElementById("root")).render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/about" element={<About />} />
+        <Route path="/categories" element={<CategoryPage />} />
+        <Route path="/favorites" element={<Favorites />} />
         <Route path="/start" element={<Signup1 />} />
         <Route path="/verify" element={<Verify />} />
         <Route path="/login" element={<Login />} />
         <Route path="/password" element={<Forgotpassword />} />
-        <Route path="/ads/:adId" element={<AdDetails />} />
+        <Route path="/ads/:adId/active" element={<AdDetailss />} />
         <Route path="/recovery" element={<Recovery />} />
         <Route path="/reset" element={<ResetPassword />} />
         <Route path="/dashboard" element={<VendorDashboard />} />
@@ -56,6 +61,7 @@ createRoot(document.getElementById("root")).render(
         <Route path="/admin/users" element={<AdminUsermanagement />} />
         <Route path="/admin/users/:id" element={<UserDetails />} />
         <Route path="/admin/ads" element={<AdminAds />} />
+        <Route path="/create-advert" element={<AdminCreateAdvert />} />
         <Route path="/ads-management/:id" element={<AdDetailss />} />
         <Route path="/admin/finance" element={<AdminFinance />} />
         <Route path="/finance/:type" element={<FinanceDetails />} />

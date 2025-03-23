@@ -140,26 +140,26 @@ const ProductPage = () => {
                   <input
                     type="text"
                     placeholder="Search product..."
-                    className="border border-gray-300 rounded-lg p-2 w-full sm:w-48"
+                    className="border border-gray-300 rounded-lg p-2 w-full sm:w-48 text-sm"
                   />
-                  <select className="border border-gray-300 rounded-lg py-2 px-4 w-full sm:w-auto">
+                  <select className="border border-gray-300 rounded-lg py-2 px-4 w-full sm:w-auto text-sm">
                     <option>Sort by: Default</option>
                     <option>Price</option>
                     <option>Date</option>
                   </select>
-                  <select className="border border-gray-300 rounded-lg py-2 px-4 w-full sm:w-auto">
+                  <select className="border border-gray-300 rounded-lg py-2 px-4 w-full sm:w-auto text-sm">
                     <option>Show: All Products</option>
                     <option>Active</option>
                     <option>Inactive</option>
                   </select>
                 </div>
                 <div className="flex space-x-2">
-                  <button className="py-2 px-4 border border-gray-300 rounded-lg w-full sm:w-auto">
+                  <button className="py-2 px-4 border border-gray-300 rounded-lg w-full sm:w-auto text-sm">
                     Filter
                   </button>
                   <button
                     onClick={handleAddProductToggle}
-                    className="py-2 px-4 bg-purple-500 text-white rounded-lg w-full sm:w-auto"
+                    className="py-2 px-4 bg-purple-500 text-white rounded-lg w-full sm:w-auto text-sm"
                   >
                     + Add Product
                   </button>
@@ -168,101 +168,125 @@ const ProductPage = () => {
 
               {/* Product List (Make it scrollable on small screens) */}
               <div className="mt-4 bg-white p-4 rounded-lg shadow-sm overflow-x-auto">
-                <table className="w-full text-sm sm:text-base">
-                  <thead>
-                    <tr className="text-left font-medium">
-                      <th className="p-2 border-b">
-                        <input
-                          type="checkbox"
-                          checked={selectAll}
-                          onChange={handleSelectAll}
-                        />
-                      </th>
-                      <th className="p-2 border-b">Product Name</th>
-                      <th className="p-2 border-b">Category</th>
-                      <th className="p-2 border-b">Price</th>
-                      <th className="p-2 border-b">Status</th>
-                      <th className="p-2 border-b">Date Added</th>
-                      <th className="p-2 border-b">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {products.length > 0 ? (
-                      products.map((product) => (
-                        <tr key={product._id} className="border-t">
-                          <td className="p-2 border-b">
-                            <input
-                              type="checkbox"
-                              checked={selectedProducts.includes(product._id)}
-                              onChange={() => handleProductSelect(product._id)}
-                            />
-                          </td>
-                          <td className="p-2 border-b">{product.name}</td>
-                          <td className="p-2 border-b">{product.category}</td>
-                          <td className="p-2 border-b text-[#7C0DEA]">
-                            {product.price} CFA
-                          </td>
-                          <td
-                            className={`p-2 border-b ${
-                              product.status === "active"
-                                ? "text-green-600"
-                                : product.status === "expired"
-                                ? "text-red-500"
-                                : "text-yellow-500"
-                            }`}
-                          >
-                            {product.status
-                              ? product.status.charAt(0).toUpperCase() +
-                                product.status.slice(1)
-                              : "N/A"}
-                          </td>
-                          <td className="p-2 border-b">
-                            {product.createdAt
-                              ? new Date(product.createdAt).toLocaleDateString()
-                              : "N/A"}
-                          </td>
-                          <td className="p-2 border-b relative">
-                            <button
-                              onClick={() => toggleActions(product._id)}
-                              className="text-gray-600 hover:text-black"
+                <div className="min-w-[600px]">
+                  {" "}
+                  {/* Ensure the table has a minimum width */}
+                  <table className="w-full text-sm sm:text-base">
+                    <thead>
+                      <tr className="text-left font-medium">
+                        <th className="p-2 border-b whitespace-nowrap">
+                          <input
+                            type="checkbox"
+                            checked={selectAll}
+                            onChange={handleSelectAll}
+                          />
+                        </th>
+                        <th className="p-2 border-b whitespace-nowrap">
+                          Product Name
+                        </th>
+                        <th className="p-2 border-b whitespace-nowrap">
+                          Category
+                        </th>
+                        <th className="p-2 border-b whitespace-nowrap">
+                          Price
+                        </th>
+                        <th className="p-2 border-b whitespace-nowrap">
+                          Status
+                        </th>
+                        <th className="p-2 border-b whitespace-nowrap">
+                          Date Added
+                        </th>
+                        <th className="p-2 border-b whitespace-nowrap">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {products.length > 0 ? (
+                        products.map((product) => (
+                          <tr key={product._id} className="border-t">
+                            <td className="p-2 border-b whitespace-nowrap">
+                              <input
+                                type="checkbox"
+                                checked={selectedProducts.includes(product._id)}
+                                onChange={() =>
+                                  handleProductSelect(product._id)
+                                }
+                              />
+                            </td>
+                            <td className="p-2 border-b whitespace-nowrap">
+                              {product.name}
+                            </td>
+                            <td className="p-2 border-b whitespace-nowrap">
+                              {product.category}
+                            </td>
+                            <td className="p-2 border-b text-[#7C0DEA] whitespace-nowrap">
+                              {product.price} CFA
+                            </td>
+                            <td
+                              className={`p-2 border-b whitespace-nowrap ${
+                                product.status === "active"
+                                  ? "text-green-600"
+                                  : product.status === "expired"
+                                  ? "text-red-500"
+                                  : "text-yellow-500"
+                              }`}
                             >
-                              &#8942;
-                            </button>
-                            {showActions === product._id && (
-                              <div className="absolute right-0 mt-2 w-24 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                                <button
-                                  onClick={() => {
-                                    // Handle view action
-                                    console.log("View:", product._id);
-                                    setShowActions(null);
-                                  }}
-                                  className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                >
-                                  View
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    handleDeleteProduct(product._id);
-                                    setShowActions(null);
-                                  }}
-                                  className="block w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                                >
-                                  Delete
-                                </button>
-                              </div>
-                            )}
+                              {product.status
+                                ? product.status.charAt(0).toUpperCase() +
+                                  product.status.slice(1)
+                                : "N/A"}
+                            </td>
+                            <td className="p-2 border-b whitespace-nowrap">
+                              {product.createdAt
+                                ? new Date(
+                                    product.createdAt
+                                  ).toLocaleDateString()
+                                : "N/A"}
+                            </td>
+                            <td className="p-2 border-b whitespace-nowrap relative">
+                              <button
+                                onClick={() => toggleActions(product._id)}
+                                className="text-gray-600 hover:text-black"
+                              >
+                                &#8942;
+                              </button>
+                              {showActions === product._id && (
+                                <div className="absolute right-0 mt-2 w-24 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                                  <button
+                                    onClick={() => {
+                                      // Handle view action
+                                      console.log("View:", product._id);
+                                      setShowActions(null);
+                                    }}
+                                    className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                  >
+                                    View
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      handleDeleteProduct(product._id);
+                                      setShowActions(null);
+                                    }}
+                                    className="block w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="7" className="text-center p-4">
+                            No products listed yet.
                           </td>
                         </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="7" className="text-center p-4">
-                          No products listed yet.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}

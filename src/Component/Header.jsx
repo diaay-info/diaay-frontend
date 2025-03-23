@@ -3,13 +3,14 @@ import { Link, useLocation } from "react-router-dom";
 import { GrFavorite } from "react-icons/gr";
 import { FaSearch, FaBars, FaTimes, FaChevronDown } from "react-icons/fa";
 
-const Header = () => {
+const Header = ({ favorites = [] }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const location = useLocation();
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const toggleCategories = () => setCategoriesOpen(!categoriesOpen);
+
   const isActive = (path) =>
     location.pathname === path
       ? "text-primary font-semibold"
@@ -41,11 +42,13 @@ const Header = () => {
           About
         </Link>
         <Link
-          to="/favourite"
-          className="relative text-gray-700 hover:text-primary transition"
+          to="/favorites"
+          state={{ favorites }}
+          className="text-gray-600 flex hover:text-primary"
         >
-          <GrFavorite size={20} />
+          <GrFavorite size={20} />({favorites.length})
         </Link>
+
         <Link
           to="/start"
           className="border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-100 transition"

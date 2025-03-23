@@ -106,12 +106,12 @@ const HomePage = () => {
 
   return (
     <div className="bg-background font-montserrat">
-      <Header />
+      <Header favorites={favorites} />
 
       {/* Layout with Sidebar & Main Content */}
       <section className="flex flex-col md:flex-row">
         {/* Sidebar Categories (Hidden on small screens) */}
-        <aside className="hidden md:block w-1/5 p-4 bg-white shadow-md">
+        <aside className="hidden md:block w-1/5 p-4 border border-r">
           <h2 className="font-bold mb-4">Categories</h2>
           <ul className="space-y-6 text-sm">
             {[
@@ -225,7 +225,7 @@ const HomePage = () => {
                 featuredAds.map((ad) => (
                   <Link
                     key={ad._id}
-                    to={`/ads/${ad._id}`} // Navigate to ad details page
+                    to={`/ads/${ad._id}/active`} // Navigate to ad details page
                     className="bg-white rounded-lg shadow-md overflow-hidden relative"
                   >
                     {/* Love Icon */}
@@ -244,15 +244,24 @@ const HomePage = () => {
                     </button>
 
                     <img
-                      src={ad.image || "/placeholder.png"}
+                      src={ad.productId.images[0]}
                       alt={ad.title}
-                      className="w-full h-40 object-cover"
+                      className="w-full h-40 object-contain"
                     />
                     <div className="p-4">
                       <h3 className="text-lg font-semibold">{ad.title}</h3>
-                      <p className="text-sm text-gray-600">{ad.location}</p>
                       <p className="text-primary font-bold">
                         CFA {ad.productId.price}
+                      </p>
+                      <hr />
+                      <p>
+                        {" "}
+                        <p className="text-sm text-gray-600">
+                          {ad.productId.description}
+                        </p>
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {ad.productId.country}, {ad.productId.state}
                       </p>
                     </div>
                   </Link>
@@ -264,7 +273,7 @@ const HomePage = () => {
           </section>
 
           {/* FAQ Section */}
-          <section className="mt-8 p-6">
+          <section className="mt-8 p-2">
             <h2 className="text-2xl font-semibold mb-4 border-b">FAQs</h2>
             <div className="space-y-4">
               {faqs.map((faq, index) => (
