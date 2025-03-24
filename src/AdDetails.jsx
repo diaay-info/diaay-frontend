@@ -8,6 +8,27 @@ const AdDetailss = () => {
   const { adId } = useParams(); // Get the ad ID from the URL
   const [ad, setAd] = useState(null);
 
+ 
+  // Handle Call Vendor
+  const handleCallVendor = () => {
+    if (!ad?.userId?.phoneNumber) {
+      alert("Phone number is not available.");
+      return;
+    }
+    window.location.href = `tel:${ad.userId.phoneNumber}`;
+  };
+
+  // Handle WhatsApp Redirect
+  const handleWhatsAppRedirect = () => {
+    if (!ad?.userId?.phoneNumber) {
+      alert("Phone number is not available.");
+      return;
+    }
+    const formattedPhoneNumber = ad.userId.phoneNumber.replace(/\D/g, ""); // Remove non-numeric characters
+    window.location.href = `https://wa.me/${formattedPhoneNumber}`;
+  };
+
+
   // Fetch ad details based on the ID
   useEffect(() => {
     const fetchAdDetails = async () => {
@@ -101,26 +122,24 @@ const AdDetailss = () => {
             <hr className="mb-10" />
             <div className="border p-6 mt-10 rounded-lg">
               {/* Seller Information */}
-              <div className="flex items-center space-x-4 mb-6">
-                <img
-                  src={ad.userId.avatar || "/placeholder.png"}
-                  alt="Seller"
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-                <div>
-                  <p className="font-semibold">
-                    {ad.userId.name || "Taiwo Omotola"}
-                  </p>
-                  <p className="text-sm text-gray-600">Verified</p>
-                </div>
+
+              <div className="mb-6">
+                <p className="font-semibold">{ad.userId.fullName || ""}</p>
+                <p className="text-sm text-gray-600">Verified</p>
               </div>
 
               {/* Action Buttons */}
               <div className="flex flex-col space-y-4 mb-6">
-                <button className="flex items-center justify-center space-x-2 bg-black text-white py-3 px-4 rounded-3xl">
+                <button
+                  onClick={handleCallVendor}
+                  className="flex items-center justify-center space-x-2 bg-black text-white py-3 px-4 rounded-3xl"
+                >
                   <span>Call Vendor</span>
                 </button>
-                <button className="flex items-center justify-center space-x-2 bg-green-500 text-white py-2 px-4 rounded-3xl">
+                <button
+                  onClick={handleWhatsAppRedirect}
+                  className="flex items-center justify-center space-x-2 bg-green-500 text-white py-2 px-4 rounded-3xl"
+                >
                   <span>Text on WhatsApp</span>
                 </button>
                 <hr />
