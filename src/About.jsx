@@ -72,7 +72,7 @@ const About = () => {
               Discover how our features can help you advertise and start earning
               with referrals.
             </p>
-            <Link to="/vendor">
+            <Link to="/start">
               <div className="flex w-[15rem] mx-auto items-center justify-center gap-4 p-3 rounded-3xl bg-primary cursor-pointer">
                 <p className="font-medium">Become a vendor</p>
                 <div className="bg-white text-primary rounded-full p-2">

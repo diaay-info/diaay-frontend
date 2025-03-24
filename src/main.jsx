@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./index.css";
 import App from "./App.jsx";
+import ScrollToTop from "./ScrollToTop.jsx";
 import About from "./About.jsx";
 import AdDetailss from "./AdDetails.jsx";
 import Signup1 from "./Registration/Signup1.jsx";
@@ -37,39 +38,41 @@ import CategoryPage from "./CategoryPage.jsx";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Router>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/categories" element={<CategoryPage />} />
-        <Route path="/favorites" element={<Favorites />} />
-        <Route path="/start" element={<Signup1 />} />
-        <Route path="/verify" element={<Verify />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/password" element={<Forgotpassword />} />
-        <Route path="/ads/:adId/active" element={<AdDetailss />} />
-        <Route path="/recovery" element={<Recovery />} />
-        <Route path="/reset" element={<ResetPassword />} />
-        <Route path="/dashboard" element={<VendorDashboard />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/ads" element={<Ads />} />
-        <Route path="selectedads" element={<SelectProductForAd />} />
-        <Route path="/create-ad/:productId" element={<CreateAd />} />
-        <Route path="/credits" element={<Credit />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/logout" element={<Logout />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/users" element={<AdminUsermanagement />} />
-        <Route path="/admin/users/:id" element={<UserDetails />} />
-        <Route path="/admin/ads" element={<AdminAds />} />
-        <Route path="/create-advert" element={<AdminCreateAdvert />} />
-        <Route path="/ads-management/:id" element={<AdDetailss />} />
-        <Route path="/admin/finance" element={<AdminFinance />} />
-        <Route path="/finance/:type" element={<FinanceDetails />} />
-        <Route path="/admin/finance/credit/:id" element={<CreditDetails />} />
-        <Route path="/admin/notifications" element={<AdminNotification />} />
-        <Route path="/admin/settings" element={<AdminSettings />} />
-        <Route path="/admin/logout" element={<AdminLogout />} />
-      </Routes>
+      {/* <ScrollToTop> */}
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/categories" element={<CategoryPage />} />
+          <Route path="/favorites" element={<Favorites />} />
+          <Route path="/start" element={<Signup1 />} />
+          <Route path="/verify" element={<Verify />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/password" element={<Forgotpassword />} />
+          <Route path="/ads/:adId/active" element={<AdDetailss />} />
+          <Route path="/recovery" element={<Recovery />} />
+          <Route path="/reset" element={<ResetPassword />} />
+          <Route path="/dashboard" element={<VendorDashboard />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/ads" element={<Ads />} />
+          <Route path="selectedads" element={<SelectProductForAd />} />
+          <Route path="/create-ad/:productId" element={<CreateAd />} />
+          <Route path="/credits" element={<Credit />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/logout" element={<Logout />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsermanagement />} />
+          <Route path="/admin/users/:id" element={<UserDetails />} />
+          <Route path="/admin/ads" element={<AdminAds />} />
+          <Route path="/create-advert" element={<AdminCreateAdvert />} />
+          <Route path="/ads-management/:id" element={<AdDetails />} />
+          <Route path="/admin/finance" element={<AdminFinance />} />
+          <Route path="/finance/:type" element={<FinanceDetails />} />
+          <Route path="/admin/finance/credit/:id" element={<CreditDetails />} />
+          <Route path="/admin/notifications" element={<AdminNotification />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/logout" element={<AdminLogout />} />
+        </Routes>
+      {/* </ScrollToTop> */}
     </Router>
   </StrictMode>
 );
