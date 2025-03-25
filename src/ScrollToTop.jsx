@@ -5,7 +5,7 @@ const ScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    window.scrollTo(0, 0); // Always scroll to the top
+    window.scrollTo(0, 0);
   }, [pathname]);
 
   return null;

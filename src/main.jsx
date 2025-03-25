@@ -39,7 +39,7 @@ import CategoryManagement from "./Admin/AdminCategory.jsx";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Router>
-      {/* <ScrollToTop> */}
+      <ScrollToTop/>
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/about" element={<About />} />
@@ -74,7 +74,6 @@ createRoot(document.getElementById("root")).render(
           <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="/admin/logout" element={<AdminLogout />} />
         </Routes>
-      {/* </ScrollToTop> */}
     </Router>
   </StrictMode>
 );
