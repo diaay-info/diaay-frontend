@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { FaRegCopy } from "react-icons/fa6";
+import { useNavigate } from "react-router-dom";
 
 const PurchaseCredit = () => {
   const [selectedAmount, setSelectedAmount] = useState(null);
@@ -9,6 +10,8 @@ const PurchaseCredit = () => {
   const [transactionId, setTransactionId] = useState(null);
   const [showSummary, setShowSummary] = useState(false);
   const [timeLeft, setTimeLeft] = useState(3592);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (showSummary) {
@@ -60,6 +63,15 @@ const PurchaseCredit = () => {
     }
   };
 
+  const handlePaymentConfirmation = () => {
+    setShowSuccessModal(true);
+  };
+
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    navigate("/credits"); // Navigate to credits page after modal is closed
+  };
+
   const copyToClipboard = () => {
     navigator.clipboard.writeText("123456789");
     alert("Account number copied!");
@@ -73,6 +85,7 @@ const PurchaseCredit = () => {
 
   return (
     <div className="bg-gray-100 min-h-screen p-4 md:p-6">
+      {/* Error Modal */}
       {errorMessage && (
         <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-50">
           <div className="bg-white p-4 rounded-lg shadow-lg text-center w-80 md:w-96">
@@ -83,6 +96,24 @@ const PurchaseCredit = () => {
               className="mt-4 py-2 px-4 bg-red-500 text-white rounded-lg"
             >
               Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center w-80 md:w-96">
+            <h4 className="text-lg font-semibold text-green-500">Success</h4>
+            <p className="text-gray-700 my-4">
+              Payment successful! Contact admin to approve payment.
+            </p>
+            <button
+              onClick={handleCloseSuccessModal}
+              className="mt-4 py-2 px-6 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
+            >
+              OK
             </button>
           </div>
         </div>
@@ -132,8 +163,8 @@ const PurchaseCredit = () => {
             </div>
           </div>
 
-           {/* Payment Method Selection */}
-           <div className="bg-white p-6 rounded-lg shadow-md">
+          {/* Payment Method Selection */}
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <p className="mb-2 font-semibold">Choose Payment Method:</p>
             <div className="flex flex-col md:flex-row gap-4">
               {[
@@ -211,12 +242,15 @@ const PurchaseCredit = () => {
             </div>
 
             <div className="shadow-md p-4 rounded-lg space-y-3 w-full bg-white">
-              <button className="py-2 px-4 w-full bg-purple-500 text-white text-sm rounded-xl">
+              <button 
+                onClick={handlePaymentConfirmation}
+                className="py-2 px-4 w-full bg-purple-500 text-white text-sm rounded-xl hover:bg-purple-600"
+              >
                 I've Sent the Money
               </button>
               <button
                 onClick={() => setShowSummary(false)}
-                className=" text-black text-sm w-full"
+                className="text-black text-sm w-full hover:text-purple-500"
               >
                 Change Payment Method
               </button>

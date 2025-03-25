@@ -22,7 +22,7 @@ const Favorites = () => {
             favorites.map((ad) => (
               <Link
                 key={ad._id}
-                to={`/ads/${ad._id}`}
+                to={`/ads/${ad._id}/active`}
                 className="bg-white rounded-lg shadow-md overflow-hidden relative"
               >
                 {/* Love Icon */}
@@ -31,7 +31,7 @@ const Favorites = () => {
                 </div>
 
                 <img
-                  src={ad.image || "/placeholder.png"}
+                  src={ad.productId.images[0]}
                   alt={ad.title}
                   className="w-full h-40 object-cover"
                 />

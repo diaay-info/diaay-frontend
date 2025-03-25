@@ -194,7 +194,7 @@ const AdsManagement = () => {
                             />
                           </td>
                           <td className="p-3 whitespace-nowrap">
-                            {ad.user || "N/A"}
+                            {ad.userId.email || "N/A"}
                           </td>
                           <td className="p-3 whitespace-nowrap">
                             {ad.title || "N/A"}

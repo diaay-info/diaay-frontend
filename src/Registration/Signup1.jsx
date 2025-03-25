@@ -50,12 +50,12 @@ const SignUpForm = () => {
       isValid = false;
     }
 
-    const phoneRegex = /^[0-9]{10,15}$/;
+    const phoneRegex = /^[0-9]{7,15}$/; // Validate just the number part
     if (!formData.phoneNumber) {
       formErrors.phoneNumber = "Phone Number is required.";
       isValid = false;
     } else if (!phoneRegex.test(formData.phoneNumber)) {
-      formErrors.phoneNumber = "Invalid phone number format.";
+      formErrors.phoneNumber = "Invalid phone number format (7-15 digits).";
       isValid = false;
     }
 
@@ -78,7 +78,15 @@ const SignUpForm = () => {
     setErrors(formErrors);
     return isValid;
   };
-
+  const countryCodes = [
+    { code: "+229", name: "Benin" },
+    { code: "+234", name: "Nigeria" },
+    { code: "+1", name: "USA" },
+    { code: "+44", name: "UK" },
+    { code: "+233", name: "Ghana" },
+    { code: "+254", name: "Kenya" },
+    { code: "+27", name: "South Africa" },
+  ];
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -92,6 +100,7 @@ const SignUpForm = () => {
     if (validateForm()) {
       setIsLoading(true);
       try {
+        const fullPhoneNumber = `${formData.countryCode}${formData.phoneNumber}`;
         const existingUsers = ["1234567890"]; // Example list of registered users
         if (existingUsers.includes(formData.phoneNumber)) {
           setUserExists(true);
@@ -106,13 +115,16 @@ const SignUpForm = () => {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(formData),
+            body: JSON.stringify({
+              ...formData,
+              phoneNumber: fullPhoneNumber, // Send combined number
+            }),
           }
         );
 
         if (response.ok) {
           localStorage.setItem("isNewUser", "true"); // Store a flag indicating a new user
-          localStorage.setItem("phoneNumber", formData.phoneNumber);
+          localStorage.setItem("phoneNumber", fullPhoneNumber);
           const data = await response.json();
 
           localStorage.setItem("accessToken", data.accessToken);
@@ -140,7 +152,7 @@ const SignUpForm = () => {
       <div className="bg-white shadow-lg rounded-lg p-6 lg:p-8 w-full lg:w-2/5 mb-6 lg:mb-0">
         <div className="mb-6 flex justify-center">
           <img
-            src="https://via.placeholder.com/150x50"
+            src="/logo.png"
             alt="Logo"
             className="h-12"
           />
@@ -276,15 +288,29 @@ const SignUpForm = () => {
               >
                 Phone Number*
               </label>
-              <input
-                type="tel"
-                id="phoneNumber"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-                className="border rounded py-2 px-3 w-full"
-                placeholder="Enter your phone number"
-              />
+              <div className="flex">
+                <select
+                  name="countryCode"
+                  value={formData.countryCode}
+                  onChange={handleChange}
+                  className="border rounded-l py-2 px-2 w-20"
+                >
+                  {countryCodes.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.code}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="tel"
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  className="border rounded-r py-2 px-3 w-full"
+                  placeholder="Phone number"
+                />
+              </div>
               {errors.phoneNumber && (
                 <p className="text-red-500 text-sm">{errors.phoneNumber}</p>
               )}

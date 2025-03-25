@@ -2,14 +2,18 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Header from "./Component/Header";
 import Footer from "./Component/Footer";
-import { FaLongArrowAltRight } from "react-icons/fa";
+import { FaLongArrowAltRight, FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { useFavorites } from "./useFavorites";
 
 const AdDetailss = () => {
-  const { adId } = useParams(); // Get the ad ID from the URL
+  const { adId } = useParams();
   const [ad, setAd] = useState(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [activeTab, setActiveTab] = useState("description"); // State for active tab
+  const { favorites, addToFavorites, removeFromFavorites } = useFavorites();
 
- 
-  // Handle Call Vendor
+  const isFavorite = favorites.some((fav) => fav._id === ad?._id);
+
   const handleCallVendor = () => {
     if (!ad?.userId?.phoneNumber) {
       alert("Phone number is not available.");
@@ -18,18 +22,31 @@ const AdDetailss = () => {
     window.location.href = `tel:${ad.userId.phoneNumber}`;
   };
 
-  // Handle WhatsApp Redirect
   const handleWhatsAppRedirect = () => {
     if (!ad?.userId?.phoneNumber) {
       alert("Phone number is not available.");
       return;
     }
-    const formattedPhoneNumber = ad.userId.phoneNumber.replace(/\D/g, ""); // Remove non-numeric characters
+    const formattedPhoneNumber = ad.userId.phoneNumber.replace(/\D/g, "");
     window.location.href = `https://wa.me/${formattedPhoneNumber}`;
   };
 
+  const toggleFavorite = () => {
+    if (isFavorite) {
+      removeFromFavorites(ad._id);
+    } else {
+      addToFavorites(ad);
+    }
+  };
 
-  // Fetch ad details based on the ID
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev === 3 ? 0 : prev + 1));
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev === 0 ? 3 : prev - 1));
+  };
+
   useEffect(() => {
     const fetchAdDetails = async () => {
       try {
@@ -54,6 +71,49 @@ const AdDetailss = () => {
     return <p>Loading ad details...</p>;
   }
 
+  // Function to render tab content based on active tab
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "description":
+        return (
+          <div className="p-4 bg-gray-50 rounded-2xl">
+            <p className="text-gray-600">{ad.productId.description}</p>
+          </div>
+        );
+      case "characteristics":
+        return (
+          <div className="p-4 bg-gray-50 rounded-lg">
+            <ul className="list-disc pl-5 space-y-2">
+              {ad.productId.features?.map((feature, index) => (
+                <li key={index} className="text-gray-600">
+                  {feature.name}: {feature.value}<hr/>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      case "safeInfo":
+        return (
+          <div className="p-4 bg-gray-50 rounded-lg">
+            <p className="text-gray-600">
+              For your safety, please:
+              <ul className="list-disc pl-5 space-y-4 mt-2">
+                <li>Do not send any prepayment.</li><hr/>
+                <li>Meet the seller in a safe public place.</li><hr/>
+                <li>
+                  Inspect what you're going to buy to make sure it's what you
+                  need
+                </li> <hr/>
+                <li>Check all documents and only pay if you are satisfied.</li>
+              </ul>
+            </p>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="bg-background font-montserrat">
       <Header />
@@ -75,7 +135,7 @@ const AdDetailss = () => {
         </div>
 
         {/* Product Details Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 ">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Image Gallery */}
           <div className="w-full">
             {/* Big Picture */}
@@ -94,7 +154,6 @@ const AdDetailss = () => {
                   alt={`${ad.title} - ${index + 1}`}
                   className="w-full h-[10rem] object-cover rounded-lg cursor-pointer"
                   onClick={() => {
-                    // Set the clicked image as the main image
                     const newImages = [...ad.productId.images];
                     newImages[0] = image;
                     newImages[index] = ad.productId.images[0];
@@ -111,18 +170,17 @@ const AdDetailss = () => {
           {/* Product Information */}
           <div className="space-y-2">
             <h1 className="text-2xl font-bold">{ad.title}</h1>
-            <p className="text-gray-600 ">{ad.productId.description}</p>
+            <p className="text-gray-600">{ad.productId.description}</p>
             <hr />
-            <p className="text-primary font-bold text-3xl ">
+            <p className="text-primary font-bold text-3xl">
               CFA {ad.productId.price}
             </p>
-            <p className="text-gray-600 ">
+            <p className="text-gray-600">
               {ad.productId.country}, {ad.productId.state}
             </p>
             <hr className="mb-10" />
             <div className="border p-6 mt-10 rounded-lg">
               {/* Seller Information */}
-
               <div className="mb-6">
                 <p className="font-semibold">{ad.userId.fullName || ""}</p>
                 <p className="text-sm text-gray-600">Verified</p>
@@ -143,14 +201,17 @@ const AdDetailss = () => {
                   <span>Text on WhatsApp</span>
                 </button>
                 <hr />
-                <button className="flex items-center justify-center space-x-2 border border-gray-900 text-gray-700 py-2 px-4 rounded-3xl">
-                  <span>Add to Favourites</span>
-                </button>{" "}
-                <button className="flex items-center justify-center space-x-2 bg-primary text-white py-2 px-4 rounded-3xl">
-                  <span>Chat Live Support</span>
-                </button>{" "}
-                <button className="flex items-center justify-center space-x-2 bg-red-600 text-white py-2 px-4 rounded-3xl">
-                  <span>Report</span>
+                <button
+                  onClick={toggleFavorite}
+                  className={`flex items-center justify-center space-x-2 border py-2 px-4 rounded-3xl ${
+                    isFavorite
+                      ? "border-primary text-primary"
+                      : "border-gray-900 text-gray-700"
+                  }`}
+                >
+                  <span>
+                    {isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+                  </span>
                 </button>
               </div>
             </div>
@@ -159,38 +220,94 @@ const AdDetailss = () => {
         <hr className="my-10" />
 
         {/* Product Details and Similar Products Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8 ">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
           {/* Product Details */}
           <div className="mb-6">
             <h2 className="text-xl font-bold mb-2">Product Details</h2>
-            <p className="text-gray-600">
-              Nourishing body and soul, one delicious bite at a time. This blog
-              is a space to share recipes, cooking adventures, and the ways in
-              which food brings us joy, comfort, and connection.
-            </p>
+
+            {/* Tab Headers */}
+            <div className="flex border-b mb-4">
+              <button
+                className={`py-2 px-4 font-medium ${
+                  activeTab === "description"
+                    ? "bg-purple-600 text-white"
+                    : "text-gray-600"
+                }`}
+                onClick={() => setActiveTab("description")}
+              >
+                Description
+              </button>
+              <button
+                className={`py-2 px-4 font-medium ${
+                  activeTab === "characteristics"
+                    ? "bg-purple-600 text-white"
+                    : "text-gray-600"
+                }`}
+                onClick={() => setActiveTab("characteristics")}
+              >
+                Characteristics
+              </button>
+              <button
+                className={`py-2 px-4 font-medium ${
+                  activeTab === "safeInfo"
+                    ? "bg-purple-600 text-white"
+                    : "text-gray-600"
+                }`}
+                onClick={() => setActiveTab("safeInfo")}
+              >
+                Safety Information
+              </button>
+            </div>
+
+            {/* Tab Content */}
+            {renderTabContent()}
           </div>
 
           {/* Similar Products Section */}
-          <section>
+          <section className="relative">
             <h2 className="text-2xl font-bold mb-4">Similar Products</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4">
-              {/* Example Similar Product */}
-              {[1, 2, 3, 4].map((item) => (
-                <div key={item} className="bg-white rounded-lg shadow-md p-4">
-                  <img
-                    src="/categories/car.png"
-                    alt="Similar Product"
-                    className="w-full h-40 object-cover rounded-lg mb-4"
-                  />
-                  <h3 className="text-lg font-semibold">Sony PlayStation A</h3>
-                  <p className="text-gray-600">CFA 3000</p>
-                  <p className="text-sm text-gray-600">Accra, Olaves</p>
-                </div>
-              ))}
+            <div className="relative overflow-hidden">
+              <div
+                className="flex transition-transform duration-300"
+                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+              >
+                {[1, 2, 3, 4].map((item) => (
+                  <div
+                    key={item}
+                    className="flex-shrink-0 w-full sm:w-1/2 md:w-1/2 p-2"
+                  >
+                    <div className="bg-white rounded-lg shadow-md p-4 h-full">
+                      <img
+                        src="/categories/car.png"
+                        alt="Similar Product"
+                        className="w-full h-40 object-cover rounded-lg mb-4"
+                      />
+                      <h3 className="text-lg font-semibold">
+                        Sony PlayStation A
+                      </h3>
+                      <p className="text-gray-600">CFA 3000</p>
+                      <p className="text-sm text-gray-600">Accra, Olaves</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={prevSlide}
+                className="absolute left-0 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md z-10"
+              >
+                <FaArrowLeft />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-0 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md z-10"
+              >
+                <FaArrowRight />
+              </button>
             </div>
           </section>
         </div>
         <hr className="my-10" />
+
         {/* Become a Vendor Section */}
         <div className="flex justify-center text-center my-8">
           <div className="bg-black rounded-md text-white p-8 max-w-xl">

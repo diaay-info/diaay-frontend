@@ -78,7 +78,7 @@ const FinanceDetails = () => {
               <thead>
                 <tr className="border-b">
                   <th className="p-3 text-left">Email</th>
-                  <th className="p-3 text-left">Amount</th>
+                  <th className="p-3 text-left">Credit</th>
                   <th className="border-b p-3 text-left">Payment Method</th>
                   <th className="p-3 text-left">Date</th>
                   <th className="p-3 text-left">Status</th>

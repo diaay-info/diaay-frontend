@@ -34,17 +34,19 @@ function Sidebar() {
           isOpen ? "translate-x-0" : "translate-x-full"
         } lg:translate-x-0 transition-transform duration-300 w-64 lg:w-64 z-40`}
       >
-        {/* Close Button (Mobile) */}
-        <button
-          className="lg:hidden absolute top-4 right-4 text-gray-700 text-2xl"
-          onClick={() => setIsOpen(false)}
-        >
-          <FaTimes />
-        </button>
+        {/* Close Button (Mobile) logo*/}
+        <div className="flex justify-between items-center mb-6">
+          <img src="/llogo.png" className="w-[8rem]" />
+          <button
+            className="lg:hidden absolute top-4 right-4 text-gray-700 text-2xl"
+            onClick={() => setIsOpen(false)}
+          >
+            <FaTimes />
+          </button>
+          </div>
 
-        {/* Navigation Links */}
-        <div className="h-full overflow-y-auto">
-          <img src="/llogo.png" className="w-[8rem] mb-6" />
+          {/* Navigation Links */}
+
           <nav className="space-y-2">
             <NavLink
               to="/dashboard"
@@ -127,13 +129,12 @@ function Sidebar() {
               Advertise now
             </button>
           </div>
-        </div>
       </aside>
 
       {/* Overlay (When Sidebar is Open) */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 lg:hidden"
           onClick={() => setIsOpen(false)}
         ></div>
       )}

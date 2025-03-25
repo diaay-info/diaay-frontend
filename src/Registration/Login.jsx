@@ -4,11 +4,22 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState(""); // phone number state
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [countryCode, setCountryCode] = useState("+229"); // Default country code
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  const countryCodes = [
+    { code: "+229", name: "Benin" },
+    { code: "+234", name: "Nigeria" },
+    { code: "+1", name: "USA" },
+    { code: "+44", name: "UK" },
+    { code: "+233", name: "Ghana" },
+    { code: "+254", name: "Kenya" },
+    { code: "+27", name: "South Africa" },
+  ];
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
@@ -17,10 +28,13 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(""); // Reset errors
+
     if (!phoneNumber || !password) {
       setError("Please fill in all fields.");
       return;
     }
+
+    const fullPhoneNumber = `${countryCode}${phoneNumber}`;
 
     setLoading(true);
     try {
@@ -31,7 +45,10 @@ const Login = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ phoneNumber, password }), // Using phone number here
+          body: JSON.stringify({
+            phoneNumber: fullPhoneNumber,
+            password,
+          }),
         }
       );
 
@@ -73,10 +90,10 @@ const Login = () => {
   };
 
   return (
-    <div className="lg:flex items-center justify-center min-h-screen px-2 ">
+    <div className="lg:flex items-center justify-center min-h-screen px-2">
       <div className="w-full max-w-md p-6 bg-white rounded-2xl lg:shadow-lg">
         <div className="text-center space-y-6 mb-10">
-        <img src="/logo.png" className="w-[4rem] mx-auto"/>
+          <img src="/logo.png" className="w-[4rem] mx-auto" />
           <div className="space-y-2">
             <h2 className="text-lg font-semibold mt-4">
               Welcome back to Diaay
@@ -94,13 +111,26 @@ const Login = () => {
             <label className="block text-sm font-medium text-gray-700">
               Phone Number
             </label>
-            <input
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="Enter your phone number"
-              className="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500 border-gray-300"
-            />
+            <div className="flex">
+              <select
+                value={countryCode}
+                onChange={(e) => setCountryCode(e.target.value)}
+                className="mt-1 px-3 py-2 border rounded-l-lg shadow-sm focus:ring-purple-500 focus:border-purple-500 border-gray-300"
+              >
+                {countryCodes.map((country) => (
+                  <option key={country.code} value={country.code}>
+                    {country.code}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="Enter your phone number"
+                className="flex-1 mt-1 px-4 py-2 border-t border-b border-r rounded-r-lg shadow-sm focus:ring-purple-500 focus:border-purple-500 border-gray-300"
+              />
+            </div>
           </div>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">
@@ -190,7 +220,7 @@ const Login = () => {
         </form>
         <div className="text-center mt-4">
           <p className="text-sm text-gray-600">
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <Link to="/start" className="text-purple-500 hover:underline">
               Sign Up
             </Link>

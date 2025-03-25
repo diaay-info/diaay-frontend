@@ -75,6 +75,16 @@ const Sidebar = () => {
             <FaUserCog className="mr-3" /> User Management
           </NavLink>
           <NavLink
+            to="/admin/categories"
+            className={`flex items-center p-3 rounded-lg text-sm ${
+              isActiveLink("categories")
+                ? "bg-purple-500 text-white"
+                : "text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            <FaUserCog className="mr-3" /> Category Management
+          </NavLink>
+          <NavLink
             to="/admin/ads"
             className={`flex items-center p-3 rounded-lg text-sm ${
               isActiveLink("ads")

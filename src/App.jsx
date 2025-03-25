@@ -38,7 +38,7 @@ const HomePage = () => {
           const adsArray = Array.isArray(data) ? data : data.ads || [];
           const activeAds = adsArray.filter((ad) => ad.status === "active");
           setAds(activeAds);
-          setFeaturedAds(getRandomAds(activeAds, 4));
+          setFeaturedAds(getRandomAds(activeAds));
         } else {
           console.error("Error fetching ads:", data);
         }
@@ -56,16 +56,7 @@ const HomePage = () => {
     return shuffled.slice(0, count);
   };
 
-  // Automatically update featured ads every 5 seconds
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     if (ads.length > 0) {
-  //       setFeaturedAds(getRandomAds(ads, 4));
-  //     }
-  //   }, 5000);
-
-  //   return () => clearInterval(interval);
-  // }, [ads]);
+  
 
   // Toggle favorite status
   const toggleFavorite = (ad) => {

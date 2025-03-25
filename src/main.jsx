@@ -34,6 +34,7 @@ import AdminNotification from "./Admin/AdminNotification.jsx";
 import Favorites from "./Favorites.jsx";
 import AdminCreateAdvert from "./Admin/AdminCreateAdvert.jsx";
 import CategoryPage from "./CategoryPage.jsx";
+import CategoryManagement from "./Admin/AdminCategory.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -60,6 +61,7 @@ createRoot(document.getElementById("root")).render(
           <Route path="/settings" element={<Settings />} />
           <Route path="/logout" element={<Logout />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/categories" element={<CategoryManagement />} />
           <Route path="/admin/users" element={<AdminUsermanagement />} />
           <Route path="/admin/users/:id" element={<UserDetails />} />
           <Route path="/admin/ads" element={<AdminAds />} />

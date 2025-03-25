@@ -6,7 +6,7 @@ const CreateAd = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
-  const [credits, setCredits] = useState(10);
+  const [creditBalance, setCreditBalance] = useState(0);
   const [selectedDuration, setSelectedDuration] = useState(7);
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -25,48 +25,85 @@ const CreateAd = () => {
       return;
     }
 
-    const fetchProduct = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(
+        // Fetch product details
+        const productResponse = await fetch(
           `https://e-service-v2s8.onrender.com/api/products/${productId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
 
-        const data = await response.json();
-        if (response.ok) {
-          setProduct(data);
-        } else {
-          throw new Error(data.message || "Failed to fetch product details");
+        const productData = await productResponse.json();
+        if (!productResponse.ok) {
+          throw new Error(
+            productData.message || "Failed to fetch product details"
+          );
         }
+
+        // Fetch credit balance
+        const creditResponse = await fetch(
+          "https://e-service-v2s8.onrender.com/api/credits/balance",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        const creditData = await creditResponse.json();
+        if (!creditResponse.ok) {
+          throw new Error(
+            creditData.message || "Failed to fetch credit balance"
+          );
+        }
+
+        setProduct(productData);
+        setCreditBalance(creditData.balance?.balance || 0);
       } catch (err) {
         console.error("Fetch error:", err.message);
+        setModal({
+          show: true,
+          success: false,
+          message: err.message,
+        });
       }
     };
 
-    fetchProduct();
+    fetchData();
   }, [productId, token, navigate]);
 
   const handleCreateAd = async () => {
     if (!product) return;
 
-    const adCost = selectedDuration === 7 ? 1 : selectedDuration === 14 ? 2 : 3;
-    if (credits < adCost) {
-      setModal({
-        show: true,
-        success: false,
-        message: "Insufficient credits!",
-      });
-      return;
-    }
+    // Calculate credit cost and monetary cost
+    const creditCost =
+      selectedDuration === 7 ? 1 : selectedDuration === 14 ? 2 : 3;
+    const monetaryCost = creditCost * 1000;
 
-    setIsLoading(true); // Start loader
+    // Convert both values to numbers explicitly
+    const numericBalance = Number(creditBalance);
+    const numericCost = Number(creditCost);
+
+    console.log(
+      `Balance: ${numericBalance} (${typeof numericBalance}), Cost: ${numericCost} (${typeof numericCost})`
+    );
+
+    // if (numericBalance < numericCost) {
+    //   setModal({
+    //     show: true,
+    //     success: false,
+    //     message: `Insufficient credits! You have ${numericBalance} but need ${numericCost}`,
+    //   });
+    //   return;
+    // }
+
+    setIsLoading(true);
 
     const adData = {
       productId,
       duration: selectedDuration,
-      cost: adCost,
+      credit: creditCost,
+      cost: monetaryCost,
       title: product.name,
     };
 
@@ -91,24 +128,31 @@ const CreateAd = () => {
           success: true,
           message: "Ad created successfully!",
         });
+        // Update the credit balance locally
+        setCreditBalance((prev) => Number(prev) - numericCost);
       } else {
         throw new Error(result.message || "Failed to create ad.");
       }
     } catch (err) {
-      setModal({ show: true, success: false, message: err.message });
+      setModal({
+        show: true,
+        success: false,
+        message: err.message,
+      });
     } finally {
-      setIsLoading(false); // Stop loader
+      setIsLoading(false);
     }
   };
 
   if (!isAuthenticated) return null;
 
-  if (!product)
+  if (!product) {
     return (
       <Layout>
         <p className="text-center text-lg mt-10">Loading...</p>
       </Layout>
     );
+  }
 
   return (
     <Layout>
@@ -118,7 +162,7 @@ const CreateAd = () => {
           <h1 className="text-3xl font-semibold">Create Advertisement</h1>
           <div className="mt-4 sm:mt-0">
             <button
-              onClick={() => navigate("/products")}
+              onClick={() => navigate("/ads")}
               className="px-5 py-2 border rounded-lg text-gray-600 hover:bg-gray-100 transition"
             >
               Cancel
@@ -143,13 +187,12 @@ const CreateAd = () => {
           <div className="bg-white p-6">
             <h2 className="text-xl font-semibold mb-4">Product Overview</h2>
             <div className="flex items-start gap-6">
-              {/* Display the first image as the main product image */}
               {product.images && product.images.length > 0 && (
                 <img
-                  src={product.images[0]} // Use the first image in the array
+                  src={product.images[0]}
                   alt={product.name}
                   className="w-36 h-36 object-cover rounded-lg"
-                  onError={(e) => (e.target.src = "/placeholder.jpg")} // Fallback for broken images
+                  onError={(e) => (e.target.src = "/placeholder.jpg")}
                 />
               )}
               <div className="text-lg">
@@ -171,8 +214,6 @@ const CreateAd = () => {
               </div>
             </div>
 
-           
-
             {/* Ad Duration Selection */}
             <div className="mt-8">
               <h2 className="text-xl font-semibold mb-4">Select Ad Duration</h2>
@@ -187,11 +228,12 @@ const CreateAd = () => {
                       className="mr-2"
                     />
                     {days} days - {days === 7 ? 1 : days === 14 ? 2 : 3} credits
+                    ({days === 7 ? 1000 : days === 14 ? 2000 : 3000} CFA)
                   </label>
                 ))}
               </div>
               <p className="mt-3 text-lg font-medium">
-                <strong>Your Available Credits:</strong> {credits}
+                <strong>Your Available Credits:</strong> {creditBalance}
               </p>
             </div>
           </div>
@@ -207,7 +249,13 @@ const CreateAd = () => {
               {selectedDuration === 7 ? 1 : selectedDuration === 14 ? 2 : 3}
             </p>
             <p className="text-lg">
-              <strong>Current Credit Available:</strong> {credits}
+              <strong>Monetary Cost:</strong>{" "}
+              {(selectedDuration === 7 ? 1 : selectedDuration === 14 ? 2 : 3) *
+                1000}{" "}
+              CFA
+            </p>
+            <p className="text-lg">
+              <strong>Current Credit Available:</strong> {creditBalance}
             </p>
           </div>
         </div>
@@ -226,7 +274,12 @@ const CreateAd = () => {
             </p>
             <button
               className="mt-4 px-6 py-2 bg-gray-600 text-white rounded-lg"
-              onClick={() => setModal({ show: false })}
+              onClick={() => {
+                setModal({ show: false });
+                if (modal.success) {
+                  navigate("/ads");
+                }
+              }}
             >
               Close
             </button>
