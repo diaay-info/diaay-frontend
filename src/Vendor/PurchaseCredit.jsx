@@ -363,7 +363,7 @@ const PurchaseCredit = () => {
                 Payment Instructions
               </h4>
               <div className="pt-3 mt-3 mb-3  border-b">
-                <p className="text-3xl font-medium text-black">
+                <p className="text-3xl font-medium text-black mb-5">
                   Transfer the exact amount {selectedAmount} XOF to the{" "}
                   {paymentMethod === "wave" ? "Wave Money " : "Orange Money "}
                   account below.
@@ -397,6 +397,8 @@ const PurchaseCredit = () => {
                     </button>
                   </div>
                 </div>
+                <hr/>
+                <p>Click on submit your payment to continue </p>
               </div>
             </div>
           </div>

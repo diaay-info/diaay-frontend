@@ -115,7 +115,7 @@ const ProductPage = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen p-2 sm:p-4">
+      <div className="min-h-screen sm:p-4">
         <main className="flex-1 overflow-x-hidden">
           {isAddProduct || isAddProductPage ? (
             <Addproducts onProductAdded={handleProductAdded} />
@@ -154,7 +154,7 @@ const ProductPage = () => {
               </div>
 
               {/* Product Table */}
-              <div className="mt-4 bg-white rounded-lg shadow-sm">
+              <div className="mt-4 bg-white rounded-lg shadow-sm m">
                 <div className="p-4 border-b">
                   <h2 className="text-base sm:text-lg font-semibold">
                     Your Products
@@ -172,133 +172,101 @@ const ProductPage = () => {
                       </p>
                     </div>
                   ) : (
-                    <div className="w-full overflow-x-auto scrollbar-thin">
-                      <div className="min-w-[600px]">
-                        <table className="w-full border-collapse border border-gray-200 bg-white rounded-lg shadow-md text-sm">
-                          <thead className="bg-primary text-white text-xs md:text-sm uppercase font-semibold">
-                            <tr className="border-b border-gray-200">
-                              <th className="p-2 md:p-3 text-left sticky left-0 bg-primary z-10">
-                                <input
-                                  type="checkbox"
-                                  checked={selectAll}
-                                  onChange={handleSelectAll}
-                                  className="h-4 w-4"
-                                />
-                              </th>
-                              <th className="p-2 md:p-3 text-left min-w-[150px]">
-                                Product Name
-                              </th>
-                              <th className="p-2 md:p-3 text-left min-w-[120px]">
-                                Category
-                              </th>
-                              <th className="p-2 md:p-3 text-left min-w-[100px]">
-                                Price
-                              </th>
-                              <th className="p-2 md:p-3 text-left min-w-[100px]">
-                                Status
-                              </th>
-                              <th className="p-2 md:p-3 text-left min-w-[120px]">
-                                Date Added
-                              </th>
-                              <th className="p-2 md:p-3 text-left min-w-[100px]">
-                                Actions
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {paginatedProducts.map(
-                              (product) =>
-                                product && (
-                                  <tr
-                                    key={product._id}
-                                    className="hover:bg-gray-100 text-xs md:text-sm"
-                                  >
-                                    <td className="p-2 md:p-3 sticky left-0 bg-white z-10">
-                                      <input
-                                        type="checkbox"
-                                        checked={selectedProducts.includes(
-                                          product._id
-                                        )}
-                                        onChange={() =>
-                                          handleProductSelect(product._id)
-                                        }
-                                        className="h-4 w-4"
-                                      />
-                                    </td>
-                                    <td className="p-2 md:p-3">
-                                      {product.name || "N/A"}
-                                    </td>
-                                    <td className="p-2 md:p-3">
-                                      {product.category || "N/A"}
-                                    </td>
-                                    <td className="p-2 md:p-3 text-purple-600">
-                                      {product.price
-                                        ? `${product.price} XOF`
+                    <div className="w-full overflow-x-auto scrollbar-thin ">
+                      <table className="min-w-full table-auto text-sm sm:text-base">
+                        <thead className="bg-primary text-white text-xs md:text-sm uppercase font-semibold">
+                          <tr className="border-b border-gray-200">
+                            <th className="p-2 md:p-3 text-left ]">
+                              Product Name
+                            </th>
+                            <th className="p-2 md:p-3 text-left ">Category</th>
+                            <th className="p-2 md:p-3 text-left ">Price</th>
+                            <th className="p-2 md:p-3 text-left ">Status</th>
+                            <th className="p-2 md:p-3 text-left ">
+                              Date Added
+                            </th>
+                            {/* <th className="p-2 md:p-3 text-left ">Actions</th> */}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {paginatedProducts.map(
+                            (product) =>
+                              product && (
+                                <tr
+                                  key={product._id}
+                                  className="hover:bg-gray-100 text-xs md:text-sm"
+                                >
+                                  <td className="px-2 py-3 whitespace-nowrap">
+                                    {product.name || "N/A"}
+                                  </td>
+                                  <td className="px-2 py-3 whitespace-nowrap">
+                                    {product.category || "N/A"}
+                                  </td>
+                                  <td className="px-2 py-3 whitespace-nowrap text-purple-600">
+                                    {product.price
+                                      ? `${product.price} XOF`
+                                      : "N/A"}
+                                  </td>
+                                  <td className="px-2 py-3 whitespace-nowrap font-semibold">
+                                    <span
+                                      className={`px-2 py-1 rounded-full text-xs ${
+                                        product.status === "active"
+                                          ? "text-green-600"
+                                          : product.status === "expired"
+                                          ? "text-red-600"
+                                          : "text-yellow-500"
+                                      }`}
+                                    >
+                                      {product.status
+                                        ? product.status
+                                            .charAt(0)
+                                            .toUpperCase() +
+                                          product.status.slice(1)
                                         : "N/A"}
-                                    </td>
-                                    <td className="p-2 md:p-3 font-semibold">
-                                      <span
-                                        className={`px-2 py-1 rounded-full text-xs ${
-                                          product.status === "active"
-                                            ? "text-green-600"
-                                            : product.status === "expired"
-                                            ? "text-red-600"
-                                            : "text-yellow-500"
-                                        }`}
-                                      >
-                                        {product.status
-                                          ? product.status
-                                              .charAt(0)
-                                              .toUpperCase() +
-                                            product.status.slice(1)
-                                          : "N/A"}
-                                      </span>
-                                    </td>
-                                    <td className="p-2 md:p-3">
-                                      {product.createdAt
-                                        ? new Date(
-                                            product.createdAt
-                                          ).toLocaleDateString()
-                                        : "N/A"}
-                                    </td>
-                                    <td className="p-2 md:p-3 relative text-right">
-                                      <button
-                                        onClick={() =>
-                                          toggleActions(product._id)
-                                        }
-                                        className="text-gray-600 hover:text-black"
-                                      >
-                                        &#8942;
-                                      </button>
-                                      {showActions === product._id && (
-                                        <div className="absolute right-0 mt-2 w-28 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
-                                          <button
-                                            onClick={() => {
-                                              console.log("View:", product._id);
-                                              setShowActions(null);
-                                            }}
-                                            className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
-                                          >
-                                            View
-                                          </button>
-                                          <button
-                                            onClick={() => {
-                                              handleDeleteProduct(product._id);
-                                              setShowActions(null);
-                                            }}
-                                            className="block w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100 text-left"
-                                          >
-                                            Delete
-                                          </button>
-                                        </div>
-                                      )}
-                                    </td>
-                                  </tr>
-                                )
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
+                                    </span>
+                                  </td>
+                                  <td className="px-2 py-3 whitespace-nowrap">
+                                    {product.createdAt
+                                      ? new Date(
+                                          product.createdAt
+                                        ).toLocaleDateString()
+                                      : "N/A"}
+                                  </td>
+                                  {/* <td className="px-2 py-3 whitespace-nowrap relative text-right">
+                                    <button
+                                      onClick={() => toggleActions(product._id)}
+                                      className="text-gray-600 hover:text-black"
+                                    >
+                                      &#8942;
+                                    </button>
+                                    {showActions === product._id && (
+                                      <div className="absolute right-0 mt-2 w-28 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+                                        <button
+                                          onClick={() => {
+                                            console.log("View:", product._id);
+                                            setShowActions(null);
+                                          }}
+                                          className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                                        >
+                                          View
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            handleDeleteProduct(product._id);
+                                            setShowActions(null);
+                                          }}
+                                          className="block w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100 text-left"
+                                        >
+                                          Delete
+                                        </button>
+                                      </div>
+                                    )}
+                                  </td> */}
+                                </tr>
+                              )
+                          )}
+                        </tbody>
+                      </table>
                     </div>
                   )}
 

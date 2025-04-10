@@ -137,6 +137,7 @@ const SignUpForm = () => {
           localStorage.setItem("userPhoneVerified", data.user.phoneVerified);
 
           navigate("/dashboard");
+          
         } else {
           console.log("Form submission failed");
         }

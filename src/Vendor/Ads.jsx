@@ -17,24 +17,8 @@ const Ads = () => {
   const [status, setStatus] = useState("All");
   const [priceSort, setPriceSort] = useState("default");
 
-  // Function to handle selecting a single ad
-  const handleAdSelect = (adId) => {
-    setSelectedAds((prevSelected) =>
-      prevSelected.includes(adId)
-        ? prevSelected.filter((id) => id !== adId)
-        : [...prevSelected, adId]
-    );
-  };
-
-  // Handle selecting/deselecting all ads
-  const handleSelectAll = () => {
-    if (selectAll) {
-      setSelectedAds([]); // Deselect all
-    } else {
-      setSelectedAds(ads.map((ad) => ad._id)); // Select all
-    }
-    setSelectAll(!selectAll);
-  };
+ 
+ 
 
   const handleAddProductToggle = () => {
     setIsAddProduct(!isAddProduct);
@@ -110,7 +94,7 @@ const Ads = () => {
 
   return (
     <Layout>
-      <div className="flex min-h-screen p-2">
+      <div className="flex min-h-screen sm:p-2">
         {/* Main Content */}
         <main className="flex-1">
           {isAddingAd ? (
@@ -207,13 +191,7 @@ const Ads = () => {
                   <table className="min-w-full text-sm sm:text-base overflow-x-auto">
                     <thead>
                       <tr className="text-left font-medium">
-                        <th className="p-2 border-b">
-                          <input
-                            type="checkbox"
-                            checked={selectAll}
-                            onChange={handleSelectAll}
-                          />
-                        </th>
+                        
                         <th className="p-2 border-b">Product Name</th>
                         <th className="p-2 border-b">Category</th>
                         <th className="p-2 border-b">Price</th>
@@ -243,13 +221,7 @@ const Ads = () => {
 
                           return (
                             <tr key={ad._id} className="border-t">
-                              <td className="p-2 border-b">
-                                <input
-                                  type="checkbox"
-                                  checked={selectedAds.includes(ad._id)}
-                                  onChange={() => handleAdSelect(ad._id)}
-                                />
-                              </td>
+                              
                               <td className="p-2 border-b">{ad.title}</td>
                               <td className="p-2 border-b"></td>
                               <td className="p-2 border-b text-[#7C0DEA]">

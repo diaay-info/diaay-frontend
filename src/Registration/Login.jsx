@@ -80,7 +80,7 @@ const Login = () => {
       } else if (role === "partner") {
         navigate("/partner-dashboard");
       } else {
-        navigate("/dashboard");
+        navigate("/");
       }
     } catch (err) {
       setError(err.message);

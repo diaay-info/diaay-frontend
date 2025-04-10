@@ -165,31 +165,18 @@ const Credit = ({ onPurchaseCreditclick }) => {
                   <table className="w-full min-w-[600px]">
                     <thead>
                       <tr className="text-left font-medium bg-gray-100">
-                        <th className="p-2">
-                          <input
-                            type="checkbox"
-                            checked={selectAll}
-                            onChange={handleSelectAll}
-                          />
-                        </th>
+                       
                         <th className="p-2">Product Name</th>
                         <th className="p-2">Category</th>
                         <th className="p-2">Price (XOF)</th>
                         <th className="p-2">Status</th>
                         <th className="p-2">Date Added</th>
-                        <th className="p-2">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {products.map((product) => (
                         <tr key={product._id} className="border-t">
-                          <td className="p-2">
-                            <input
-                              type="checkbox"
-                              checked={selectedProducts.includes(product._id)}
-                              onChange={() => handleProductSelect(product._id)}
-                            />
-                          </td>
+                         
                           <td className="p-2">{product.name}</td>
                           <td className="p-2">{product.category}</td>
                           <td className="p-2 text-[#7C0DEA]">
@@ -201,11 +188,7 @@ const Credit = ({ onPurchaseCreditclick }) => {
                               ? new Date(product.createdAt).toLocaleDateString()
                               : "N/A"}
                           </td>
-                          <td className="p-2">
-                            <button className="text-gray-600 hover:text-black">
-                              &#8942;
-                            </button>
-                          </td>
+                          
                         </tr>
                       ))}
                     </tbody>

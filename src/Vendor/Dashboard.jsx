@@ -90,7 +90,7 @@ function VendorDashboard() {
 
   return (
     <Layout>
-      <div className="min-h-screen p-2 md:p-4 w-full max-w-full ">
+      <div className="min-h-screen p-0 md:p-4 w-full max-w-full">
         {/* Analytics Section */}
         <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 mb-4">
           <div className="bg-white p-2 md:p-3 rounded-lg shadow-sm text-center">
@@ -132,59 +132,72 @@ function VendorDashboard() {
           </div>
 
           {products.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="min-w-full table-auto">
-                <thead className="bg-primary text-white text-xs md:text-sm uppercase font-semibold">
-                  <tr className="border-b">
-                    <th className="border-b p-2 md:p-3 text-left">
-                      <input
-                        type="checkbox"
-                        checked={selectAll}
-                        onChange={handleSelectAll}
-                        className="h-4 w-4"
-                      />
-                    </th>
-                    <th className="border-b p-2 md:p-3 text-left">Name</th>
-                    <th className="border-b p-2 md:p-3 text-left">Category</th>
-                    <th className="border-b p-2 md:p-3 text-left">Price</th>
-                    <th className="border-b p-2 md:p-3 text-left">Status</th>
-                    <th className="border-b p-2 md:p-3 text-left">
-                      Date Added
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map((product) => (
-                    <tr key={product._id} className="hover:bg-gray-100">
-                      <td className="border-b p-2 md:p-3">
-                        <input
-                          type="checkbox"
-                          checked={selectedProducts.includes(product._id)}
-                          onChange={() => handleProductSelect(product._id)}
-                          className="h-4 w-4"
-                        />
-                      </td>
-                      <td className="border-b p-2 md:p-3">{product.name}</td>
-                      <td className="border-b p-2 md:p-3">
-                        {product.category}
-                      </td>
-                      <td className="border-b p-2 md:p-3">
-                        {product.price} XOF
-                      </td>
-                      <td className="border-b p-2 md:p-3">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                          Active
-                        </span>
-                      </td>
-                      <td className="border-b p-2 md:p-3">
-                        {product.createdAt
-                          ? new Date(product.createdAt).toLocaleDateString()
-                          : "N/A"}
-                      </td>
+            <div className="w-full max-w-full">
+              <div className="overflow-x-auto">
+                <table className="min-w-full table-auto text-sm sm:text-base">
+                  <thead className="bg-primary text-white ">
+                    <tr>
+                      
+                      <th
+                        scope="col"
+                        className="px-2 py-3 text-left whitespace-nowrap"
+                      >
+                        Name
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-2 py-3 text-left whitespace-nowrap"
+                      >
+                        Category
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-2 py-3 text-left whitespace-nowrap"
+                      >
+                        Price
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-2 py-3 text-left whitespace-nowrap"
+                      >
+                        Status
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-2 py-3 text-left whitespace-nowrap"
+                      >
+                        Date Added
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {products.map((product) => (
+                      <tr key={product._id} className="hover:bg-gray-100">
+                        
+                        <td className="px-2 py-3 whitespace-nowrap">
+                          {product.name}
+                        </td>
+                        <td className="px-2 py-3 whitespace-nowrap">
+                          {product.category}
+                        </td>
+                        <td className="px-2 py-3 whitespace-nowrap">
+                          {product.price} XOF
+                        </td>
+                        <td className="px-2 py-3 whitespace-nowrap">
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            Active
+                          </span>
+                        </td>
+                        <td className="px-2 py-3 whitespace-nowrap">
+                          {product.createdAt
+                            ? new Date(product.createdAt).toLocaleDateString()
+                            : "N/A"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center p-8 text-center">
