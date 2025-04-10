@@ -44,7 +44,7 @@ const CreateAd = () => {
 
         // Fetch credit balance
         const creditResponse = await fetch(
-          "${API_BASE_URL}/api/credits/balance",
+          `${API_BASE_URL}/api/credits/balance`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
