@@ -44,14 +44,15 @@ const Header = () => {
     <header className="bg-white shadow-md w-full relative">
       <div className="flex justify-between items-center p-4">
         {/* Mobile Menu Toggle Button */}
-        <button className="text-gray-600 lg:hidden" onClick={toggleMobileMenu}>
+        <button
+          className="text-gray-600 lg:hidden"
+          onClick={toggleMobileMenu}
+        >
           {mobileMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
         </button>
 
         {/* Page Title - Shows on all screens */}
-        <h2 className="text-lg md:text-xl font-semibold ml-4 lg:ml-10">
-          {getPageTitle()}
-        </h2>
+        <h2 className="text-lg md:text-xl font-semibold ml-4 lg:ml-10">{getPageTitle()}</h2>
 
         {/* Profile & Notifications */}
         <div className="flex items-center gap-4">
@@ -73,7 +74,7 @@ const Header = () => {
       </div>
 
       {/* Mobile Navigation Menu - Only visible on mobile when toggled */}
-      <div
+      <div 
         className={`lg:hidden absolute top-full left-0 w-full bg-white shadow-lg z-50 transition-all duration-300 ${
           mobileMenuOpen ? "max-h-screen" : "max-h-0 overflow-hidden"
         }`}

@@ -36,6 +36,8 @@ import AdminCreateAdvert from "./Admin/AdminCreateAdvert.jsx";
 import CategoryPage from "./CategoryPage.jsx";
 import CategoryManagement from "./Admin/AdminCategory.jsx";
 import PartnerDashboard from "./Partner/PartnerDashboard.jsx";
+import NotFound from "./Component/NotFound.jsx";
+import ProfilePage from "./ProfilePage.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -48,13 +50,14 @@ createRoot(document.getElementById("root")).render(
           <Route path="/categories/:categoryName" element={<CategoryPage />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/start" element={<Signup1 />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/login" element={<Login />} />
           <Route path="/password" element={<Forgotpassword />} />
           <Route path="/ads/:adId/active" element={<AdDetailss />} />
           <Route path="/recovery" element={<Recovery />} />
           <Route path="/reset" element={<ResetPassword />} />
-          <Route path="/dashboard" element={<VendorDashboard />} />
+          <Route path="/vendor/dashboard" element={<VendorDashboard />} />
           <Route path="/products" element={<Products />} />
           <Route path="/ads" element={<Ads />} />
           <Route path="selectedads" element={<SelectProductForAd />} />
@@ -76,6 +79,8 @@ createRoot(document.getElementById("root")).render(
           <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="/admin/logout" element={<AdminLogout />} />
           <Route path="/partner/dashboard" element={<PartnerDashboard />} />
+          <Route path="*" element={<NotFound />} />
+
 
         </Routes>
     </Router>

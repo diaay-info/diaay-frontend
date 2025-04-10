@@ -10,7 +10,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  
+
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const countryCodes = [
     { code: "+229", name: "Benin" },
@@ -78,9 +78,9 @@ const Login = () => {
       if (role === "admin") {
         navigate("/admin/dashboard");
       } else if (role === "vendor") {
-        navigate("/dashboard");
+        navigate("/vendor/dashboard");
       } else if (role === "partner") {
-        navigate("/partner-dashboard");
+        navigate("/partner/dashboard");
       } else {
         navigate("/");
       }

@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { FaHandshake } from "react-icons/fa";
 import { HiMiniShoppingBag } from "react-icons/hi2";
 import { Link, useNavigate } from "react-router-dom";
+import { FaHandshake, FaEye, FaEyeSlash } from "react-icons/fa"; // Added eye icons
 
 const SignUpForm = () => {
   const [selectedRole, setSelectedRole] = useState("vendor");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -13,9 +15,17 @@ const SignUpForm = () => {
     confirmPassword: "",
     businessName: "",
     location: "",
-    role: "vendor", // Default role set to vendor
+    role: "", 
     termsAndConditions: false,
   });
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
 
   // Update role selection
   const handleRoleSelect = (role) => {
@@ -29,7 +39,7 @@ const SignUpForm = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [userExists, setUserExists] = useState(false);
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
 
   const validateForm = () => {
@@ -108,24 +118,20 @@ const SignUpForm = () => {
           return;
         }
 
-        const response = await fetch(
-          `${API_BASE_URL}/api/auth/register`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              ...formData,
-              phoneNumber: fullPhoneNumber, // Send combined number
-            }),
-          }
-        );
+        const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...formData,
+            phoneNumber: fullPhoneNumber,
+          }),
+        });
 
         if (response.ok) {
-          localStorage.setItem("isNewUser", "true"); // Store a flag indicating a new user
-          localStorage.setItem("phoneNumber", fullPhoneNumber);
           const data = await response.json();
+          // Store user data in localStorage
           localStorage.setItem("accessToken", data.accessToken);
           localStorage.setItem("refreshToken", data.refreshToken);
           localStorage.setItem("userId", data.user.id);
@@ -136,8 +142,20 @@ const SignUpForm = () => {
           localStorage.setItem("userRole", data.user.role);
           localStorage.setItem("userPhoneVerified", data.user.phoneVerified);
 
-          navigate("/dashboard");
-          
+          // Navigate based on role
+          switch (data.user.role) {
+            case "vendor":
+              navigate("/vendor/dashboard");
+              break;
+            case "partner":
+              navigate("/partner/dashboard");
+              break;
+            case "customer":
+              navigate("/customer/dashboard");
+              break;
+            default:
+              navigate("/dashboard"); // Fallback for unknown roles
+          }
         } else {
           console.log("Form submission failed");
         }
@@ -154,11 +172,7 @@ const SignUpForm = () => {
       {/* Left Section */}
       <div className="bg-white shadow-lg rounded-lg p-6 lg:p-8 w-full lg:w-2/5 mb-6 lg:mb-0">
         <div className="mb-6 flex justify-center">
-          <img
-            src="/logo.png"
-            alt="Logo"
-            className="h-12"
-          />
+          <img src="/logo.png" alt="Logo" className="h-12" />
         </div>
 
         <div className="text-center space-y-3 mb-8">
@@ -328,19 +342,29 @@ const SignUpForm = () => {
               >
                 Password*
               </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="border rounded py-2 px-3 w-full"
-                placeholder="Choose a password"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="border rounded py-2 px-3 w-full pr-10"
+                  placeholder="Choose a password"
+                />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
               {errors.password && (
                 <p className="text-red-500 text-sm">{errors.password}</p>
               )}
             </div>
+
             <div>
               <label
                 htmlFor="confirmPassword"
@@ -348,15 +372,24 @@ const SignUpForm = () => {
               >
                 Confirm Password*
               </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="border rounded py-2 px-3 w-full"
-                placeholder="Re-enter your password"
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className="border rounded py-2 px-3 w-full pr-10"
+                  placeholder="Re-enter your password"
+                />
+                <button
+                  type="button"
+                  onClick={toggleConfirmPasswordVisibility}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
               {errors.confirmPassword && (
                 <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
               )}

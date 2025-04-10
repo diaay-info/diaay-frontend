@@ -1,16 +1,35 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GrFavorite } from "react-icons/gr";
-import { FaSearch, FaBars, FaTimes, FaChevronDown } from "react-icons/fa";
-
+import {
+  FaSearch,
+  FaBars,
+  FaTimes,
+  FaChevronDown,
+  FaUserCircle,
+} from "react-icons/fa";
 
 const Header = ({ favorites = [] }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Check if user is authenticated
+  const isAuthenticated = !!localStorage.getItem("accessToken");
+  const userName = localStorage.getItem("Name") || "Profile";
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const toggleCategories = () => setCategoriesOpen(!categoriesOpen);
+  const toggleProfileDropdown = () =>
+    setProfileDropdownOpen(!profileDropdownOpen);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/");
+    window.location.reload();
+  };
 
   const isActive = (path) =>
     location.pathname === path
@@ -34,6 +53,7 @@ const Header = ({ favorites = [] }) => {
         />
       </div>
       <div className="" id="google_translate_element"></div>
+
       {/* Desktop Navigation */}
       <div className="hidden md:flex items-center space-x-6 text-sm">
         <Link to="/categories" className={isActive("/categories")}>
@@ -50,17 +70,49 @@ const Header = ({ favorites = [] }) => {
           <GrFavorite size={20} />({favorites.length})
         </Link>
 
-        <Link
-          to="/start"
-          className="border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-100 transition"
-        >
-          Sell your item
-        </Link>
-        <Link to="/start">
-          <button className="px-4 py-2 bg-primary text-white rounded-full hover:bg-purple-600 transition">
-            Get Started
-          </button>
-        </Link>
+        {isAuthenticated ? (
+          <div className="relative">
+            <button
+              onClick={toggleProfileDropdown}
+              className="flex items-center space-x-2 focus:outline-none"
+            >
+              <FaUserCircle size={24} className="text-gray-600" />
+              <span className="text-gray-700">{userName}</span>
+            </button>
+
+            {profileDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                <Link
+                  to="/profile"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onClick={() => setProfileDropdownOpen(false)}
+                >
+                  My Profile
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            <Link
+              to="/start"
+              className="border border-gray-300 rounded-full px-4 py-2 hover:bg-gray-100 transition"
+            >
+              Sell your item
+            </Link>
+            <Link to="/login">
+              <button className="px-4 py-2 bg-primary text-white rounded-full hover:bg-purple-600 transition">
+                Login
+              </button>
+            </Link>
+          </>
+        )}
       </div>
 
       {/* Mobile Menu Button */}
@@ -77,7 +129,6 @@ const Header = ({ favorites = [] }) => {
         {/* Logo and Close Button */}
         <div className="w-full flex justify-between items-center">
           <Link to="/">
-            {" "}
             <img src="/llogo.png" className="w-24" alt="Logo" />
           </Link>
           <button className="text-2xl" onClick={toggleMenu}>
@@ -86,7 +137,18 @@ const Header = ({ favorites = [] }) => {
         </div>
 
         {/* Links */}
-        <nav className="w-full flex flex-col  space-y-8 text-xl">
+        <nav className="w-full flex flex-col space-y-8 text-xl">
+          {isAuthenticated && (
+            <Link
+              to="/profile"
+              className="flex items-center space-x-2"
+              onClick={toggleMenu}
+            >
+              <FaUserCircle size={24} />
+              <span>My Profile</span>
+            </Link>
+          )}
+
           <Link
             to="/"
             className={`block ${isActive("/")}`}
@@ -135,13 +197,32 @@ const Header = ({ favorites = [] }) => {
           >
             Favourites
           </Link>
-          <Link
-            to="/start"
-            className="block w-full border border-gray-300 bg-primary text-white rounded-md py-2 text-center hover:bg-purple-600 transition"
-            onClick={toggleMenu}
-          >
-            Sell your item
-          </Link>
+
+          {isAuthenticated ? (
+            <button
+              onClick={handleLogout}
+              className="block w-full border border-gray-300 bg-primary text-white rounded-md py-2 text-center hover:bg-purple-600 transition"
+            >
+              Logout
+            </button>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="block w-full border border-gray-300 bg-primary text-white rounded-md py-2 text-center hover:bg-purple-600 transition"
+                onClick={toggleMenu}
+              >
+                Login
+              </Link>
+              <Link
+                to="/start"
+                className="block w-full border border-gray-300 rounded-md py-2 text-center hover:bg-gray-100 transition"
+                onClick={toggleMenu}
+              >
+                Sell your item
+              </Link>
+            </>
+          )}
         </nav>
       </div>
     </header>
