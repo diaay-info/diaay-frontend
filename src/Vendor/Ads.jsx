@@ -188,7 +188,7 @@ const Ads = () => {
               <div className="mt-4 bg-white p-4 rounded-lg shadow-sm overflow-x-auto max-w-full">
                 {/* Fixed Container for the Table */}
                 <div className="relative max-h-screen overflow-x-auto">
-                  <table className="min-w-full text-sm sm:text-base overflow-x-auto">
+                  <table className="min-w-full text-xs sm:text-base overflow-x-auto">
                     <thead>
                       <tr className="text-left font-medium">
                         

@@ -89,31 +89,14 @@ const Credit = ({ onPurchaseCreditclick }) => {
     fetchProducts();
   }, [isAuthenticated]);
 
-  // Select/Deselect all products
-  const handleSelectAll = () => {
-    if (selectAll) {
-      setSelectedProducts([]);
-    } else {
-      setSelectedProducts(products.map((product) => product._id));
-    }
-    setSelectAll(!selectAll);
-  };
-
-  // Toggle individual product selection
-  const handleProductSelect = (productId) => {
-    setSelectedProducts((prevSelected) =>
-      prevSelected.includes(productId)
-        ? prevSelected.filter((id) => id !== productId)
-        : [...prevSelected, productId]
-    );
-  };
+ 
   const handlePurchaseCreditToggle = () => {
     setIsPurchaseCredit(!isPurchaseCredit);
   };
 
   return (
     <Layout>
-      <div className="flex flex-col min-h-screen p-2">
+      <div className="flex flex-col min-h-screen lg:p-2">
         {/* Main Content */}
         <main className="flex-1 ">
           {/* Show Add Product Form or Products List */}
@@ -162,8 +145,8 @@ const Credit = ({ onPurchaseCreditclick }) => {
               {/* Product List */}
               {products.length > 0 ? (
                 <div className="mt-4 bg-white p-4 rounded-lg shadow-sm overflow-x-auto">
-                  <table className="w-full min-w-[600px]">
-                    <thead>
+                  <table className="min-w-full text-sm sm:text-base overflow-x-auto">
+                  <thead>
                       <tr className="text-left font-medium bg-gray-100">
                        
                         <th className="p-2">Product Name</th>
