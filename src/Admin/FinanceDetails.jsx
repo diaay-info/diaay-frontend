@@ -8,22 +8,22 @@ const FinanceDetails = () => {
   const navigate = useNavigate();
   const { type } = useParams();
   const pageTitle = type.replace("-", " ").toUpperCase();
-
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const itemsPerPage = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
 
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await fetch(
-          "https://e-service-v2s8.onrender.com/api/credits/admin/all",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
+        const response = await fetch(`${API_BASE_URL}/api/credits/admin/all`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
 
         if (!response.ok) {
           throw new Error("Failed to fetch transactions.");
@@ -41,7 +41,13 @@ const FinanceDetails = () => {
 
     fetchTransactions();
   }, []);
+  const formatNumber = (num) => num?.toLocaleString() || 0;
 
+  const totalPages = Math.ceil((transactions?.length || 0) / itemsPerPage);
+  const paginatedTransactions = transactions.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
   const filteredTransactions = transactions.filter((transaction) => {
     if (type === "total-credits") return true;
     if (type === "pending-credits") return transaction.status === "pending";
@@ -74,51 +80,56 @@ const FinanceDetails = () => {
           ) : filteredTransactions.length === 0 ? (
             <p className="text-gray-500">No transactions found.</p>
           ) : (
-            <table className="w-full bg-white shadow-md rounded-lg">
-              <thead>
-                <tr className="border-b">
-                  <th className="p-3 text-left">Email</th>
-                  <th className="p-3 text-left">Amount</th>
-                  <th className="border-b p-3 text-left">Payment Method</th>
-                  <th className="p-3 text-left">Date</th>
-                  <th className="p-3 text-left">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredTransactions.map((transaction, index) => (
-                  <tr
-                    key={index}
-                    className="border-b hover:bg-gray-100 cursor-pointer"
-                    onClick={() =>
-                      navigate(`/admin/finance/credit/${transaction._id}`)
-                    }
-                  >
-                    <td className="p-3">{transaction.userId.email}</td>
-                    <td className="p-3">{transaction.amount}</td>
-                    <td className="border-b p-3">
-                      {transaction.paymentMethod}
-                    </td>
-                    <td className="p-3">
-                      {new Date(transaction.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="border-b p-2 md:p-3 font-semibold">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs ${
-                              transaction.status === "pending"
-                                ? " text-yellow-600"
-                                : transaction.status === "completed"
-                                ? " text-green-600"
-                                : " text-red-600"
-                            }`}
-                          >
-                            {transaction.status.charAt(0).toUpperCase() +
-                              transaction.status.slice(1)}
-                          </span>
-                        </td>
+            <div className="overflow-x-auto">
+                <table className="w-full min-w-max border-collapse">
+                <thead className="bg-primary text-white text-xs md:text-sm uppercase font-semibold">
+                  <tr className="border-b border-gray-200">
+                    <th className="border-b p-2 md:p-3 text-left">E-mail</th>
+                    <th className="border-b p-2 md:p-3 text-left">Amount</th>
+                    <th className="border-b p-2 md:p-3 text-left">
+                      Payment Method
+                    </th>
+                    <th className="border-b p-2 md:p-3 text-left">Date</th>
+                    <th className="border-b p-2 md:p-3 text-left">Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {paginatedTransactions.map((transaction, index) => (
+                    <tr
+                      key={index}
+                      className="hover:bg-gray-100 text-xs md:text-sm"
+                    >
+                      <td className="border-b p-2 md:p-3">
+                        {transaction.userId.email}
+                      </td>
+                      <td className="border-b p-2 md:p-3">
+                        {formatNumber(transaction.amount)}
+                      </td>
+                      <td className="border-b p-2 md:p-3">
+                        {transaction.paymentMethod}
+                      </td>
+                      <td className="border-b p-2 md:p-3">
+                        {new Date(transaction.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="border-b p-2 md:p-3 font-semibold">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${
+                            transaction.status === "pending"
+                              ? " text-yellow-600"
+                              : transaction.status === "completed"
+                              ? " text-green-600"
+                              : " text-red-600"
+                          }`}
+                        >
+                          {transaction.status.charAt(0).toUpperCase() +
+                            transaction.status.slice(1)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </div>

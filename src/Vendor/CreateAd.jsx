@@ -15,7 +15,7 @@ const CreateAd = () => {
     success: false,
     message: "",
   });
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const token = localStorage.getItem("accessToken");
 
   useEffect(() => {
@@ -29,7 +29,7 @@ const CreateAd = () => {
       try {
         // Fetch product details
         const productResponse = await fetch(
-          `https://e-service-v2s8.onrender.com/api/products/${productId}`,
+          `${API_BASE_URL}/api/products/${productId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -44,7 +44,7 @@ const CreateAd = () => {
 
         // Fetch credit balance
         const creditResponse = await fetch(
-          "https://e-service-v2s8.onrender.com/api/credits/balance",
+          "${API_BASE_URL}/api/credits/balance",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -109,7 +109,7 @@ const CreateAd = () => {
 
     try {
       const response = await fetch(
-        "https://e-service-v2s8.onrender.com/api/ads",
+        `${API_BASE_URL}/api/ads`,
         {
           method: "POST",
           headers: {

@@ -6,7 +6,7 @@ const Notification = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [activeTab, setActiveTab] = useState("User Activity");
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const tabs = [
     { name: "User Activity" },
     { name: "Referral Approvals", count: 15 },

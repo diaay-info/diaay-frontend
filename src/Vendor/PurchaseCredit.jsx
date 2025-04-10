@@ -13,7 +13,7 @@ const PurchaseCredit = () => {
   const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutes in seconds
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
   const [paymentDetails, setPaymentDetails] = useState({
     referenceId: "", // Changed from 'reference'
@@ -98,7 +98,7 @@ const PurchaseCredit = () => {
       }
 
       const response = await fetch(
-        "https://e-service-v2s8.onrender.com/api/credits/purchase",
+        `${API_BASE_URL}/api/credits/purchase`,
         {
           method: "POST",
           headers: {

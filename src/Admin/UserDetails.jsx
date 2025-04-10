@@ -11,12 +11,12 @@ const UserDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [modal, setModal] = useState({ show: false, action: "", message: "" });
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
         const response = await fetch(
-          `https://e-service-v2s8.onrender.com/api/admin/users/${id}`,
+          `${API_BASE_URL}/api/admin/users/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -51,7 +51,7 @@ const UserDetails = () => {
   const updateUserStatus = async (newStatus) => {
     try {
       const response = await fetch(
-        `https://e-service-v2s8.onrender.com/api/admin/users/${id}`,
+        `${API_BASE_URL}/api/admin/users/${id}`,
         {
           method: "PATCH",
           headers: {

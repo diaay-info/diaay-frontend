@@ -10,7 +10,8 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
+  
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const countryCodes = [
     { code: "+229", name: "Benin" },
     { code: "+234", name: "Nigeria" },
@@ -35,11 +36,12 @@ const Login = () => {
     }
 
     const fullPhoneNumber = `${countryCode}${phoneNumber}`;
-
+    console.log("API URL:", `${import.meta.env.VITE_API_BASE_URL}/api/auth/login`);
+    console.log("API URL:", `${API_BASE_URL}/api/auth/login`);
     setLoading(true);
     try {
       const response = await fetch(
-        "https://e-service-v2s8.onrender.com/api/auth/login",
+        `${import.meta.env.VITE_API_BASE_URL}/api/auth/login`,
         {
           method: "POST",
           headers: {

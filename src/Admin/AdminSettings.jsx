@@ -11,7 +11,7 @@ function Settings() {
     userRole: "",
     avatar: localStorage.getItem("userAvatar") || "",
   });
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {

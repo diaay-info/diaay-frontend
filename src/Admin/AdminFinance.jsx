@@ -15,11 +15,12 @@ const Finance = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const response = await fetch(
-          "https://e-service-v2s8.onrender.com/api/credits/admin/counts",
+          `${API_BASE_URL}/api/credits/admin/counts`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -39,7 +40,7 @@ const Finance = () => {
     const fetchTransactions = async () => {
       try {
         const response = await fetch(
-          "https://e-service-v2s8.onrender.com/api/credits/admin/all",
+          `${API_BASE_URL}/api/credits/admin/all`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,

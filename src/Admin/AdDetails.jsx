@@ -5,7 +5,7 @@ import Header from "./AdminHeader";
 import { IoIosArrowRoundBack } from "react-icons/io";
 
 // Ad Images Component
-
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const AdImages = ({ images }) => {
     console.log ("images:", images)
   if (!images || images.length === 0) {
@@ -45,7 +45,7 @@ const AdDetails = () => {
     const fetchAdDetails = async () => {
       try {
         const response = await fetch(
-          `https://e-service-v2s8.onrender.com/api/admin/adverts/${id}`,
+          `${API_BASE_URL}/api/admin/adverts/${id}`,
           {
             method: "GET",
             headers: {
@@ -75,7 +75,7 @@ const AdDetails = () => {
   const updateStatus = async (newStatus) => {
     try {
       const response = await fetch(
-        `https://e-service-v2s8.onrender.com/api/ads/${id}/status`,
+        `${API_BASE_URL}/api/ads/${id}/status`,
         {
           method: "PATCH",
           headers: {

@@ -13,7 +13,7 @@ function VendorDashboard() {
   const [loading, setLoading] = useState(true);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const handleProductSelect = (productId) => {
     setSelectedProducts((prevSelected) =>
       prevSelected.includes(productId)
@@ -62,7 +62,7 @@ function VendorDashboard() {
 
       try {
         const reportRes = await fetch(
-          `https://e-service-v2s8.onrender.com/api/report?vendorId=${userId}`,
+          `${API_BASE_URL}/api/report?vendorId=${userId}`,
           { headers }
         );
 

@@ -11,7 +11,7 @@ const CategoryManagement = () => {
   const [newCategory, setNewCategory] = useState("");
   const [loading, setLoading] = useState(false);
   const accessToken = localStorage.getItem("accessToken");
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -20,7 +20,7 @@ const CategoryManagement = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "https://e-service-v2s8.onrender.com/api/categories",
+        `${API_BASE_URL}/api/categories`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -45,7 +45,7 @@ const CategoryManagement = () => {
     try {
       setLoading(true);
       await axios.post(
-        "https://e-service-v2s8.onrender.com/api/categories",
+        `${API_BASE_URL}/api/categories`,
         { name: newCategory },
         {
           headers: {
@@ -72,7 +72,7 @@ const CategoryManagement = () => {
     try {
       setLoading(true);
       await axios.delete(
-        `https://e-service-v2s8.onrender.com/api/categories/${id}`,
+        `${API_BASE_URL}/api/categories/${id}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -110,7 +110,7 @@ const CategoryManagement = () => {
               <button
                 onClick={handleAddCategory}
                 disabled={loading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+                className="px-4 py-2 bg-primary text-white rounded-md hover:bg-purple-700 disabled:bg-gray-400"
               >
                 {loading ? "Adding..." : "Add Category"}
               </button>

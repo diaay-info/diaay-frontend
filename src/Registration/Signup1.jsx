@@ -29,7 +29,7 @@ const SignUpForm = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [userExists, setUserExists] = useState(false);
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
 
   const validateForm = () => {
@@ -109,7 +109,7 @@ const SignUpForm = () => {
         }
 
         const response = await fetch(
-          "https://e-service-v2s8.onrender.com/api/auth/register",
+          `${API_BASE_URL}/api/auth/register`,
           {
             method: "POST",
             headers: {

@@ -7,7 +7,7 @@ const Dashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -17,7 +17,7 @@ const Dashboard = () => {
         }
 
         const response = await fetch(
-          "https://e-service-v2s8.onrender.com/api/admin/report",
+          `${API_BASE_URL}/api/admin/report`,
           {
             method: "GET",
             headers: {

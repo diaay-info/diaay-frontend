@@ -9,14 +9,14 @@ const CategoryPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { categoryName } = useParams(); // Changed from categoryId to categoryName
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   // Fetch all categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         setLoading(true);
         const response = await fetch(
-          "https://e-service-v2s8.onrender.com/api/categories"
+          `${API_BASE_URL}/api/categories`
         );
 
         if (!response.ok) {
@@ -44,7 +44,7 @@ const CategoryPage = () => {
         setError(null);
 
         const response = await fetch(
-          "https://e-service-v2s8.onrender.com/api/ads"
+          `${API_BASE_URL}/api/ads`
         );
 
         if (!response.ok) {

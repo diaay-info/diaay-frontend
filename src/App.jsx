@@ -23,7 +23,7 @@ const HomePage = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const navigate = useNavigate();
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const categories = [
     { name: "Vehicles", image: "/categories/car.png" },
     { name: "House", image: "/categories/house.png" },
@@ -40,7 +40,7 @@ const HomePage = () => {
     const fetchTopAds = async () => {
       try {
         const response = await fetch(
-          "https://e-service-v2s8.onrender.com/api/top-ads"
+          `${API_BASE_URL}/api/top-ads`
         );
         const data = await response.json();
 
@@ -66,7 +66,7 @@ const HomePage = () => {
     const fetchAds = async () => {
       try {
         const response = await fetch(
-          "https://e-service-v2s8.onrender.com/api/ads"
+          `${API_BASE_URL}/api/ads`
         );
         const data = await response.json();
 

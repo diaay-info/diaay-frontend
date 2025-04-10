@@ -11,7 +11,7 @@ const Ads = () => {
   const [selectAll, setSelectAll] = useState(false);
   const [error, setError] = useState(null);
   const location = useLocation();
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   // Filters
   const [category, setCategory] = useState("All");
   const [status, setStatus] = useState("All");
@@ -31,7 +31,7 @@ const Ads = () => {
 
       try {
         const response = await fetch(
-          "https://e-service-v2s8.onrender.com/api/ads/my-ads",
+          `${API_BASE_URL}/api/ads/my-ads`,
           {
             method: "GET",
             headers: {

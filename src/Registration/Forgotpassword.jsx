@@ -7,7 +7,7 @@ const ForgotPassword = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -21,7 +21,7 @@ const ForgotPassword = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        "https://e-service-v2s8.onrender.com/api/auth/forgot-password",
+        `${API_BASE_URL}/api/auth/forgot-password`,
         {
           method: "POST",
           headers: {

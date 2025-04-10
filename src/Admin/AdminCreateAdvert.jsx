@@ -25,7 +25,7 @@ function AdminCreateAdvert() {
   const [modalMessage, setModalMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const validateForm = () => {
     const newErrors = {};
 
@@ -124,7 +124,7 @@ function AdminCreateAdvert() {
 
       const token = localStorage.getItem("accessToken");
       const response = await fetch(
-        "https://e-service-v2s8.onrender.com/api/top-ads",
+        `${API_BASE_URL}/api/top-ads`,
         {
           method: "POST",
           headers: {

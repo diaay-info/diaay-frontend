@@ -24,15 +24,7 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* 🔥 Stylish Menu Button - Hidden when sidebar is open */}
-      {!isOpen && (
-        <button
-          className="lg:hidden fixed top-4 left-4 z-50 bg-purple-600 text-white p-2 rounded-full shadow-lg hover:bg-purple-700 transition-all"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <FaBars size={20} />
-        </button>
-      )}
+      
 
       {/* Sidebar */}
       <div

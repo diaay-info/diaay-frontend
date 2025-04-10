@@ -18,13 +18,13 @@ const AdsManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const navigate = useNavigate();
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     const fetchAds = async () => {
       setLoading(true);
       try {
         const response = await fetch(
-          "https://e-service-v2s8.onrender.com/api/admin/adverts",
+          `${API_BASE_URL}/api/admin/adverts`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -60,7 +60,7 @@ const AdsManagement = () => {
       await Promise.all(
         selectedRows.map(async (id) => {
           const response = await fetch(
-            `https://e-service-v2s8.onrender.com/api/ads/${id}/status`,
+            `${API_BASE_URL}/api/ads/${id}/status`,
             {
               method: "PATCH",
               headers: {

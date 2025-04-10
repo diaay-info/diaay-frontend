@@ -12,7 +12,7 @@ const AdDetailss = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [activeTab, setActiveTab] = useState("description");
   const { favorites, addToFavorites, removeFromFavorites } = useFavorites();
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const isFavorite = favorites.some((fav) => fav._id === ad?._id);
 
   const handleCallVendor = () => {
@@ -60,7 +60,7 @@ const AdDetailss = () => {
     const fetchAdDetails = async () => {
       try {
         const response = await fetch(
-          `https://e-service-v2s8.onrender.com/api/ads/${adId}/active`
+          `${API_BASE_URL}/api/ads/${adId}/active`
         );
         const data = await response.json();
         if (response.ok) {
@@ -78,7 +78,7 @@ const AdDetailss = () => {
     const fetchSimilarProducts = async (category) => {
       try {
         const response = await fetch(
-          `https://e-service-v2s8.onrender.com/api/ads?category=${encodeURIComponent(
+          `${API_BASE_URL}/api/ads?category=${encodeURIComponent(
             category
           )}`
         );

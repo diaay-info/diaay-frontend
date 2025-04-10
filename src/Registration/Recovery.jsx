@@ -8,7 +8,7 @@ function Recovery() {
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
   const navigate = useNavigate();
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     // Retrieve token from local storage (this should have been set previously)
     const storedToken = localStorage.getItem("resetToken");
@@ -68,7 +68,7 @@ function Recovery() {
       console.log("Verifying code:", verificationCode);
 
       // Call verify-reset-token endpoint
-      const response = await fetch("https://e-service-v2s8.onrender.com/api/auth/verify-reset-token", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/verify-reset-token`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: verificationCode }), // Use the entered code as the token

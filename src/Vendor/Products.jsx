@@ -14,7 +14,7 @@ const ProductPage = () => {
   const [error, setError] = useState(null);
   const [selectAll, setSelectAll] = useState(false);
   const [showActions, setShowActions] = useState(null);
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const handleProductSelect = (productId) => {
     setSelectedProducts((prevSelected) =>
       prevSelected.includes(productId)
@@ -57,7 +57,7 @@ const ProductPage = () => {
     const token = localStorage.getItem("accessToken");
     try {
       const res = await fetch(
-        `https://e-service-v2s8.onrender.com/api/products/${productId}`,
+        `${API_BASE_URL}/api/products/${productId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
@@ -78,7 +78,7 @@ const ProductPage = () => {
       const token = localStorage.getItem("accessToken");
       try {
         const res = await fetch(
-          "https://e-service-v2s8.onrender.com/api/report",
+          `${API_BASE_URL}/api/report`,
           {
             headers: {
               "Content-Type": "application/json",

@@ -9,7 +9,7 @@ function ResetPassword() {
   const [success, setSuccess] = useState("");
   const [newPasswordVisible, setNewPasswordVisible] = useState(false); // Toggle for new password
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false); // Toggle for confirm password
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -38,7 +38,7 @@ function ResetPassword() {
 
       // Call the reset password endpoint
       const response = await fetch(
-        "https://e-service-v2s8.onrender.com/api/auth/reset-password",
+        `${API_BASE_URL}/api/auth/reset-password`,
         {
           method: "POST",
           headers: {

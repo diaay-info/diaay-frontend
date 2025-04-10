@@ -14,7 +14,7 @@ const ProductForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [accessToken, setAccessToken] = useState("");
   const navigate = useNavigate();
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     setAccessToken(token || "");
@@ -23,7 +23,7 @@ const ProductForm = () => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get(
-          "https://e-service-v2s8.onrender.com/api/categories"
+          "${API_BASE_URL}/api/categories"
         );
         setCategories(response.data);
       } catch (error) {
@@ -122,7 +122,7 @@ const ProductForm = () => {
       };
 
       const response = await axios.post(
-        "https://e-service-v2s8.onrender.com/api/products",
+        `${API_BASE_URL}/api/products`,
         payload,
         {
           headers: {

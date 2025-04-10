@@ -12,8 +12,7 @@ const Credit = ({ onPurchaseCreditclick }) => {
   const [selectAll, setSelectAll] = useState(false);
   const [creditBalance, setCreditBalance] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Track auth status
-
-  const isPurchaseCreditPage = location.pathname.includes("purchasecredit");
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;  const isPurchaseCreditPage = location.pathname.includes("purchasecredit");
 
   // Check authentication status
   useEffect(() => {
@@ -34,7 +33,7 @@ const Credit = ({ onPurchaseCreditclick }) => {
       try {
         const token = localStorage.getItem("accessToken");
         const response = await fetch(
-          "https://e-service-v2s8.onrender.com/api/credits/balance",
+          `${API_BASE_URL}/api/credits/balance`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -67,7 +66,7 @@ const Credit = ({ onPurchaseCreditclick }) => {
       try {
         const token = localStorage.getItem("accessToken");
         const response = await fetch(
-          `https://e-service-v2s8.onrender.com/api/report`,
+          `${API_BASE_URL}/api/report`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

@@ -14,18 +14,15 @@ const UserManagement = () => {
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch(
-          "https://e-service-v2s8.onrender.com/api/admin/users",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
+        const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
         const result = await response.json();
 
         if (result.success && Array.isArray(result.data)) {
@@ -123,7 +120,7 @@ const UserManagement = () => {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="min-w-full border-collapse border border-gray-200 bg-white rounded-lg shadow-md text-sm">
+                <table className="w-full border-collapse border border-gray-200 bg-white rounded-lg shadow-md text-sm">
                   <thead className="bg-primary text-white text-xs md:text-sm uppercase font-semibold">
                     <tr>
                       <th className="p-2 md:p-3 text-left">Name</th>

@@ -6,7 +6,7 @@ import Header from "./AdminHeader";
 const CreditDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [credit, setCredit] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,7 +15,7 @@ const CreditDetails = () => {
     const fetchCreditDetails = async () => {
       try {
         const response = await fetch(
-          `https://e-service-v2s8.onrender.com/api/credits/admin/${id}`,
+          `${API_BASE_URL}/api/credits/admin/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -43,7 +43,7 @@ const CreditDetails = () => {
   const updateStatus = async (newStatus) => {
     try {
       const response = await fetch(
-        "https://e-service-v2s8.onrender.com/api/credits/admin/update",
+        `${API_BASE_URL}/api/credits/admin/update`,
         {
           method: "PATCH",
           headers: {

@@ -6,7 +6,7 @@ function Verify() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [countdown, setCountdown] = useState(60);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     const storedPhoneNumber = localStorage.getItem("phoneNumber");
     if (storedPhoneNumber) {
@@ -54,7 +54,7 @@ function Verify() {
     }
 
     try {
-      const response = await fetch("https://e-service-v2s8.onrender.com/api/auth/verify-phone", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/verify-phone`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phoneNumber, code: verificationCode }),
@@ -76,7 +76,7 @@ function Verify() {
     setCountdown(60); // Restart the countdown
 
     try {
-      const response = await fetch("https://e-service-v2s8.onrender.com/api/auth/resend-verification", {
+      const response = await fetch("${API_BASE_URL}/api/auth/resend-verification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phoneNumber }),
