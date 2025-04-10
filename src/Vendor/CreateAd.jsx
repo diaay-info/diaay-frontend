@@ -206,7 +206,7 @@ const CreateAd = () => {
                   <strong>Category:</strong> {product.category}
                 </p>
                 <p>
-                  <strong>Price:</strong> {product.price} CFA
+                  <strong>Price:</strong> {product.price} XOF
                 </p>
                 <p>
                   <strong>Location:</strong> {product.state}
@@ -228,7 +228,7 @@ const CreateAd = () => {
                       className="mr-2"
                     />
                     {days} days - {days === 7 ? 1 : days === 14 ? 2 : 3} credits
-                    ({days === 7 ? 1000 : days === 14 ? 2000 : 3000} CFA)
+                    ({days === 7 ? 1000 : days === 14 ? 2000 : 3000} XOF)
                   </label>
                 ))}
               </div>
@@ -252,7 +252,7 @@ const CreateAd = () => {
               <strong>Monetary Cost:</strong>{" "}
               {(selectedDuration === 7 ? 1 : selectedDuration === 14 ? 2 : 3) *
                 1000}{" "}
-              CFA
+              XOF
             </p>
             <p className="text-lg">
               <strong>Current Credit Available:</strong> {creditBalance}

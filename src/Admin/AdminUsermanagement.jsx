@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { FiUsers } from "react-icons/fi";
-import { FaBars } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import Sidebar from "./AdminSideBar";
 import Header from "./AdminHeader";
@@ -14,7 +13,6 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -33,10 +31,10 @@ const UserManagement = () => {
         if (result.success && Array.isArray(result.data)) {
           setUsers(result.data);
         } else {
-          setError("Failed to load users");
+          setError("Failed to load users.");
         }
       } catch (error) {
-        setError("Error fetching users");
+        setError("Error fetching users.");
       } finally {
         setLoading(false);
       }
@@ -45,7 +43,6 @@ const UserManagement = () => {
     fetchUsers();
   }, []);
 
-  // Filtering users
   const filteredUsers = users.filter((user) => {
     if (!user || !user.fullName || !user.email) return false;
 
@@ -64,35 +61,37 @@ const UserManagement = () => {
     return matchesSearch && matchesRole && matchesStatus;
   });
 
-  // Pagination logic
-  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / itemsPerPage));
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedUsers = filteredUsers.slice(startIndex, startIndex + itemsPerPage);
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredUsers.length / itemsPerPage)
+  );
+  const paginatedUsers = filteredUsers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
-    <div className="flex">
-      
-        <Sidebar />
-
-      {/* Main Content */}
-      <div className="flex-1 p-4 md:p-6 md:ml-64 bg-gray-100 min-h-screen">
+    <div className="flex min-h-screen bg-gray-100">
+      <Sidebar />
+      <main className="flex-1 p-4 md:p-6 md:ml-64">
         <Header />
 
-        <div className="py-6">
-          {error && <p className="text-red-500 text-center">{error}</p>}
+        <section className="py-6">
+          {error && (
+            <div className="text-red-500 text-center mb-4">{error}</div>
+          )}
 
-          {/* Filters Section */}
-          <div className="bg-white p-4 rounded-lg shadow-md mb-4 grid gap-4 md:flex md:items-center">
+          {/* Filters */}
+          <div className="bg-white p-4 rounded-xl shadow mb-6 flex flex-col md:flex-row gap-4">
             <input
               type="text"
               placeholder="Search by name or email..."
-              className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring focus:ring-blue-200 w-full md:w-auto"
+              className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 outline-none"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-
             <select
-              className="border border-gray-300 rounded-lg px-4 py-2 bg-white w-full md:w-auto"
+              className="w-full md:w-1/4 px-4 py-2 border border-gray-300 rounded-lg"
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
             >
@@ -101,9 +100,8 @@ const UserManagement = () => {
               <option>Customer</option>
               <option>Partner</option>
             </select>
-
             <select
-              className="border border-gray-300 rounded-lg px-4 py-2 bg-white w-full md:w-auto"
+              className="w-full md:w-1/4 px-4 py-2 border border-gray-300 rounded-lg"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -114,40 +112,60 @@ const UserManagement = () => {
             </select>
           </div>
 
-          {/* Users Table */}
-          <div className="overflow-x-auto">
+          {/* User Table */}
+          <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
             {loading ? (
-              <p className="text-gray-600 text-center">Loading...</p>
+              <p className="text-center text-gray-600">Loading...</p>
             ) : paginatedUsers.length === 0 ? (
               <div className="text-center mt-6 flex flex-col items-center">
                 <FiUsers className="text-gray-400 text-6xl" />
-                <p className="text-gray-500 mt-2">No Users Found</p>
+                <p className="text-gray-500 mt-2">No users found</p>
               </div>
             ) : (
-              <div className="bg-white p-4 rounded-lg shadow-md">
-                <table className="w-full border-collapse border border-gray-200 bg-white rounded-lg shadow-md text-sm">
-                  <thead className="bg-primary text-white uppercase font-semibold">
+              <div className="overflow-x-auto">
+                <table className="min-w-full border-collapse border border-gray-200 bg-white rounded-lg shadow-md text-sm">
+                  <thead className="bg-primary text-white text-xs md:text-sm uppercase font-semibold">
                     <tr>
-                      <th className="border-b border-gray-300 p-3 text-left">Name</th>
-                      <th className="border-b border-gray-300 p-3 text-left">Email</th>
-                      <th className="border-b border-gray-300 p-3 text-left">Role</th>
-                      <th className="border-b border-gray-300 p-3 text-left">Date Created</th>
-                      <th className="border-b border-gray-300 p-3 text-left">Status</th>
+                      <th className="p-2 md:p-3 text-left">Name</th>
+                      <th className="p-2 md:p-3 text-left">Email</th>
+                      <th className="p-2 md:p-3 text-left">Role</th>
+                      <th className="p-2 md:p-3 text-left">Date Created</th>
+                      <th className="p-2 md:p-3 text-left">Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {paginatedUsers.map((user) => (
-                      <tr key={user.id} className="hover:bg-gray-100">
-                        <td className="border-b border-gray-300 p-3">
-                          <Link to={`/admin/users/${user._id}`} className="text-blue-600 hover:underline">
+                      <tr
+                        key={user._id}
+                        className="hover:bg-gray-100 text-xs md:text-sm"
+                      >
+                        <td className="p-2 md:p-3 font-medium text-gray-800">
+                          <Link
+                            to={`/admin/users/${user._id}`}
+                            className="text-blue-600 hover:underline"
+                          >
                             {user.fullName}
                           </Link>
                         </td>
-                        <td className="border-b border-gray-300 p-3">{user.email}</td>
-                        <td className="border-b border-gray-300 p-3">{user.role}</td>
-                        <td className="border-b border-gray-300 p-3">{new Date(user.createdAt).toLocaleDateString()}</td>
-                        <td className="border-b border-gray-300 p-3">
-                          <span className={`px-3 py-1 rounded text-xs ${user.status.toLowerCase() === "active" ? "bg-green-100 text-green-600" : user.status.toLowerCase() === "inactive" ? "bg-red-100 text-red-600" : "bg-yellow-100 text-black"}`}>
+                        <td className="p-2 md:p-3 text-gray-600">
+                          {user.email}
+                        </td>
+                        <td className="p-2 md:p-3 text-gray-600">
+                          {user.role}
+                        </td>
+                        <td className="p-2 md:p-3 text-gray-600">
+                          {new Date(user.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="p-2 md:p-3">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                              user.status.toLowerCase() === "active"
+                                ? "text-green-700 bg-green-100"
+                                : user.status.toLowerCase() === "inactive"
+                                ? "text-red-600 bg-red-100"
+                                : "text-yellow-700 bg-yellow-100"
+                            }`}
+                          >
                             {user.status}
                           </span>
                         </td>
@@ -157,20 +175,36 @@ const UserManagement = () => {
                 </table>
               </div>
             )}
-          </div>
 
-          {/* Pagination */}
-          <div className="flex justify-center items-center mt-4 space-x-4 text-gray-600">
-            <button onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))} disabled={currentPage === 1}>
-              <IoIosArrowBack />
-            </button>
-            <span>Page {currentPage} of {totalPages}</span>
-            <button onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))} disabled={currentPage === totalPages}>
-              <IoIosArrowForward />
-            </button>
+            {/* Pagination */}
+            {filteredUsers.length > 0 && (
+              <div className="flex flex-row justify-center md:justify-end items-center mt-4 gap-2">
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
+                  disabled={currentPage === 1}
+                  className="p-2 bg-gray-200 rounded disabled:opacity-50"
+                >
+                  <IoIosArrowBack />
+                </button>
+                <span className="text-sm">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
+                  disabled={currentPage === totalPages}
+                  className="p-2 bg-gray-200 rounded disabled:opacity-50"
+                >
+                  <IoIosArrowForward />
+                </button>
+              </div>
+            )}
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 };

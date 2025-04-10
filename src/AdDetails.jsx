@@ -8,8 +8,9 @@ import { useFavorites } from "./useFavorites";
 const AdDetailss = () => {
   const { adId } = useParams();
   const [ad, setAd] = useState(null);
+  const [similarProducts, setSimilarProducts] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [activeTab, setActiveTab] = useState("description"); // State for active tab
+  const [activeTab, setActiveTab] = useState("description");
   const { favorites, addToFavorites, removeFromFavorites } = useFavorites();
 
   const isFavorite = favorites.some((fav) => fav._id === ad?._id);
@@ -28,7 +29,11 @@ const AdDetailss = () => {
       return;
     }
     const formattedPhoneNumber = ad.userId.phoneNumber.replace(/\D/g, "");
-    window.location.href = `https://wa.me/${formattedPhoneNumber}`;
+    const productLink = window.location.href;
+    const message = encodeURIComponent(
+      `Hello, good day! I'm interested in this product: ${ad.title}\n\n${productLink}`
+    );
+    window.location.href = `https://wa.me/${formattedPhoneNumber}?text=${message}`;
   };
 
   const toggleFavorite = () => {
@@ -40,11 +45,15 @@ const AdDetailss = () => {
   };
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev === 3 ? 0 : prev + 1));
+    setCurrentSlide((prev) =>
+      prev === Math.ceil(similarProducts.length / 2) - 1 ? 0 : prev + 1
+    );
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev === 0 ? 3 : prev - 1));
+    setCurrentSlide((prev) =>
+      prev === 0 ? Math.ceil(similarProducts.length / 2) - 1 : prev - 1
+    );
   };
 
   useEffect(() => {
@@ -56,11 +65,33 @@ const AdDetailss = () => {
         const data = await response.json();
         if (response.ok) {
           setAd(data);
+          // Fetch similar products after setting the ad
+          fetchSimilarProducts(data.category);
         } else {
           console.error("Error fetching ad details:", data);
         }
       } catch (error) {
         console.error("Error fetching ad details:", error);
+      }
+    };
+
+    const fetchSimilarProducts = async (category) => {
+      try {
+        const response = await fetch(
+          `https://e-service-v2s8.onrender.com/api/ads?category=${encodeURIComponent(
+            category
+          )}`
+        );
+        const data = await response.json();
+        if (response.ok) {
+          // Filter out the current ad from similar products
+          const similar = Array.isArray(data) ? data : data.ads || [];
+          setSimilarProducts(similar.filter((product) => product._id !== adId));
+        } else {
+          console.error("Error fetching similar products:", data);
+        }
+      } catch (error) {
+        console.error("Error fetching similar products:", error);
       }
     };
 
@@ -71,7 +102,6 @@ const AdDetailss = () => {
     return <p>Loading ad details...</p>;
   }
 
-  // Function to render tab content based on active tab
   const renderTabContent = () => {
     switch (activeTab) {
       case "description":
@@ -86,7 +116,8 @@ const AdDetailss = () => {
             <ul className="list-disc pl-5 space-y-2">
               {ad.productId.features?.map((feature, index) => (
                 <li key={index} className="text-gray-600">
-                  {feature.name}: {feature.value}<hr/>
+                  {feature.name}: {feature.value}
+                  <hr />
                 </li>
               ))}
             </ul>
@@ -98,12 +129,15 @@ const AdDetailss = () => {
             <p className="text-gray-600">
               For your safety, please:
               <ul className="list-disc pl-5 space-y-4 mt-2">
-                <li>Do not send any prepayment.</li><hr/>
-                <li>Meet the seller in a safe public place.</li><hr/>
+                <li>Do not send any prepayment.</li>
+                <hr />
+                <li>Meet the seller in a safe public place.</li>
+                <hr />
                 <li>
                   Inspect what you're going to buy to make sure it's what you
                   need
-                </li> <hr/>
+                </li>{" "}
+                <hr />
                 <li>Check all documents and only pay if you are satisfied.</li>
               </ul>
             </p>
@@ -173,7 +207,7 @@ const AdDetailss = () => {
             <p className="text-gray-600">{ad.productId.description}</p>
             <hr />
             <p className="text-primary font-bold text-3xl">
-              CFA {ad.productId.price}
+              XOF {ad.productId.price}
             </p>
             <p className="text-gray-600">
               {ad.productId.country}, {ad.productId.state}
@@ -266,44 +300,65 @@ const AdDetailss = () => {
           {/* Similar Products Section */}
           <section className="relative">
             <h2 className="text-2xl font-bold mb-4">Similar Products</h2>
-            <div className="relative overflow-hidden">
-              <div
-                className="flex transition-transform duration-300"
-                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-              >
-                {[1, 2, 3, 4].map((item) => (
-                  <div
-                    key={item}
-                    className="flex-shrink-0 w-full sm:w-1/2 md:w-1/2 p-2"
-                  >
-                    <div className="bg-white rounded-lg shadow-md p-4 h-full">
-                      <img
-                        src="/categories/car.png"
-                        alt="Similar Product"
-                        className="w-full h-40 object-cover rounded-lg mb-4"
-                      />
-                      <h3 className="text-lg font-semibold">
-                        Sony PlayStation A
-                      </h3>
-                      <p className="text-gray-600">CFA 3000</p>
-                      <p className="text-sm text-gray-600">Accra, Olaves</p>
+            {similarProducts.length > 0 ? (
+              <div className="relative overflow-hidden">
+                <div
+                  className="flex transition-transform duration-300"
+                  style={{
+                    transform: `translateX(-${currentSlide * 100}%)`,
+                    width: `${similarProducts.length * 50}%`,
+                  }}
+                >
+                  {similarProducts.map((product) => (
+                    <div
+                      key={product._id}
+                      className="flex-shrink-0 w-full sm:w-1/2 p-2"
+                    >
+                      <Link to={`/ads/${product._id}/active`}>
+                        <div className="bg-white rounded-lg shadow-md p-4 h-full hover:shadow-lg transition-shadow">
+                          <img
+                            src={
+                              product.productId?.images?.[0] ||
+                              "/placeholder.png"
+                            }
+                            alt={product.title}
+                            className="w-full h-40 object-cover rounded-lg mb-4"
+                          />
+                          <h3 className="text-lg font-semibold">
+                            {product.title}
+                          </h3>
+                          <p className="text-gray-600">
+                            XOF {product.productId?.price || "N/A"}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {product.productId?.country || ""},{" "}
+                            {product.productId?.state || ""}
+                          </p>
+                        </div>
+                      </Link>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+                {similarProducts.length > 2 && (
+                  <>
+                    <button
+                      onClick={prevSlide}
+                      className="absolute left-0 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md z-10"
+                    >
+                      <FaArrowLeft />
+                    </button>
+                    <button
+                      onClick={nextSlide}
+                      className="absolute right-0 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md z-10"
+                    >
+                      <FaArrowRight />
+                    </button>
+                  </>
+                )}
               </div>
-              <button
-                onClick={prevSlide}
-                className="absolute left-0 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md z-10"
-              >
-                <FaArrowLeft />
-              </button>
-              <button
-                onClick={nextSlide}
-                className="absolute right-0 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md z-10"
-              >
-                <FaArrowRight />
-              </button>
-            </div>
+            ) : (
+              <p>No similar products found</p>
+            )}
           </section>
         </div>
         <hr className="my-10" />

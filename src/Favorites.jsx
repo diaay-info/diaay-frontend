@@ -39,7 +39,7 @@ const Favorites = () => {
                   <h3 className="text-lg font-semibold">{ad.title}</h3>
                   <p className="text-sm text-gray-600">{ad.location}</p>
                   <p className="text-primary font-bold">
-                    CFA {ad.productId.price}
+                    XOF {ad.productId.price}
                   </p>
                 </div>
               </Link>

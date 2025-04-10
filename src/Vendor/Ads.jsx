@@ -112,7 +112,7 @@ const Ads = () => {
     <Layout>
       <div className="flex min-h-screen p-2">
         {/* Main Content */}
-        <main className="flex-1 ">
+        <main className="flex-1">
           {isAddingAd ? (
             <SelectProductForAd setIsAddingAd={setIsAddingAd} />
           ) : (
@@ -201,79 +201,79 @@ const Ads = () => {
               </div>
 
               {/* Ads List */}
-              <div className="mt-4 bg-white p-4 rounded-lg shadow-sm overflow-x-auto">
-                <table className="w-full text-sm sm:text-base">
-                  <thead>
-                    <tr className="text-left font-medium">
-                      <th className="p-2 border-b">
-                        <input
-                          type="checkbox"
-                          checked={selectAll}
-                          onChange={handleSelectAll}
-                        />
-                      </th>
-                      <th className="p-2 border-b">Product Name</th>
-                      <th className="p-2 border-b">Category</th>
-                      <th className="p-2 border-b">Price</th>
-                      <th className="p-2 border-b">Ads Status</th>
-                      <th className="p-2 border-b">Date Added</th>
-                      <th className="p-2 border-b">Expiry Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredAds.length > 0 ? (
-                      filteredAds.map((ad) => {
-                        const expiryDate = new Date(
-                          ad.expiresAt
-                        ).toLocaleDateString();
-                        const createdDate = new Date(
-                          ad.createdAt
-                        ).toLocaleDateString();
-
-                        // Determine status color
-                        let statusColor = "text-gray-600"; // Default color
-                        if (ad.status === "active")
-                          statusColor = "text-green-600";
-                        else if (ad.status === "expired")
-                          statusColor = "text-red-500";
-                        else if (ad.status === "pending")
-                          statusColor = "text-yellow-500";
-
-                        return (
-                          <tr key={ad._id} className="border-t">
-                            <td className="p-2 border-b">
-                              <input
-                                type="checkbox"
-                                checked={selectedAds.includes(ad._id)}
-                                onChange={() => handleAdSelect(ad._id)}
-                              />
-                            </td>
-                            <td className="p-2 border-b">{ad.title}</td>
-                            <td className="p-2 border-b">
-                              {ad.productId.category}
-                            </td>{" "}
-                            {/* Since no impressions field exists */}
-                            <td className="p-2 border-b text-[#7C0DEA]">
-                              {ad.price} CFA
-                            </td>
-                            <td className={`p-2 border-b ${statusColor}`}>
-                              {ad.status.charAt(0).toUpperCase() +
-                                ad.status.slice(1)}
-                            </td>
-                            <td className="p-2 border-b">{createdDate}</td>
-                            <td className="p-2 border-b">{expiryDate}</td>
-                          </tr>
-                        );
-                      })
-                    ) : (
-                      <tr>
-                        <td colSpan="7" className="text-center p-4">
-                          No products advertised available.
-                        </td>
+              <div className="mt-4 bg-white p-4 rounded-lg shadow-sm overflow-x-auto max-w-full">
+                {/* Fixed Container for the Table */}
+                <div className="relative max-h-screen overflow-x-auto">
+                  <table className="min-w-full text-sm sm:text-base overflow-x-auto">
+                    <thead>
+                      <tr className="text-left font-medium">
+                        <th className="p-2 border-b">
+                          <input
+                            type="checkbox"
+                            checked={selectAll}
+                            onChange={handleSelectAll}
+                          />
+                        </th>
+                        <th className="p-2 border-b">Product Name</th>
+                        <th className="p-2 border-b">Category</th>
+                        <th className="p-2 border-b">Price</th>
+                        <th className="p-2 border-b">Ads Status</th>
+                        <th className="p-2 border-b">Date Added</th>
+                        <th className="p-2 border-b">Expiry Date</th>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {filteredAds.length > 0 ? (
+                        filteredAds.map((ad) => {
+                          const expiryDate = new Date(
+                            ad.expiresAt
+                          ).toLocaleDateString();
+                          const createdDate = new Date(
+                            ad.createdAt
+                          ).toLocaleDateString();
+
+                          // Determine status color
+                          let statusColor = "text-gray-600"; // Default color
+                          if (ad.status === "active")
+                            statusColor = "text-green-600";
+                          else if (ad.status === "expired")
+                            statusColor = "text-red-500";
+                          else if (ad.status === "pending")
+                            statusColor = "text-yellow-500";
+
+                          return (
+                            <tr key={ad._id} className="border-t">
+                              <td className="p-2 border-b">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedAds.includes(ad._id)}
+                                  onChange={() => handleAdSelect(ad._id)}
+                                />
+                              </td>
+                              <td className="p-2 border-b">{ad.title}</td>
+                              <td className="p-2 border-b"></td>
+                              <td className="p-2 border-b text-[#7C0DEA]">
+                                {ad.price} XOF
+                              </td>
+                              <td className={`p-2 border-b ${statusColor}`}>
+                                {ad.status.charAt(0).toUpperCase() +
+                                  ad.status.slice(1)}
+                              </td>
+                              <td className="p-2 border-b">{createdDate}</td>
+                              <td className="p-2 border-b">{expiryDate}</td>
+                            </tr>
+                          );
+                        })
+                      ) : (
+                        <tr>
+                          <td colSpan="7" className="text-center p-4">
+                            No products advertised available.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}

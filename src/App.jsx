@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate} from "react-router-dom";
 import Header from "./Component/Header";
 import Footer from "./Component/Footer";
 import { FaLongArrowAltRight } from "react-icons/fa";
@@ -9,20 +9,59 @@ import {
   FaRegHeart,
   FaChevronDown,
   FaChevronUp,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa";
 
 const HomePage = () => {
   const [activeIndex, setActiveIndex] = useState(null);
-
-  const toggleFAQ = (index) => {
-    setActiveIndex(activeIndex === index ? null : index);
-  };
-
   const [ads, setAds] = useState([]);
   const [featuredAds, setFeaturedAds] = useState([]);
+  const [filteredAds, setFilteredAds] = useState([]);
   const [favorites, setFavorites] = useState([]);
+  const [topAds, setTopAds] = useState([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const navigate = useNavigate();
 
-  // Fetch Ads from API
+  const categories = [
+    { name: "Vehicles", image: "/categories/car.png" },
+    { name: "House", image: "/categories/house.png" },
+    { name: "Fashion & Beauty", image: "/categories/beauty.png" },
+    { name: "Food", image: "/categories/food.png" },
+    { name: "Electronics", image: "/categories/phone.png" },
+    { name: "Services", image: "/categories/services.png" },
+    { name: "Sports", image: "/categories/leisure.png" },
+    { name: "Jobs", image: "/categories/hire.png" },
+  ];
+
+  // Fetch Top Ads from API
+  useEffect(() => {
+    const fetchTopAds = async () => {
+      try {
+        const response = await fetch(
+          "https://e-service-v2s8.onrender.com/api/top-ads"
+        );
+        const data = await response.json();
+
+        if (response.ok) {
+          // Filter only active top ads
+          const activeTopAds = Array.isArray(data)
+            ? data.filter((ad) => ad.status === "active")
+            : [];
+          setTopAds(activeTopAds);
+        } else {
+          console.error("Error fetching top ads:", data);
+        }
+      } catch (error) {
+        console.error("Error fetching top ads:", error);
+      }
+    };
+
+    fetchTopAds();
+  }, []);
+
+  // Fetch Regular Ads from API
   useEffect(() => {
     const fetchAds = async () => {
       try {
@@ -31,13 +70,11 @@ const HomePage = () => {
         );
         const data = await response.json();
 
-        console.log("API Response:", data); // Debugging line
-
         if (response.ok) {
-          // Ensure data is an array before filtering
           const adsArray = Array.isArray(data) ? data : data.ads || [];
           const activeAds = adsArray.filter((ad) => ad.status === "active");
           setAds(activeAds);
+          setFilteredAds(activeAds); // Initialize filtered ads with all active ads
           setFeaturedAds(getRandomAds(activeAds));
         } else {
           console.error("Error fetching ads:", data);
@@ -50,13 +87,28 @@ const HomePage = () => {
     fetchAds();
   }, []);
 
+  // Filter ads when category is selected
+  useEffect(() => {
+    if (selectedCategory) {
+      const filtered = ads.filter(
+        (ad) =>
+          ad.productId?.category?.toLowerCase() ===
+            selectedCategory.toLowerCase() ||
+          ad.category?.toLowerCase() === selectedCategory.toLowerCase()
+      );
+      setFilteredAds(filtered);
+      setFeaturedAds(getRandomAds(filtered));
+    } else {
+      setFilteredAds(ads);
+      setFeaturedAds(getRandomAds(ads));
+    }
+  }, [selectedCategory, ads]);
+
   // Function to get random ads
-  const getRandomAds = (ads, count) => {
+  const getRandomAds = (ads, count = 4) => {
     const shuffled = [...ads].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
   };
-
-  
 
   // Toggle favorite status
   const toggleFavorite = (ad) => {
@@ -65,6 +117,27 @@ const HomePage = () => {
         ? prev.filter((fav) => fav._id !== ad._id)
         : [...prev, ad]
     );
+  };
+
+  // Handle category selection
+  const handleCategorySelect = (categoryName) => {
+    setSelectedCategory(
+      categoryName === selectedCategory ? null : categoryName
+    );
+    navigate(`/categories/${encodeURIComponent(categoryName.toLowerCase())}`);
+  };
+
+  // Carousel navigation
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev === topAds.length - 1 ? 0 : prev + 1));
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev === 0 ? topAds.length - 1 : prev - 1));
+  };
+
+  const toggleFAQ = (index) => {
+    setActiveIndex(activeIndex === index ? null : index);
   };
 
   const faqs = [
@@ -105,19 +178,17 @@ const HomePage = () => {
         <aside className="hidden md:block w-1/5 p-4 border border-r">
           <h2 className="font-bold mb-4">Categories</h2>
           <ul className="space-y-6 text-sm">
-            {[
-              "House",
-              "Vehicles",
-              "Real Estate",
-              "Fashion & Beauty",
-              "Multimedia",
-              "Equipment & Appliances",
-            ].map((category, index) => (
+            {categories.map((category, index) => (
               <li
                 key={index}
-                className="hover:underline text-gray-600 cursor-pointer"
+                className={`hover:underline cursor-pointer ${
+                  selectedCategory === category.name
+                    ? "text-primary font-bold"
+                    : "text-gray-600"
+                }`}
+                onClick={() => handleCategorySelect(category.name)}
               >
-                {category}
+                {category.name}
               </li>
             ))}
           </ul>
@@ -125,89 +196,6 @@ const HomePage = () => {
 
         {/* Main Content */}
         <main className="w-full md:w-4/5 p-4">
-          {/* Top Adverts Section */}
-          <section>
-            <h2 className="text-xl font-semibold mb-2">Top adverts</h2>
-            <div className="flex justify-between items-center mb-4">
-              <button className="flex items-center space-x-2 px-3 py-1 border border-gray-700 text-xs rounded-full hover:bg-gray-200">
-                <MdFilterList className="w-5 h-5" />
-                <span>Filter</span>
-              </button>
-              <button className="px-3 py-1 border border-gray-700 text-xs rounded-full hover:bg-gray-200">
-                View All
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {[
-                {
-                  img: "/categories/car.png",
-                  title: "Lexus 300,000,000 CFA",
-                  location: "Accra, Ghana",
-                  link: "/lexus",
-                },
-                {
-                  img: "/categories/house.png",
-                  title: "4 Beds, 3 Baths, Private Yard",
-                  location: "Accra, Ghana",
-                  link: "/house",
-                },
-                {
-                  img: "/categories/phone.png",
-                  title: "Iphone 13",
-                  location: "Accra, Ghana",
-                  link: "/washing-machine",
-                },
-              ].map((item, index) => (
-                <Link
-                  key={index}
-                  to={item.link}
-                  className="bg-white rounded-lg shadow-md overflow-hidden"
-                >
-                  <img
-                    src={item.img}
-                    alt={item.title}
-                    className="w-full h-40 object-cover"
-                  />
-                  <div className="p-4">
-                    <h3 className="text-base font-medium">{item.title}</h3>
-                    <p className="text-sm text-gray-600">{item.location}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          {/* Categories Section */}
-          <section className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">Categories</h2>
-            <hr />
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-5">
-              {[
-                { name: "Vehicles", image: "/categories/car.png" },
-                { name: "House", image: "/categories/house.png" },
-                { name: "Fashion & Beauty", image: "/categories/beauty.png" },
-                { name: "Food", image: "/categories/food.png" },
-                { name: "Electronics", image: "/categories/phone.png" },
-                { name: "Services", image: "/categories/services.png" },
-                { name: "Sports", image: "/categories/leisure.png" },
-                { name: "Jobs", image: "/categories/hire.png" },
-              ].map((category, index) => (
-                <div
-                  key={index}
-                  className="bg-white rounded-lg p-4 text-center shadow-md"
-                >
-                  <img
-                    src={category.image}
-                    alt={category.name}
-                    className="mx-auto mb-3 object-contain"
-                  />
-                  <h3 className="font-medium">{category.name}</h3>
-                </div>
-              ))}
-            </div>
-          </section>
-
           {/* Featured Ads Section */}
           <section className="mt-8">
             <h2 className="text-xl font-semibold mb-4">Featured Ads</h2>
@@ -216,14 +204,13 @@ const HomePage = () => {
                 featuredAds.map((ad) => (
                   <Link
                     key={ad._id}
-                    to={`/ads/${ad._id}/active`} // Navigate to ad details page
+                    to={`/ads/${ad._id}/active`}
                     className="bg-white rounded-lg shadow-md overflow-hidden relative"
                   >
-                    {/* Love Icon */}
                     <button
                       className="absolute top-2 right-2 text-red-500 text-xl"
                       onClick={(e) => {
-                        e.preventDefault(); // Prevent navigation when clicking the heart
+                        e.preventDefault();
                         toggleFavorite(ad);
                       }}
                     >
@@ -242,14 +229,11 @@ const HomePage = () => {
                     <div className="p-4">
                       <h3 className="text-lg font-semibold">{ad.title}</h3>
                       <p className="text-primary font-bold">
-                        CFA {ad.productId.price}
+                        XOF {ad.productId.price}
                       </p>
                       <hr />
-                      <p>
-                        {" "}
-                        <p className="text-sm text-gray-600">
-                          {ad.productId.description}
-                        </p>
+                      <p className="text-sm text-gray-600">
+                        {ad.productId.description}
                       </p>
                       <p className="text-sm text-gray-600">
                         {ad.productId.country}, {ad.productId.state}
@@ -260,6 +244,32 @@ const HomePage = () => {
               ) : (
                 <p>Loading ads...</p>
               )}
+            </div>
+          </section>
+
+          {/* Categories Section */}
+          <section className="mt-8">
+            <h2 className="text-xl font-semibold mb-4">Categories</h2>
+            <hr />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-5">
+              {categories.map((category, index) => (
+                <div
+                  key={index}
+                  className={`bg-white rounded-lg p-4 text-center shadow-md cursor-pointer ${
+                    selectedCategory === category.name
+                      ? "ring-2 ring-primary"
+                      : ""
+                  }`}
+                  onClick={() => handleCategorySelect(category.name)}
+                >
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="mx-auto mb-3 object-contain"
+                  />
+                  <h3 className="font-medium">{category.name}</h3>
+                </div>
+              ))}
             </div>
           </section>
 
@@ -295,6 +305,77 @@ const HomePage = () => {
                 </div>
               ))}
             </div>
+          </section>
+          {/* Top adverts */}
+          <section className="mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Top Adverts</h2>
+              <button className="px-3 py-1 border border-gray-700 text-xs rounded-full hover:bg-gray-200">
+                View All
+              </button>
+            </div>
+
+            {topAds.length > 0 ? (
+              <div className="relative group">
+                {/* Carousel */}
+                <div className="overflow-hidden rounded-xl ">
+                  <div
+                    className="flex transition-transform duration-300 ease-in-out"
+                    style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                  >
+                    {topAds.map((ad) => (
+                      <div key={ad._id} className="w-full flex-shrink-0">
+                        <div className=" h-96 flex items-center justify-center">
+                          <img
+                            src={ad.image}
+                            alt={ad.title}
+                            className=" object-fit p-4"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "/placeholder-ad.jpg"; // Fallback image
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Navigation Arrows - Only show on hover */}
+                <button
+                  onClick={prevSlide}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 p-3 rounded-full shadow-md hover:bg-opacity-100 transition-opacity duration-200 opacity-0 group-hover:opacity-100"
+                >
+                  <FaChevronLeft className="text-gray-700" />
+                </button>
+                <button
+                  onClick={nextSlide}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 p-3 rounded-full shadow-md hover:bg-opacity-100 transition-opacity duration-200 opacity-0 group-hover:opacity-100"
+                >
+                  <FaChevronRight className="text-gray-700" />
+                </button>
+
+                {/* Indicators */}
+                <div className="flex justify-center mt-4 space-x-2">
+                  {topAds.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentSlide(index)}
+                      className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                        currentSlide === index
+                          ? "bg-primary w-4"
+                          : "bg-gray-300"
+                      }`}
+                      aria-label={`Go to slide ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-gray-100 rounded-lg p-8 text-center">
+                <p>No active top adverts available</p>
+              </div>
+            )}
           </section>
 
           {/* Become a Vendor Section */}

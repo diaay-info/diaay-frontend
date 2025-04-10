@@ -44,6 +44,7 @@ createRoot(document.getElementById("root")).render(
           <Route path="/" element={<App />} />
           <Route path="/about" element={<About />} />
           <Route path="/categories" element={<CategoryPage />} />
+          <Route path="/categories/:categoryName" element={<CategoryPage />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/start" element={<Signup1 />} />
           <Route path="/verify" element={<Verify />} />
@@ -65,7 +66,7 @@ createRoot(document.getElementById("root")).render(
           <Route path="/admin/users" element={<AdminUsermanagement />} />
           <Route path="/admin/users/:id" element={<UserDetails />} />
           <Route path="/admin/ads" element={<AdminAds />} />
-          <Route path="/create-advert" element={<AdminCreateAdvert />} />
+          <Route path="/create-ads" element={<AdminCreateAdvert />} />
           <Route path="/ads-management/:id" element={<AdDetails />} />
           <Route path="/admin/finance" element={<AdminFinance />} />
           <Route path="/finance/:type" element={<FinanceDetails />} />

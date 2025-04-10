@@ -68,7 +68,7 @@ const SelectProductForAd = () => {
               <h2 className="mt-2 font-semibold">{product.name}</h2>
               <p className="text-gray-500">{product.category}</p>
               <p className="text-purple-600 font-semibold">
-                {product.price} CFA
+                {product.price} XOF
               </p>
             </div>
           ))

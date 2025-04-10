@@ -46,7 +46,7 @@ const Credit = ({ onPurchaseCreditclick }) => {
         console.log("Credit Balance API Response:", data); // Debugging
 
         if (response.ok) {
-          setCreditBalance(data.balance.balance || 0); // Extract correct balance
+          setCreditBalance(data.balance.balance ); // Extract correct balance
         } else {
           throw new Error(data.message || "Failed to fetch credit balance");
         }
@@ -174,7 +174,7 @@ const Credit = ({ onPurchaseCreditclick }) => {
                         </th>
                         <th className="p-2">Product Name</th>
                         <th className="p-2">Category</th>
-                        <th className="p-2">Price (CFA)</th>
+                        <th className="p-2">Price (XOF)</th>
                         <th className="p-2">Status</th>
                         <th className="p-2">Date Added</th>
                         <th className="p-2">Actions</th>

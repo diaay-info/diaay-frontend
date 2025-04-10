@@ -27,6 +27,7 @@ function Settings() {
 
   useEffect(() => {
     const storedData = {
+      fullName: localStorage.getItem("fullName") || "",
       email: localStorage.getItem("userEmail") || "",
       phone: localStorage.getItem("phoneNumber") || "",
       userId: localStorage.getItem("userId") || "",
@@ -40,6 +41,7 @@ function Settings() {
   };
 
   const handleSave = () => {
+    localStorage.setItem("fullName", vendorData.fullName);
     localStorage.setItem("userEmail", vendorData.email);
     localStorage.setItem("phoneNumber", vendorData.phone);
     localStorage.setItem("userRole", vendorData.userRole);

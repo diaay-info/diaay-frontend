@@ -18,7 +18,7 @@ function VendorDashboard() {
     setSelectedProducts((prevSelected) =>
       prevSelected.includes(productId)
         ? prevSelected.filter((id) => id !== productId)
-        : [productId]
+        : [...prevSelected, productId]
     );
   };
 
@@ -46,7 +46,7 @@ function VendorDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem("accessToken");
-      const userId = localStorage.getItem("userId"); // Ensure userId is stored in localStorage
+      const userId = localStorage.getItem("userId");
 
       if (!token || !userId) {
         console.error(
@@ -61,7 +61,6 @@ function VendorDashboard() {
       };
 
       try {
-        // Fetch all vendor details from /api/report
         const reportRes = await fetch(
           `https://e-service-v2s8.onrender.com/api/report?vendorId=${userId}`,
           { headers }
@@ -71,7 +70,6 @@ function VendorDashboard() {
 
         const reportData = await reportRes.json();
 
-        // Update vendor data
         setVendorData({
           totalProducts: reportData.userTotalProducts || 0,
           activeAds: reportData.userTotalProductsAds || 0,
@@ -79,7 +77,6 @@ function VendorDashboard() {
           availableCredits: reportData.creditBalance || 0,
         });
 
-        // Update product list
         setProducts(reportData.vendorProducts || []);
       } catch (err) {
         console.error("Error fetching vendor data:", err);
@@ -93,82 +90,111 @@ function VendorDashboard() {
 
   return (
     <Layout>
-      <div className="flex flex-col min-h-screen p-2">
+      <div className="min-h-screen p-2 md:p-4 w-full max-w-full ">
         {/* Analytics Section */}
-        <section className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-lg shadow-md text-center">
-            <FaBox className="text-purple-500 text-2xl mx-auto" />
-            <p className="text-lg font-bold">{vendorData.totalProducts}</p>
-            <p className="text-gray-600 text-sm">Total Products</p>
+        <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 mb-4">
+          <div className="bg-white p-2 md:p-3 rounded-lg shadow-sm text-center">
+            <FaBox className="text-purple-500 text-lg md:text-xl mx-auto" />
+            <p className="text-sm md:text-base font-bold mt-1">
+              {vendorData.totalProducts}
+            </p>
+            <p className="text-gray-600 text-xs">Total Products</p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow-md text-center">
-            <FaAd className="text-purple-500 text-2xl mx-auto" />
-            <p className="text-lg font-bold">{vendorData.activeAds}</p>
-            <p className="text-gray-600 text-sm">Total Active Ads</p>
+          <div className="bg-white p-2 md:p-3 rounded-lg shadow-sm text-center">
+            <FaAd className="text-purple-500 text-lg md:text-xl mx-auto" />
+            <p className="text-sm md:text-base font-bold mt-1">
+              {vendorData.activeAds}
+            </p>
+            <p className="text-gray-600 text-xs">Active Ads</p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow-md text-center">
-            <FaChartLine className="text-purple-500 text-2xl mx-auto" />
-            <p className="text-lg font-bold">{vendorData.impressions}</p>
-            <p className="text-gray-600 text-sm">Impressions</p>
+          <div className="bg-white p-2 md:p-3 rounded-lg shadow-sm text-center">
+            <FaChartLine className="text-purple-500 text-lg md:text-xl mx-auto" />
+            <p className="text-sm md:text-base font-bold mt-1">
+              {vendorData.impressions}
+            </p>
+            <p className="text-gray-600 text-xs">Impressions</p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow-md text-center">
-            <FaCreditCard className="text-purple-500 text-2xl mx-auto" />
-            <p className="text-lg font-bold">{vendorData.availableCredits}</p>
-            <p className="text-gray-600 text-sm">Available Credits</p>
+          <div className="bg-white p-2 md:p-3 rounded-lg shadow-sm text-center">
+            <FaCreditCard className="text-purple-500 text-lg md:text-xl mx-auto" />
+            <p className="text-sm md:text-base font-bold mt-1">
+              {vendorData.availableCredits}
+            </p>
+            <p className="text-gray-600 text-xs">Credits</p>
           </div>
         </section>
 
         {/* Product List */}
-        {products.length > 0 ? (
-          <div className="mt-4 bg-white p-4 rounded-lg shadow-sm overflow-x-auto">
-            <table className="w-full min-w-max">
-              <thead>
-                <tr className="text-left font-medium">
-                  <th className="p-2 border-b">
-                    <input
-                      type="checkbox"
-                      checked={selectAll}
-                      onChange={handleSelectAll}
-                    />
-                  </th>
-                  <th className="p-2 border-b">Product Name</th>
-                  <th className="p-2 border-b">Category</th>
-                  <th className="p-2 border-b">Price</th>
-                  <th className="p-2 border-b">Status</th>
-                  <th className="p-2 border-b">Date Added</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((product) => (
-                  <tr key={product._id} className="border-t">
-                    <td className="p-2 border-b">
+        <div className="bg-white rounded-lg shadow-sm w-full">
+          <div className="p-3 md:p-4 border-b">
+            <h2 className="text-base md:text-lg font-semibold">
+              Your Products
+            </h2>
+          </div>
+
+          {products.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="min-w-full table-auto">
+                <thead className="bg-primary text-white text-xs md:text-sm uppercase font-semibold">
+                  <tr className="border-b">
+                    <th className="border-b p-2 md:p-3 text-left">
                       <input
                         type="checkbox"
-                        checked={selectedProducts.includes(product._id)}
-                        onChange={() => handleProductSelect(product._id)}
+                        checked={selectAll}
+                        onChange={handleSelectAll}
+                        className="h-4 w-4"
                       />
-                    </td>
-                    <td className="p-2 border-b">{product.name}</td>
-                    <td className="p-2 border-b">{product.category}</td>
-                    <td className="p-2 border-b text-[#7C0DEA]">
-                      {product.price} CFA
-                    </td>
-                    <td className="p-2 border-b text-green-600">Active</td>
-                    <td className="p-2 border-b">
-                      {product.createdAt
-                        ? new Date(product.createdAt).toLocaleDateString()
-                        : "N/A"}
-                    </td>
+                    </th>
+                    <th className="border-b p-2 md:p-3 text-left">Name</th>
+                    <th className="border-b p-2 md:p-3 text-left">Category</th>
+                    <th className="border-b p-2 md:p-3 text-left">Price</th>
+                    <th className="border-b p-2 md:p-3 text-left">Status</th>
+                    <th className="border-b p-2 md:p-3 text-left">
+                      Date Added
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center h-64 border border-dashed border-gray-300 rounded-lg mt-4">
-            <p className="text-gray-500">No products listed yet</p>
-          </div>
-        )}
+                </thead>
+                <tbody>
+                  {products.map((product) => (
+                    <tr key={product._id} className="hover:bg-gray-100">
+                      <td className="border-b p-2 md:p-3">
+                        <input
+                          type="checkbox"
+                          checked={selectedProducts.includes(product._id)}
+                          onChange={() => handleProductSelect(product._id)}
+                          className="h-4 w-4"
+                        />
+                      </td>
+                      <td className="border-b p-2 md:p-3">{product.name}</td>
+                      <td className="border-b p-2 md:p-3">
+                        {product.category}
+                      </td>
+                      <td className="border-b p-2 md:p-3">
+                        {product.price} XOF
+                      </td>
+                      <td className="border-b p-2 md:p-3">
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                          Active
+                        </span>
+                      </td>
+                      <td className="border-b p-2 md:p-3">
+                        {product.createdAt
+                          ? new Date(product.createdAt).toLocaleDateString()
+                          : "N/A"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center p-8 text-center">
+              <p className="text-gray-500 mb-4">No products listed yet</p>
+              <button className="bg-purple-500 text-white px-4 py-2 rounded-lg text-sm">
+                Add Your First Product
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </Layout>
   );

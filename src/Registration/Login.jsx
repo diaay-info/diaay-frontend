@@ -16,7 +16,7 @@ const Login = () => {
     { code: "+234", name: "Nigeria" },
     { code: "+1", name: "USA" },
     { code: "+44", name: "UK" },
-    { code: "+233", name: "Ghana" },
+    { code: "+221", name: "Ghana" },
     { code: "+254", name: "Kenya" },
     { code: "+27", name: "South Africa" },
   ];

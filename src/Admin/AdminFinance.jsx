@@ -125,7 +125,7 @@ const Finance = () => {
                   <thead className="bg-primary text-white text-xs md:text-sm uppercase font-semibold">
                     <tr className="border-b border-gray-200">
                       <th className="border-b p-2 md:p-3 text-left">E-mail</th>
-                      <th className="border-b p-2 md:p-3 text-left">Credit</th>
+                      <th className="border-b p-2 md:p-3 text-left">Amount</th>
                       <th className="border-b p-2 md:p-3 text-left">
                         Payment Method
                       </th>

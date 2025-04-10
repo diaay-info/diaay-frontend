@@ -78,7 +78,7 @@ const FinanceDetails = () => {
               <thead>
                 <tr className="border-b">
                   <th className="p-3 text-left">Email</th>
-                  <th className="p-3 text-left">Credit</th>
+                  <th className="p-3 text-left">Amount</th>
                   <th className="border-b p-3 text-left">Payment Method</th>
                   <th className="p-3 text-left">Date</th>
                   <th className="p-3 text-left">Status</th>
@@ -101,7 +101,20 @@ const FinanceDetails = () => {
                     <td className="p-3">
                       {new Date(transaction.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="p-3">{transaction.status}</td>
+                    <td className="border-b p-2 md:p-3 font-semibold">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs ${
+                              transaction.status === "pending"
+                                ? " text-yellow-600"
+                                : transaction.status === "completed"
+                                ? " text-green-600"
+                                : " text-red-600"
+                            }`}
+                          >
+                            {transaction.status.charAt(0).toUpperCase() +
+                              transaction.status.slice(1)}
+                          </span>
+                        </td>
                   </tr>
                 ))}
               </tbody>

@@ -83,7 +83,7 @@ const SignUpForm = () => {
     { code: "+234", name: "Nigeria" },
     { code: "+1", name: "USA" },
     { code: "+44", name: "UK" },
-    { code: "+233", name: "Ghana" },
+    { code: "+221", name: "Ghana" },
     { code: "+254", name: "Kenya" },
     { code: "+27", name: "South Africa" },
   ];
@@ -126,10 +126,12 @@ const SignUpForm = () => {
           localStorage.setItem("isNewUser", "true"); // Store a flag indicating a new user
           localStorage.setItem("phoneNumber", fullPhoneNumber);
           const data = await response.json();
-
           localStorage.setItem("accessToken", data.accessToken);
           localStorage.setItem("refreshToken", data.refreshToken);
           localStorage.setItem("userId", data.user.id);
+          localStorage.setItem("Name", data.user.fullName);
+          localStorage.setItem("location", data.user.location);
+          localStorage.setItem("BusinessName", data.user.businessName);
           localStorage.setItem("userEmail", data.user.email);
           localStorage.setItem("userRole", data.user.role);
           localStorage.setItem("userPhoneVerified", data.user.phoneVerified);
@@ -266,7 +268,7 @@ const SignUpForm = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="email" className="block text-gray-700 font-bold">
-                Email Address*
+                Email Address
               </label>
               <input
                 type="email"
