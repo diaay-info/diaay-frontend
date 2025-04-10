@@ -152,6 +152,9 @@ const PurchaseCredit = () => {
       setShowSummary(true);
     } else if (showSummary) {
       setShowSummary(false);
+    } else {
+      // Navigate to credits page when Cancel is clicked from the first screen
+      navigate("/credits");
     }
   };
 
@@ -357,32 +360,39 @@ const PurchaseCredit = () => {
           </div> */}
 
           {/* Payment Instructions */}
+          {/* Payment Instructions */}
           <div className="space-y-6">
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h4 className="text-lg font-semibold mb-4 border-b pb-2">
                 Payment Instructions
               </h4>
-              <div className="pt-3 mt-3 mb-3  border-b">
-                <p className="text-3xl font-medium text-black mb-5">
-                  Transfer the exact amount {selectedAmount} XOF to the{" "}
-                  {paymentMethod === "wave" ? "Wave Money " : "Orange Money "}
-                  account below.
-                </p>
+              <div className="pt-3 mt-3 mb-3 border-b">
+                <div className="flex flex-col items-center mb-4">
+                  {/* Show Wave or Orange Money logo based on payment method */}
+                  {paymentMethod === "wave" ? (
+                    <img
+                      src="/wave.png"
+                      alt="Wave Money"
+                      className="h-16 object-contain mb-3"
+                    />
+                  ) : (
+                    <img
+                      src="/orange.png"
+                      alt="Orange Money"
+                      className="h-16 object-contain mb-3"
+                    />
+                  )}
+                  <p className="lg:text-3xl md:text-2xl font-medium text-black text-center">
+                    Transfer the exact amount {selectedAmount} XOF to the{" "}
+                    {paymentMethod === "wave" ? "Wave Money" : "Orange Money"}{" "}
+                    account below.
+                  </p>
+                </div>
                 {/* <p className="text-sm text-red-500 mt-1">
-                    Valid for: {formatTime(timeLeft)}
-                  </p> */}
+        Valid for: {formatTime(timeLeft)}
+      </p> */}
               </div>
               <div className="space-y-3">
-                {/* <div className="flex justify-between">
-                  <span className="text-gray-600">Method Of transfer:</span>
-                  <span className="font-medium">
-                    {paymentMethod === "wave" ? "Wave " : "Orange Money"}
-                  </span>
-                </div> */}
-                {/* <div className="flex justify-between">
-                  <span className="text-gray-600">Account Name:</span>
-                  <span className="font-medium">XYZ Services</span>
-                </div> */}
                 <div className="text-center">
                   <div className="">
                     <span className="text-center mr-2 font-bold text-2xl">
@@ -397,8 +407,8 @@ const PurchaseCredit = () => {
                     </button>
                   </div>
                 </div>
-                <hr/>
-                <p>Click on submit your payment to continue </p>
+                <hr />
+                <p>Click on submit your payment to continue</p>
               </div>
             </div>
           </div>
