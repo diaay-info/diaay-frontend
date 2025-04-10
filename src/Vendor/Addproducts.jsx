@@ -23,7 +23,7 @@ const ProductForm = () => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get(
-          "${API_BASE_URL}/api/categories"
+          `${API_BASE_URL}/api/categories`
         );
         setCategories(response.data);
       } catch (error) {
