@@ -123,6 +123,9 @@ const Header = ({ favorites = [] }) => {
 
       {/* Desktop Navigation */}
       <div className="hidden md:flex items-center space-x-6 text-sm">
+      <Link to="/" className={isActive("/")}>
+          Home
+        </Link>
         <Link to="/categories" className={isActive("/categories")}>
           Categories
         </Link>
@@ -272,7 +275,7 @@ const Header = ({ favorites = [] }) => {
             </ul>
           )}
           <Link
-            to="/favourite"
+            to="/favourites"
             className="hover:text-primary transition"
             onClick={toggleMenu}
           >
