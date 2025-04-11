@@ -5,7 +5,7 @@ function Settings() {
   const [vendorData, setVendorData] = useState({
     fullName: "",
     email: "",
-    phone: "",
+    phoneNumber: "",
     userId: "",
     userRole: "",
     avatar: "",
@@ -21,7 +21,7 @@ function Settings() {
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${API_BASE_URL}/auth/me`, {
+        const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`, // Assuming you store your auth token in localStorage
           },
@@ -35,7 +35,7 @@ function Settings() {
         setVendorData({
           fullName: userData.fullName || "",
           email: userData.email || "",
-          phone: userData.phone || "",
+          phoneNumber: userData.phoneNumber || "",
           userId: userData.id || "",
           userRole: userData.role || "",
           avatar: userData.avatar || "",
@@ -71,7 +71,7 @@ function Settings() {
   const handleSave = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/auth/me`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -175,7 +175,7 @@ function Settings() {
                   <input
                     type="tel"
                     name="phone"
-                    value={vendorData.phone}
+                    value={vendorData.phoneNumber}
                     onChange={handleChange}
                     className="border py-2 px-4 w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                   />

@@ -4,6 +4,7 @@ import Header from "./Component/Header";
 import Footer from "./Component/Footer";
 import { FaLongArrowAltRight } from "react-icons/fa";
 import { MdFilterList } from "react-icons/md";
+import { CiLocationOn } from "react-icons/ci";
 import {
   FaHeart,
   FaRegHeart,
@@ -22,18 +23,44 @@ const HomePage = () => {
   const [topAds, setTopAds] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   const navigate = useNavigate();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const categories = [
     { name: "Vehicles", image: "/categories/car.png" },
     { name: "House", image: "/categories/house.png" },
-    { name: "Fashion & Beauty", image: "/categories/beauty.png" },
+    { name: "Fashion", image: "/categories/beauty.png" },
     { name: "Food", image: "/categories/food.png" },
+    { name: "Health & Beauty", image: "/categories/food.png" },
     { name: "Electronics", image: "/categories/phone.png" },
     { name: "Services", image: "/categories/services.png" },
     { name: "Sports", image: "/categories/leisure.png" },
     { name: "Jobs", image: "/categories/hire.png" },
+    { name: "Other", image: "/categories/hire.png" },
+
   ];
+
+  // Fetch Categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/categories`);
+        const data = await response.json();
+
+        if (response.ok) {
+          setCategories(data.categories || []);
+        } else {
+          console.error("Error fetching categories:", data);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   // Fetch Top Ads from API
   useEffect(() => {
@@ -173,21 +200,32 @@ const HomePage = () => {
         {/* Sidebar Categories (Hidden on small screens) */}
         <aside className="hidden md:block w-1/5 p-4 border border-r">
           <h2 className="font-bold mb-4">Categories</h2>
-          <ul className="space-y-6 text-sm">
-            {categories.map((category, index) => (
-              <li
-                key={index}
-                className={`hover:underline cursor-pointer ${
-                  selectedCategory === category.name
-                    ? "text-primary font-bold"
-                    : "text-gray-600"
-                }`}
-                onClick={() => handleCategorySelect(category.name)}
-              >
-                {category.name}
-              </li>
-            ))}
-          </ul>
+          {loadingCategories ? (
+            <div className="space-y-4">
+              {[...Array(8)].map((_, index) => (
+                <div
+                  key={index}
+                  className="h-6 bg-gray-200 rounded animate-pulse"
+                ></div>
+              ))}
+            </div>
+          ) : (
+            <ul className="space-y-6 text-sm">
+              {categories.map((category) => (
+                <li
+                  key={category._id}
+                  className={`hover:underline cursor-pointer ${
+                    selectedCategory === category.name
+                      ? "text-primary font-bold"
+                      : "text-gray-600"
+                  }`}
+                  onClick={() => handleCategorySelect(category.name)}
+                >
+                  {category.name}
+                </li>
+              ))}
+            </ul>
+          )}
         </aside>
 
         {/* Main Content */}
@@ -195,7 +233,7 @@ const HomePage = () => {
           {/* Featured Ads Section */}
           <section className="mt-8">
             <h2 className="text-xl font-semibold mb-4">Featured Ads</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {featuredAds.length > 0 ? (
                 featuredAds.map((ad) => (
                   <Link
@@ -223,16 +261,16 @@ const HomePage = () => {
                       className="w-full h-40 object-contain"
                     />
                     <div className="p-4">
-                      <h3 className="text-lg font-semibold">{ad.title}</h3>
+                      <h3 className="lg:text-[o.7rem] text-[0.9rem] font-semibold">
+                        {ad.title}
+                      </h3>
                       <p className="text-primary font-bold">
                         XOF {ad.productId.price}
                       </p>
                       <hr />
-                      <p className="text-sm text-gray-600">
-                        {ad.productId.description}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {ad.productId.country}, {ad.productId.state}
+
+                      <p className=" flex items-center text-sm text-gray-600">
+                      <CiLocationOn />  {ad.productId.country}, {ad.productId.state}
                       </p>
                     </div>
                   </Link>
@@ -375,16 +413,16 @@ const HomePage = () => {
           </section>
 
           {/* Become a Vendor Section */}
-          <div className="flex justify-center text-center my-8">
-            <div className="bg-black rounded-md text-white p-8 max-w-xl">
-              <p className="font-medium text-xl md:text-2xl mb-6">
+          <div className="flex justify-center items-center text-center">
+            <div className="bg-black rounded-md text-white p-6 md:p-8 max-w-lg">
+              <p className="font-medium text-lg md:text-xl mb-6">
                 Discover how our features can help you advertise and start
                 earning with referrals.
               </p>
               <Link to="/start">
-                <div className="flex items-center gap-5 p-2 mx-auto rounded-3xl w-[12rem] bg-primary cursor-pointer">
-                  <p className="font-medium">Become a vendor</p>
-                  <div className="bg-white text-primary rounded-full p-1">
+                <div className="flex w-[15rem] mx-auto items-center justify-center gap-4 p-3 rounded-3xl bg-primary cursor-pointer">
+                  <p className="font-medium">Start Now</p>
+                  <div className="bg-white text-primary rounded-full p-2">
                     <FaLongArrowAltRight />
                   </div>
                 </div>

@@ -11,14 +11,15 @@ function Footer() {
           <Link to="/">
             <img src="/llogo.png" className="w-32" alt="Logo" />
           </Link>{" "}
-          <p className="text-xl font-bold ">
-            Your Go-To Online Marketplace!</p>
-            <p  className="text-sm text-gray-600"> At Diaay, we make shopping simple,
-            secure, and enjoyable. Whether you're looking for the latest trends,
-            everyday essentials, or unique finds, we've got something for
-            everyone. Browse, shop, and have your favorites delivered right to
-            you — all in just a few clicks.</p> 
-            <p>Happy Shopping!</p>
+          <p className="text-xl font-bold ">Your Go-To Online Marketplace!</p>
+          <p className="text-sm text-gray-600">
+            {" "}
+            At Diaay, we make shopping simple, secure, and enjoyable. Whether
+            you're looking for the latest trends, everyday essentials, or unique
+            finds, we've got something for everyone. Browse, shop, and have your
+            favorites delivered right to you — all in just a few clicks.
+          </p>
+          <p>Happy Shopping!</p>
         </div>
 
         {/* Navigation Links */}
@@ -59,10 +60,10 @@ function Footer() {
           <div className="space-y-4 w-[45%] md:w-auto">
             <h1 className="font-medium text-base">Legal</h1>
             <p className="font-normal text-sm text-gray-400 cursor-pointer hover:text-black">
-              Privacy Policy
+              <Link to="privacy-policy">Privacy Policy</Link>
             </p>
             <p className="font-normal text-sm text-gray-400 cursor-pointer hover:text-black">
-              Terms and Conditions
+              <Link to="/rules">Terms and Conditions</Link>
             </p>
           </div>
         </div>

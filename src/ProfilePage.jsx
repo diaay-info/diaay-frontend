@@ -1,26 +1,53 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUserCircle, FaEdit, FaSignOutAlt } from "react-icons/fa";
 import Header from "./Component/Header";
 import Footer from "./Component/Footer";
+import axios from "axios";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-
-  // Get user data from localStorage
-  const userData = {
-    name: localStorage.getItem("Name") || "User",
-    email: localStorage.getItem("userEmail") || "",
-    phone: localStorage.getItem("phoneNumber") || "",
-    business: localStorage.getItem("BusinessName") || "",
-    location: localStorage.getItem("location") || "",
-    role: localStorage.getItem("userRole") || "customer",
-  };
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const handleLogout = () => {
     localStorage.clear();
     navigate("/login");
   };
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        const response = await axios.get(`${API_BASE_URL}/api/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setUserData(response.data);
+      } catch (error) {
+        console.error("Failed to fetch user data", error);
+        navigate("/login");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [API_BASE_URL, navigate]);
+
+  if (loading) {
+    return <div className="text-center py-20">Loading profile...</div>;
+  }
+
+  if (!userData) {
+    return (
+      <div className="text-center py-20 text-red-500">
+        Failed to load user profile.
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -33,7 +60,7 @@ const ProfilePage = () => {
               <div className="flex items-center space-x-4">
                 <FaUserCircle className="text-5xl" />
                 <div>
-                  <h1 className="text-2xl font-bold">{userData.name}</h1>
+                  <h1 className="text-2xl font-bold">{userData.fullName}</h1>
                   <p className="text-primary-100 capitalize">{userData.role}</p>
                 </div>
               </div>
@@ -48,7 +75,7 @@ const ProfilePage = () => {
                       Full Name
                     </h3>
                     <p className="mt-1 text-sm text-gray-900">
-                      {userData.name}
+                      {userData.fullName}
                     </p>
                   </div>
                   <div>
@@ -64,7 +91,7 @@ const ProfilePage = () => {
                       Phone Number
                     </h3>
                     <p className="mt-1 text-sm text-gray-900">
-                      {userData.phone}
+                      {userData.phoneNumber}
                     </p>
                   </div>
                 </div>

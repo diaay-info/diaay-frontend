@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GrFavorite } from "react-icons/gr";
 import {
@@ -16,6 +16,7 @@ const Header = ({ favorites = [] }) => {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const translatorInitialized = useRef(false);
 
   // Check if user is authenticated AND is a customer
   const isAuthenticated = !!localStorage.getItem("accessToken");
@@ -26,56 +27,96 @@ const Header = ({ favorites = [] }) => {
 
   // Load Google Translate script
   useEffect(() => {
-    let script;
-    let timeout;
+    // Skip if already initialized
+    if (translatorInitialized.current) return;
 
     const initializeTranslate = () => {
-      if (window.google && window.google.translate && window.google.translate.TranslateElement) {
+      if (
+        window.google &&
+        window.google.translate &&
+        window.google.translate.TranslateElement
+      ) {
+        // First remove any existing instances
+        const existingElements = document.querySelectorAll(
+          ".goog-te-combo, .goog-te-menu-frame, .goog-te-banner-frame"
+        );
+        existingElements.forEach((el) => el.remove());
+
+        // Create new instance
         new window.google.translate.TranslateElement(
           {
             pageLanguage: "en",
             includedLanguages: "en,fr,es,de,it,pt,ar,zh-CN,ja,ru",
-            layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
+            layout:
+              window.google.translate.TranslateElement.InlineLayout.SIMPLE,
             autoDisplay: false,
           },
           "google_translate_element"
         );
+
+        translatorInitialized.current = true;
       } else {
         // Retry after a short delay if Google Translate isn't loaded yet
-        timeout = setTimeout(initializeTranslate, 100);
+        setTimeout(initializeTranslate, 100);
       }
     };
 
-    if (!window.googleTranslateElementInit) {
-      window.googleTranslateElementInit = initializeTranslate;
-
-      script = document.createElement("script");
-      script.src = "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-      script.async = true;
-      script.onerror = () => {
-        console.error("Failed to load Google Translate script");
-      };
-      document.body.appendChild(script);
+    // Check if script is already loaded
+    if (window.google && window.google.translate) {
+      initializeTranslate();
+      return;
     }
 
+    // Create a unique name for the initialization function
+    const functionName =
+      "googleTranslateInit_" + Math.random().toString(36).substring(2, 9);
+    window[functionName] = initializeTranslate;
+
+    // Check if script is already in the DOM
+    const existingScript = document.querySelector(
+      'script[src*="translate.google.com"]'
+    );
+    if (existingScript) {
+      return;
+    }
+
+    // Load the script
+    const script = document.createElement("script");
+    script.src = `https://translate.google.com/translate_a/element.js?cb=${functionName}`;
+    script.async = true;
+    script.onerror = () =>
+      console.error("Failed to load Google Translate script");
+    document.body.appendChild(script);
+
     return () => {
-      clearTimeout(timeout);
-      if (script && script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-      try {
-        if (window.googleTranslateElementInit) {
-          delete window.googleTranslateElementInit;
-        }
-      } catch (e) {
-        console.warn("Could not clean up Google Translate", e);
+      // Cleanup function
+      if (window[functionName]) {
+        delete window[functionName];
       }
     };
   }, []);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const toggleCategories = () => setCategoriesOpen(!categoriesOpen);
-  const toggleProfileDropdown = () => setProfileDropdownOpen(!profileDropdownOpen);
+  const toggleProfileDropdown = () =>
+    setProfileDropdownOpen(!profileDropdownOpen);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        profileDropdownOpen &&
+        !event.target.closest(".profile-dropdown-container")
+      ) {
+        setProfileDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [profileDropdownOpen]);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -105,25 +146,15 @@ const Header = ({ favorites = [] }) => {
         />
       </div>
 
-      {/* Google Translate - Desktop */}
-      <div className="hidden md:flex items-center mr-4">
-        <div className="flex items-center">
-          <FaLanguage className="text-gray-600 mr-2" />
-          <div
-            id="google_translate_element"
-            className="translate-selector"
-            style={{
-              display: "inline-block",
-              position: "relative",
-              zIndex: 0,
-            }}
-          ></div>
-        </div>
+      {/* Google Translate - Shared */}
+      <div className="flex items-center mr-4">
+        <FaLanguage className="text-gray-600 mr-2" />
+        <div id="google_translate_element" className="translate-selector"></div>
       </div>
 
       {/* Desktop Navigation */}
       <div className="hidden md:flex items-center space-x-6 text-sm">
-      <Link to="/" className={isActive("/")}>
+        <Link to="/" className={isActive("/")}>
           Home
         </Link>
         <Link to="/categories" className={isActive("/categories")}>
@@ -137,16 +168,18 @@ const Header = ({ favorites = [] }) => {
           state={{ favorites }}
           className="text-gray-600 flex hover:text-primary"
         >
-          <GrFavorite size={20} />({favorites.length})
+          <GrFavorite size={20} />
+          <span className="ml-1">({favorites.length})</span>
         </Link>
 
         {showProfileIcon ? (
-          <div className="relative">
+          <div className="relative profile-dropdown-container">
             <button
               onClick={toggleProfileDropdown}
               className="flex items-center space-x-2 focus:outline-none"
             >
               <FaUserCircle size={24} className="text-gray-600" />
+              <span className="hidden lg:inline">{userName}</span>
             </button>
 
             {profileDropdownOpen && (
@@ -184,131 +217,147 @@ const Header = ({ favorites = [] }) => {
         )}
       </div>
 
-      {/* Mobile Menu Button and Translator */}
+      {/* Mobile Menu Button */}
       <div className="md:hidden flex items-center space-x-4">
-        {/* Google Translate - Mobile */}
-        <div className="flex items-center">
-          <FaLanguage className="text-gray-600 mr-1" />
-          <div
-            id="google_translate_element"
-            className="translate-selector-mobile"
-            style={{
-              display: "inline-block",
-              position: "relative",
-              zIndex: 0,
-            }}
-          ></div>
-        </div>
-        <button className="text-2xl" onClick={toggleMenu}>
+        <button
+          className="text-2xl"
+          onClick={toggleMenu}
+          aria-label="Toggle menu"
+        >
           {menuOpen ? <FaTimes /> : <FaBars />}
         </button>
       </div>
 
       {/* Mobile Full-Screen Menu */}
-      <div
-        className={`fixed inset-0 bg-white z-50 flex flex-col items-center p-6 space-y-6 transform ${
-          menuOpen ? "translate-x-0" : "translate-x-full"
-        } transition-transform duration-300 md:hidden`}
-      >
-        {/* Logo and Close Button */}
-        <div className="w-full flex justify-between items-center">
-          <Link to="/">
-            <img src="/llogo.png" className="w-24" alt="Logo" />
-          </Link>
-          <button className="text-2xl" onClick={toggleMenu}>
-            <FaTimes />
-          </button>
-        </div>
+      {menuOpen && (
+        <div className="fixed inset-0 bg-white z-50 flex flex-col items-center p-6 space-y-6 md:hidden">
+          {/* Logo and Close Button */}
+          <div className="w-full flex justify-between items-center">
+            <Link to="/">
+              <img src="/llogo.png" className="w-24" alt="Logo" />
+            </Link>
+            <button
+              className="text-2xl"
+              onClick={toggleMenu}
+              aria-label="Close menu"
+            >
+              <FaTimes />
+            </button>
+          </div>
 
-        {/* Links */}
-        <nav className="w-full flex flex-col space-y-8 text-xl">
-          {showProfileIcon && (
+          {/* Search Bar - Mobile */}
+          <div className="relative w-full">
+            <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Find the product you want"
+              className="border border-gray-300 rounded-full text-sm pl-10 pr-4 py-2 w-full focus:outline-none focus:ring focus:ring-primary"
+            />
+          </div>
+
+          {/* Links */}
+          <nav className="w-full flex flex-col space-y-8 text-xl">
+            {showProfileIcon && (
+              <Link
+                to="/profile"
+                className="flex items-center space-x-2"
+                onClick={toggleMenu}
+              >
+                <FaUserCircle size={24} />
+                <span>{userName}</span>
+              </Link>
+            )}
+
             <Link
-              to="/profile"
-              className="flex items-center space-x-2"
+              to="/"
+              className={`block ${isActive("/")}`}
               onClick={toggleMenu}
             >
-              <FaUserCircle size={24} />
-              <span>My Profile</span>
+              Home
             </Link>
-          )}
-
-          <Link
-            to="/"
-            className={`block ${isActive("/")}`}
-            onClick={toggleMenu}
-          >
-            Home
-          </Link>
-          <Link
-            to="/about"
-            className={`block ${isActive("/about")}`}
-            onClick={toggleMenu}
-          >
-            About
-          </Link>
-          <button
-            onClick={toggleCategories}
-            className="flex text-lg w-full focus:outline-none hover:text-primary transition"
-          >
-            Categories
-            <FaChevronDown
-              className={`ml-2 transition-transform ${
-                categoriesOpen ? "rotate-180" : ""
-              }`}
-            />
-          </button>
-          {categoriesOpen && (
-            <ul className="w-full text-gray-600 space-y-2">
-              {[
-                "House",
-                "Vehicles",
-                "Real Estate",
-                "Fashion & Beauty",
-                "Multimedia",
-                "Equipment & Appliances",
-              ].map((category, index) => (
-                <li key={index} className="hover:text-primary transition">
-                  {category}
-                </li>
-              ))}
-            </ul>
-          )}
-          <Link
-            to="/favourites"
-            className="hover:text-primary transition"
-            onClick={toggleMenu}
-          >
-            Favourites
-          </Link>
-
-          {showProfileIcon ? (
-            <button
-              onClick={handleLogout}
-              className="block w-full border border-gray-300 bg-primary text-white rounded-md py-2 text-center hover:bg-purple-600 transition"
+            <Link
+              to="/about"
+              className={`block ${isActive("/about")}`}
+              onClick={toggleMenu}
             >
-              Logout
-            </button>
-          ) : (
-            <>
-              <Link
-                to="/login"
+              About
+            </Link>
+            <div>
+              <button
+                onClick={toggleCategories}
+                className="flex items-center text-lg w-full focus:outline-none hover:text-primary transition"
+              >
+                Categories
+                <FaChevronDown
+                  className={`ml-2 transition-transform ${
+                    categoriesOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {categoriesOpen && (
+                <ul className="mt-2 pl-4 w-full text-gray-600 space-y-2">
+                  {[
+                    "House",
+                    "Vehicles",
+                    "Real Estate",
+                    "Fashion ",
+                    "Health & Beauty",
+                    "Other",
+                    "Multimedia",
+                    "Equipment & Appliances",
+                  ].map((category, index) => (
+                    <li key={index} className="hover:text-primary transition">
+                      <Link
+                        to={`/categories/${category
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")}`}
+                        onClick={toggleMenu}
+                      >
+                        {category}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <Link
+              to="/favorites"
+              state={{ favorites }}
+              className="flex items-center hover:text-primary transition"
+              onClick={toggleMenu}
+            >
+              <GrFavorite size={20} className="mr-2" />
+              <span>Favorites ({favorites.length})</span>
+            </Link>
+
+            {showProfileIcon ? (
+              <button
+                onClick={handleLogout}
                 className="block w-full border border-gray-300 bg-primary text-white rounded-md py-2 text-center hover:bg-purple-600 transition"
-                onClick={toggleMenu}
               >
-                Login
-              </Link>
-              <Link
-                to="/start"
-                className="block w-full border border-gray-300 rounded-md py-2 text-center hover:bg-gray-100 transition"
-                onClick={toggleMenu}
-              >
-                Sell your item
-              </Link>
-            </>
-          )}
-        </nav>
-      </div>
+                Logout
+              </button>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="block w-full border border-gray-300 bg-primary text-white rounded-md py-2 text-center hover:bg-purple-600 transition"
+                  onClick={toggleMenu}
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/start"
+                  className="block w-full border border-gray-300 rounded-md py-2 text-center hover:bg-gray-100 transition"
+                  onClick={toggleMenu}
+                >
+                  Sell your item
+                </Link>
+              </>
+            )}
+          </nav>
+        </div>
+      )}
 
       {/* Custom CSS for Google Translate */}
       <style>
@@ -323,18 +372,6 @@ const Header = ({ favorites = [] }) => {
             background-color: white;
             cursor: pointer;
             min-width: 120px;
-          }
-          
-          /* Mobile styles */
-          .translate-selector-mobile .goog-te-combo {
-            border: 1px solid #d1d5db;
-            border-radius: 9999px;
-            padding: 0.3rem 0.6rem;
-            font-size: 0.75rem;
-            color: #374151;
-            background-color: white;
-            cursor: pointer;
-            min-width: 90px;
           }
           
           /* Common styles */
@@ -369,8 +406,9 @@ const Header = ({ favorites = [] }) => {
             .goog-te-menu-value:before {
               content: "";
             }
-            .translate-selector-mobile .goog-te-combo {
+            .translate-selector .goog-te-combo {
               padding: 0.25rem 0.5rem;
+              min-width: 90px;
             }
           }
           

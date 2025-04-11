@@ -14,6 +14,7 @@ import Recovery from "./Registration/Recovery.jsx";
 import ResetPassword from "./Registration/Resetpassword.jsx";
 import VendorDashboard from "./Vendor/Dashboard.jsx";
 import Products from "./Vendor/Products.jsx";
+
 import Ads from "./Vendor/Ads.jsx";
 import Credit from "./Vendor/Credit.jsx";
 import Settings from "./Vendor/Settings.jsx";
@@ -38,6 +39,9 @@ import CategoryManagement from "./Admin/AdminCategory.jsx";
 import PartnerDashboard from "./Partner/PartnerDashboard.jsx";
 import NotFound from "./Component/NotFound.jsx";
 import ProfilePage from "./ProfilePage.jsx";
+import ProductDetails from "./Vendor/productDetails.jsx";
+import TermsAndConditions from "./Component/TermsAndConditions.jsx";
+import PrivacyPolicy from "./Component/PrivacyPolicy.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -49,6 +53,8 @@ createRoot(document.getElementById("root")).render(
           <Route path="/categories" element={<CategoryPage />} />
           <Route path="/categories/:categoryName" element={<CategoryPage />} />
           <Route path="/favorites" element={<Favorites />} />
+          <Route path="/rules" element={<TermsAndConditions />} /> 
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} /> 
           <Route path="/start" element={<Signup1 />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/verify" element={<Verify />} />
@@ -59,6 +65,7 @@ createRoot(document.getElementById("root")).render(
           <Route path="/reset" element={<ResetPassword />} />
           <Route path="/vendor/dashboard" element={<VendorDashboard />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/products/:id" element={<ProductDetails />} />
           <Route path="/ads" element={<Ads />} />
           <Route path="selectedads" element={<SelectProductForAd />} />
           <Route path="/create-ad/:productId" element={<CreateAd />} />

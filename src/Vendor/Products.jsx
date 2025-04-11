@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import Layout from "./Layout";
 import Addproducts from "./Addproducts";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
@@ -14,7 +14,8 @@ const ProductPage = () => {
   const [error, setError] = useState(null);
   const [selectAll, setSelectAll] = useState(false);
   const [showActions, setShowActions] = useState(null);
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const handleProductSelect = (productId) => {
     setSelectedProducts((prevSelected) =>
       prevSelected.includes(productId)
@@ -27,9 +28,7 @@ const ProductPage = () => {
     if (selectAll) {
       setSelectedProducts([]);
     } else {
-      setSelectedProducts(
-        products.filter((p) => p?._id).map((product) => product._id)
-      );
+      setSelectedProducts(products.filter((p) => p?._id).map((p) => p._id));
     }
     setSelectAll(!selectAll);
   };
@@ -56,16 +55,13 @@ const ProductPage = () => {
   const handleDeleteProduct = async (productId) => {
     const token = localStorage.getItem("accessToken");
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/api/products/${productId}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/api/products/${productId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (res.ok) {
-        setProducts((prev) => prev.filter((p) => p?._id !== productId));
+        setProducts((prev) => prev.filter((p) => p._id !== productId));
         setSelectedProducts((prev) => prev.filter((id) => id !== productId));
       } else throw new Error("Failed to delete product");
     } catch (err) {
@@ -77,18 +73,14 @@ const ProductPage = () => {
     const fetchProducts = async () => {
       const token = localStorage.getItem("accessToken");
       try {
-        const res = await fetch(
-          `${API_BASE_URL}/api/report`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const res = await fetch(`${API_BASE_URL}/api/report`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const data = await res.json();
         if (res.ok) {
-          // Filter out any null or undefined products
           setProducts((data.vendorProducts || []).filter((p) => p));
         } else {
           throw new Error(data.message || "Failed to fetch products");
@@ -105,7 +97,6 @@ const ProductPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 10;
 
-  // Filter out null products before pagination
   const validProducts = products.filter((product) => product);
   const totalPages = Math.ceil(validProducts.length / productsPerPage);
   const paginatedProducts = validProducts.slice(
@@ -154,7 +145,7 @@ const ProductPage = () => {
               </div>
 
               {/* Product Table */}
-              <div className="mt-4 bg-white rounded-lg shadow-sm m">
+              <div className="mt-4 bg-white rounded-lg shadow-sm">
                 <div className="p-4 border-b">
                   <h2 className="text-base sm:text-lg font-semibold">
                     Your Products
@@ -172,20 +163,15 @@ const ProductPage = () => {
                       </p>
                     </div>
                   ) : (
-                    <div className="w-full overflow-x-auto scrollbar-thin ">
+                    <div className="w-full overflow-x-auto scrollbar-thin">
                       <table className="min-w-full table-auto text-sm sm:text-base">
                         <thead className="bg-primary text-white text-xs md:text-sm uppercase font-semibold">
-                          <tr className="border-b border-gray-200">
-                            <th className="p-2 md:p-3 text-left ]">
-                              Product Name
-                            </th>
-                            <th className="p-2 md:p-3 text-left ">Category</th>
-                            <th className="p-2 md:p-3 text-left ">Price</th>
-                            <th className="p-2 md:p-3 text-left ">Status</th>
-                            <th className="p-2 md:p-3 text-left ">
-                              Date Added
-                            </th>
-                            {/* <th className="p-2 md:p-3 text-left ">Actions</th> */}
+                          <tr>
+                            <th className="px-2 py-3 text-left">Name</th>
+                            <th className="px-2 py-3 text-left">Category</th>
+                            <th className="px-2 py-3 text-left">Price</th>
+                            <th className="px-2 py-3 text-left">Status</th>
+                            <th className="px-2 py-3 text-left">Date</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -194,74 +180,49 @@ const ProductPage = () => {
                               product && (
                                 <tr
                                   key={product._id}
-                                  className="hover:bg-gray-100 text-xs md:text-sm"
+                                  className="hover:bg-gray-100 text-xs md:text-sm cursor-pointer"
                                 >
-                                  <td className="px-2 py-3 whitespace-nowrap">
-                                    {product.name || "N/A"}
-                                  </td>
-                                  <td className="px-2 py-3 whitespace-nowrap">
-                                    {product.category || "N/A"}
-                                  </td>
-                                  <td className="px-2 py-3 whitespace-nowrap text-purple-600">
-                                    {product.price
-                                      ? `${product.price} XOF`
-                                      : "N/A"}
-                                  </td>
-                                  <td className="px-2 py-3 whitespace-nowrap font-semibold">
-                                    <span
-                                      className={`px-2 py-1 rounded-full text-xs ${
-                                        product.status === "active"
-                                          ? "text-green-600"
-                                          : product.status === "expired"
-                                          ? "text-red-600"
-                                          : "text-yellow-500"
-                                      }`}
-                                    >
-                                      {product.status
-                                        ? product.status
-                                            .charAt(0)
-                                            .toUpperCase() +
-                                          product.status.slice(1)
+                                  <Link
+                                    to={`/products/${product._id}`}
+                                    className="contents"
+                                  >
+                                    <td className="px-2 py-3 whitespace-nowrap">
+                                      {product.name || "N/A"}
+                                    </td>
+                                    <td className="px-2 py-3 whitespace-nowrap">
+                                      {product.category || "N/A"}
+                                    </td>
+                                    <td className="px-2 py-3 whitespace-nowrap text-purple-600">
+                                      {product.price
+                                        ? `${product.price} XOF`
                                         : "N/A"}
-                                    </span>
-                                  </td>
-                                  <td className="px-2 py-3 whitespace-nowrap">
-                                    {product.createdAt
-                                      ? new Date(
-                                          product.createdAt
-                                        ).toLocaleDateString()
-                                      : "N/A"}
-                                  </td>
-                                  {/* <td className="px-2 py-3 whitespace-nowrap relative text-right">
-                                    <button
-                                      onClick={() => toggleActions(product._id)}
-                                      className="text-gray-600 hover:text-black"
-                                    >
-                                      &#8942;
-                                    </button>
-                                    {showActions === product._id && (
-                                      <div className="absolute right-0 mt-2 w-28 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
-                                        <button
-                                          onClick={() => {
-                                            console.log("View:", product._id);
-                                            setShowActions(null);
-                                          }}
-                                          className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
-                                        >
-                                          View
-                                        </button>
-                                        <button
-                                          onClick={() => {
-                                            handleDeleteProduct(product._id);
-                                            setShowActions(null);
-                                          }}
-                                          className="block w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100 text-left"
-                                        >
-                                          Delete
-                                        </button>
-                                      </div>
-                                    )}
-                                  </td> */}
+                                    </td>
+                                    <td className="px-2 py-3 whitespace-nowrap font-semibold">
+                                      <span
+                                        className={`px-2 py-1 rounded-full text-xs ${
+                                          product.status === "active"
+                                            ? "text-green-600"
+                                            : product.status === "expired"
+                                            ? "text-red-600"
+                                            : "text-yellow-500"
+                                        }`}
+                                      >
+                                        {product.status
+                                          ? product.status
+                                              .charAt(0)
+                                              .toUpperCase() +
+                                            product.status.slice(1)
+                                          : "N/A"}
+                                      </span>
+                                    </td>
+                                    <td className="px-2 py-3 whitespace-nowrap">
+                                      {product.createdAt
+                                        ? new Date(
+                                            product.createdAt
+                                          ).toLocaleDateString()
+                                        : "N/A"}
+                                    </td>
+                                  </Link>
                                 </tr>
                               )
                           )}
