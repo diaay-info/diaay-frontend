@@ -101,6 +101,12 @@ const ProfilePage = () => {
 
               {/* Action Buttons */}
               <div className="mt-8 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                <Link
+                  to="/profile/edit"
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  <FaEdit className="mr-2" /> Edit Profile
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"

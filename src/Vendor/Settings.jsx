@@ -8,8 +8,49 @@ function Settings() {
     phone: "",
     userId: "",
     userRole: "",
-    avatar: localStorage.getItem("userAvatar") || "",
+    avatar: "",
+    businessName: "",
+    location: "",
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  // Fetch user data from API
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_BASE_URL}/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`, // Assuming you store your auth token in localStorage
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+
+        const userData = await response.json();
+        setVendorData({
+          fullName: userData.fullName || "",
+          email: userData.email || "",
+          phone: userData.phone || "",
+          userId: userData.id || "",
+          userRole: userData.role || "",
+          avatar: userData.avatar || "",
+          businessName: userData.businessName || "",
+          location: userData.location || "",
+        });
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
@@ -18,32 +59,59 @@ function Settings() {
       reader.onload = () => {
         const imageUrl = reader.result;
         setVendorData((prev) => ({ ...prev, avatar: imageUrl }));
-        localStorage.setItem("userAvatar", imageUrl);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  useEffect(() => {
-    const storedData = {
-      email: localStorage.getItem("userEmail") || "",
-      phone: localStorage.getItem("phoneNumber") || "",
-      userId: localStorage.getItem("userId") || "",
-      userRole: localStorage.getItem("userRole") || "",
-    };
-    setVendorData((prev) => ({ ...prev, ...storedData }));
-  }, []);
-
   const handleChange = (e) => {
     setVendorData({ ...vendorData, [e.target.name]: e.target.value });
   };
 
-  const handleSave = () => {
-    localStorage.setItem("userEmail", vendorData.email);
-    localStorage.setItem("phoneNumber", vendorData.phone);
-    localStorage.setItem("userRole", vendorData.userRole);
-    alert("Changes saved successfully!");
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/auth/me`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(vendorData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update user data");
+      }
+
+      alert("Changes saved successfully!");
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      alert(`Error: ${err.message}`);
+      setLoading(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex min-h-screen p-2 justify-center items-center">
+          <p>Loading...</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="flex min-h-screen p-2 justify-center items-center">
+          <p className="text-red-500">Error: {error}</p>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -116,8 +184,9 @@ function Settings() {
               <button
                 onClick={handleSave}
                 className="px-4 py-2 bg-purple-600 text-white text-sm rounded-2xl hover:bg-purple-700 w-full sm:w-auto"
+                disabled={loading}
               >
-                Save Changes
+                {loading ? "Saving..." : "Save Changes"}
               </button>
             </div>
 
@@ -155,14 +224,16 @@ function Settings() {
                     value={vendorData.userRole}
                     onChange={handleChange}
                     className="border py-2 px-4 w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    readOnly
                   />
                 </div>
               </div>
               <button
                 onClick={handleSave}
                 className="px-4 py-2 bg-purple-600 text-white text-sm rounded-2xl hover:bg-purple-700 w-full sm:w-auto"
+                disabled={loading}
               >
-                Save Changes
+                {loading ? "Saving..." : "Save Changes"}
               </button>
             </div>
 
@@ -177,7 +248,7 @@ function Settings() {
                   <input
                     type="password"
                     name="currentPassword"
-                    value={vendorData.currentPassword}
+                    value={vendorData.currentPassword || ""}
                     onChange={handleChange}
                     className="border py-2 px-4 w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                   />
@@ -189,7 +260,7 @@ function Settings() {
                   <input
                     type="password"
                     name="newPassword"
-                    value={vendorData.newPassword}
+                    value={vendorData.newPassword || ""}
                     onChange={handleChange}
                     className="border py-2 px-4 w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                   />
@@ -201,7 +272,7 @@ function Settings() {
                   <input
                     type="password"
                     name="confirmPassword"
-                    value={vendorData.confirmPassword}
+                    value={vendorData.confirmPassword || ""}
                     onChange={handleChange}
                     className="border py-2 px-4 w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                   />
@@ -210,8 +281,9 @@ function Settings() {
               <button
                 onClick={handleSave}
                 className="px-4 py-2 bg-purple-600 text-white text-sm rounded-2xl hover:bg-purple-700 w-full sm:w-auto"
+                disabled={loading}
               >
-                Save Changes
+                {loading ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </div>

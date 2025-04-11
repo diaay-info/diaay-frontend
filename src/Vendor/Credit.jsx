@@ -110,19 +110,13 @@ const Credit = ({ onPurchaseCreditclick }) => {
                   placeholder="Search product..."
                   className="border border-gray-300 rounded-lg p-2 flex-grow min-w-[150px]"
                 />
-                <select className="border border-gray-300 rounded-lg py-2 px-4">
-                  <option>Sort by: Default</option>
-                  <option>Price</option>
-                  <option>Date</option>
-                </select>
+               
                 <select className="border border-gray-300 rounded-lg py-2 px-4">
                   <option>Show: All Products</option>
                   <option>Active</option>
                   <option>Inactive</option>
                 </select>
-                <button className="py-2 px-4 border bg-white border-gray-300 rounded-lg">
-                  Filter
-                </button>
+                
                 <button
                   onClick={handlePurchaseCreditToggle}
                   className="py-2 px-4 bg-purple-500 text-white rounded-lg"

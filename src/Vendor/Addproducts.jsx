@@ -421,7 +421,7 @@ const ProductForm = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 ${
+            className={`w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-purple-700 ${
               isSubmitting ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >

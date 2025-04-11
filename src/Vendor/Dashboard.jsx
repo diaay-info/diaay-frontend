@@ -14,7 +14,7 @@ function VendorDashboard() {
   const [loading, setLoading] = useState(true);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const handleProductSelect = (productId) => {
     setSelectedProducts((prevSelected) =>
       prevSelected.includes(productId)
@@ -93,7 +93,7 @@ function VendorDashboard() {
     <Layout>
       <div className="min-h-screen p-0 md:p-4 w-full max-w-full">
         {/* Analytics Section */}
-        <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 mb-4">
+        <section className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 mb-4">
           <div className="bg-white p-2 md:p-3 rounded-lg shadow-sm text-center">
             <FaBox className="text-purple-500 text-lg md:text-xl mx-auto" />
             <p className="text-sm md:text-base font-bold mt-1">
@@ -108,13 +108,7 @@ function VendorDashboard() {
             </p>
             <p className="text-gray-600 text-xs">Active Ads</p>
           </div>
-          {/* <div className="bg-white p-2 md:p-3 rounded-lg shadow-sm text-center">
-            <FaChartLine className="text-purple-500 text-lg md:text-xl mx-auto" />
-            <p className="text-sm md:text-base font-bold mt-1">
-              {vendorData.impressions}
-            </p>
-            <p className="text-gray-600 text-xs">Impressions</p>
-          </div> */}
+
           <div className="bg-white p-2 md:p-3 rounded-lg shadow-sm text-center">
             <FaCreditCard className="text-purple-500 text-lg md:text-xl mx-auto" />
             <p className="text-sm md:text-base font-bold mt-1">
@@ -138,7 +132,6 @@ function VendorDashboard() {
                 <table className="min-w-full table-auto text-sm sm:text-base">
                   <thead className="bg-primary text-white ">
                     <tr>
-                      
                       <th
                         scope="col"
                         className="px-2 py-3 text-left whitespace-nowrap"
@@ -174,7 +167,6 @@ function VendorDashboard() {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {products.map((product) => (
                       <tr key={product._id} className="hover:bg-gray-100">
-                        
                         <td className="px-2 py-3 whitespace-nowrap">
                           {product.name}
                         </td>
@@ -204,7 +196,7 @@ function VendorDashboard() {
             <div className="flex flex-col items-center justify-center p-8 text-center">
               <p className="text-gray-500 mb-4">No products listed yet</p>
               <button className="bg-purple-500 text-white px-4 py-2 rounded-lg text-sm">
-               <Link to="/products">Add Your First Product</Link> 
+                <Link to="/products">Add Your First Product</Link>
               </button>
             </div>
           )}
