@@ -34,7 +34,7 @@ function Sidebar({ isOpen, setIsOpen }) {
         {/* Navigation Links */}
         <nav className="space-y-2">
           <NavLink
-            to="/dashboard"
+            to="/vendor/dashboard"
             className={({ isActive }) =>
               `flex items-center p-3 rounded-lg text-sm ${
                 isActive
