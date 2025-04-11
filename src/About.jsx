@@ -38,7 +38,7 @@ const About = () => {
             <div className="space-y-4 w-full md:w-1/2">
               <h2 className="font-medium text-base">Partners</h2>
               <p className="font-normal text-sm">
-                Earn a 5% commission by referring new customers.
+                Earn a % commission by referring new customers.
               </p>
             </div>
           </div>
@@ -54,7 +54,7 @@ const About = () => {
               their reach and income seamlessly.
             </p>
             <ul className="list-disc space-y-2 w-full md:w-1/2">
-              <li>Free ads for vendors (first 10 ads).</li>
+              <li>Free ads for vendors (first 5 ads).</li>
               <li>Affordable credit system for advertisements.</li>
               <li>
                 Reliable referral system with transparent earnings for partners.
@@ -74,7 +74,7 @@ const About = () => {
             </p>
             <Link to="/start">
               <div className="flex w-[15rem] mx-auto items-center justify-center gap-4 p-3 rounded-3xl bg-primary cursor-pointer">
-                <p className="font-medium">Become a vendor</p>
+                <p className="font-medium">Start Now</p>
                 <div className="bg-white text-primary rounded-full p-2">
                   <FaLongArrowAltRight />
                 </div>
@@ -91,16 +91,14 @@ const About = () => {
               <div className="space-y-2">
                 <h1 className="text-lg md:text-xl font-medium">Contact Us</h1>
                 <p>Email, call, or complete the form to contact us:</p>
-                <p className="text-sm">ecommerce@gmail.com</p>
-                <p className="text-sm">+234 123 456 7890</p>
-                <p className="text-sm">+234 123 456 7890</p>
+                <p className="text-sm">info@diaay.com</p>
+                <p className="text-sm">+221 779 359 683</p>
               </div>
               <div className="space-y-2">
                 <h1 className="text-lg md:text-xl font-medium">Our Location</h1>
-                <p className="text-sm">ECompany Name</p>
-                <p className="text-sm">Lagos, Nigeria</p>
-                <p className="text-sm">123 Allen Avenue, Anthony, Ikeja</p>
-                <p className="text-sm">P.O Box 1779 Ikoyi</p>
+                <p className="text-sm">Diaay Company</p>
+                <p className="text-sm">Senegal, Cotonou</p>
+                <p className="text-sm">Dakar Senegal, Karack en face ecole police.</p>
               </div>
             </div>
 

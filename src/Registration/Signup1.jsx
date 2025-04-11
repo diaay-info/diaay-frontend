@@ -15,7 +15,7 @@ const SignUpForm = () => {
     confirmPassword: "",
     businessName: "",
     location: "",
-    role: "", 
+    role: "",
     termsAndConditions: false,
   });
 
@@ -143,6 +143,7 @@ const SignUpForm = () => {
           localStorage.setItem("userPhoneVerified", data.user.phoneVerified);
 
           // Navigate based on role
+          // Navigate based on role
           switch (data.user.role) {
             case "vendor":
               navigate("/vendor/dashboard");
@@ -151,10 +152,10 @@ const SignUpForm = () => {
               navigate("/partner/dashboard");
               break;
             case "customer":
-              navigate("/customer/dashboard");
+              navigate("/"); // Redirect to homepage for customers
               break;
             default:
-              navigate("/dashboard"); // Fallback for unknown roles
+              navigate("/dashboard");
           }
         } else {
           console.log("Form submission failed");
@@ -266,7 +267,7 @@ const SignUpForm = () => {
                 htmlFor="businessName"
                 className="block text-gray-700 font-bold"
               >
-                Business Name
+                Business Name*
               </label>
               <input
                 type="text"
@@ -283,7 +284,7 @@ const SignUpForm = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="email" className="block text-gray-700 font-bold">
-                Email Address
+                Email Address*
               </label>
               <input
                 type="email"

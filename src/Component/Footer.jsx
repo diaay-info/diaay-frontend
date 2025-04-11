@@ -8,11 +8,17 @@ function Footer() {
       <div className="flex flex-wrap lg:flex-nowrap justify-between gap-8">
         {/* Logo & Description */}
         <div className="w-full md:w-[50%] space-y-5">
-          <h3 className="font-bold text-lg">LOGO</h3>
-          <p className="text-sm text-gray-600">
-            Experience stress-free living with our fully furnished,
-            all-inclusive apartments, designed for students and professionals.
-          </p>
+          <Link to="/">
+            <img src="/llogo.png" className="w-32" alt="Logo" />
+          </Link>{" "}
+          <p className="text-xl font-bold ">
+            Your Go-To Online Marketplace!</p>
+            <p  className="text-sm text-gray-600"> At Diaay, we make shopping simple,
+            secure, and enjoyable. Whether you're looking for the latest trends,
+            everyday essentials, or unique finds, we've got something for
+            everyone. Browse, shop, and have your favorites delivered right to
+            you — all in just a few clicks.</p> 
+            <p>Happy Shopping!</p>
         </div>
 
         {/* Navigation Links */}
@@ -20,8 +26,13 @@ function Footer() {
           {/* Company Links */}
           <div className="space-y-4 w-[45%] md:w-auto">
             <h1 className="font-medium text-base">Company</h1>
-            <Link to="/about" className="font-normal text-sm text-gray-400 cursor-pointer hover:text-black">About us</Link> 
-             
+            <Link
+              to="/about"
+              className="font-normal text-sm text-gray-400 cursor-pointer hover:text-black"
+            >
+              About us
+            </Link>
+
             <p className="font-normal text-sm text-gray-400 cursor-pointer hover:text-black">
               How it works
             </p>
@@ -59,7 +70,7 @@ function Footer() {
 
       {/* Divider */}
       <div className="mt-4 text-sm text-gray-600">
-        © 2024 Company. All rights reserved.
+        © 2025 Company. All rights reserved.
       </div>
       <hr className="my-4" />
 

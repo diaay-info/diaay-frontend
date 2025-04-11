@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Header from "./Component/Header";
 import Footer from "./Component/Footer";
 import { FaLongArrowAltRight } from "react-icons/fa";
@@ -23,7 +23,7 @@ const HomePage = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const navigate = useNavigate();
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const categories = [
     { name: "Vehicles", image: "/categories/car.png" },
     { name: "House", image: "/categories/house.png" },
@@ -39,9 +39,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchTopAds = async () => {
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/api/top-ads`
-        );
+        const response = await fetch(`${API_BASE_URL}/api/top-ads`);
         const data = await response.json();
 
         if (response.ok) {
@@ -65,9 +63,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchAds = async () => {
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/api/ads`
-        );
+        const response = await fetch(`${API_BASE_URL}/api/ads`);
         const data = await response.json();
 
         if (response.ok) {
@@ -144,7 +140,7 @@ const HomePage = () => {
     {
       question: "What is this platform about?",
       answer:
-        "Adventa is a platform where you can buy, sell, and rent a variety of items ranging from real estate to electronics and more.",
+        "Diaay is a digital marketplace designed to connect buyers with independent vendors and empower partners to refer customers.",
     },
     {
       question: "How can I post an ad?",
