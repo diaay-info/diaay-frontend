@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaBox, FaAd, FaChartLine, FaCreditCard } from "react-icons/fa";
 import Layout from "./Layout";
+import { Link } from "react-router-dom";
 
 function VendorDashboard() {
   const [products, setProducts] = useState([]);
@@ -107,13 +108,13 @@ function VendorDashboard() {
             </p>
             <p className="text-gray-600 text-xs">Active Ads</p>
           </div>
-          <div className="bg-white p-2 md:p-3 rounded-lg shadow-sm text-center">
+          {/* <div className="bg-white p-2 md:p-3 rounded-lg shadow-sm text-center">
             <FaChartLine className="text-purple-500 text-lg md:text-xl mx-auto" />
             <p className="text-sm md:text-base font-bold mt-1">
               {vendorData.impressions}
             </p>
             <p className="text-gray-600 text-xs">Impressions</p>
-          </div>
+          </div> */}
           <div className="bg-white p-2 md:p-3 rounded-lg shadow-sm text-center">
             <FaCreditCard className="text-purple-500 text-lg md:text-xl mx-auto" />
             <p className="text-sm md:text-base font-bold mt-1">
@@ -203,7 +204,7 @@ function VendorDashboard() {
             <div className="flex flex-col items-center justify-center p-8 text-center">
               <p className="text-gray-500 mb-4">No products listed yet</p>
               <button className="bg-purple-500 text-white px-4 py-2 rounded-lg text-sm">
-                Add Your First Product
+               <Link to="/products">Add Your First Product</Link> 
               </button>
             </div>
           )}

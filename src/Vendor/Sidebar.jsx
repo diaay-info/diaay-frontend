@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import {
   FaBars,
   FaTimes,
@@ -117,7 +117,7 @@ function Sidebar({ isOpen, setIsOpen }) {
         <div className="mt-8 bg-purple-500 text-white p-4 rounded-lg text-center">
           <p>Promote your products with targeted ads.</p>
           <button className="mt-2 bg-white text-purple-500 px-4 py-2 rounded-lg">
-            Advertise now
+            <Link to="/ads">Advertise now</Link>
           </button>
         </div>
       </aside>

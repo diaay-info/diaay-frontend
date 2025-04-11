@@ -225,7 +225,7 @@ const Ads = () => {
                               <td className="p-2 border-b">{ad.title}</td>
                               <td className="p-2 border-b">{ad.productId.category}</td>
                               <td className="p-2 border-b text-[#7C0DEA]">
-                                {ad.price} XOF
+                                {ad.productId.price} XOF
                               </td>
                               <td className={`p-2 border-b ${statusColor}`}>
                                 {ad.status.charAt(0).toUpperCase() +

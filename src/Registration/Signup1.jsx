@@ -154,8 +154,6 @@ const SignUpForm = () => {
             case "customer":
               navigate("/"); // Redirect to homepage for customers
               break;
-            default:
-              navigate("/dashboard");
           }
         } else {
           console.log("Form submission failed");
