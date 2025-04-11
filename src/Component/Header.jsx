@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GrFavorite } from "react-icons/gr";
@@ -8,14 +7,13 @@ import {
   FaTimes,
   FaChevronDown,
   FaUserCircle,
-  FaGlobe,
+  FaLanguage,
 } from "react-icons/fa";
 
 const Header = ({ favorites = [] }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const [translatorOpen, setTranslatorOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -26,35 +24,58 @@ const Header = ({ favorites = [] }) => {
   const showProfileIcon = isAuthenticated && isCustomer;
   const userName = localStorage.getItem("Name") || "Profile";
 
-  // Initialize Google Translate
+  // Load Google Translate script
   useEffect(() => {
-    // Load Google Translate script if it doesn't exist
-    if (!window.googleTranslateElementInit) {
-      window.googleTranslateElementInit = function () {
+    let script;
+    let timeout;
+
+    const initializeTranslate = () => {
+      if (window.google && window.google.translate && window.google.translate.TranslateElement) {
         new window.google.translate.TranslateElement(
           {
             pageLanguage: "en",
+            includedLanguages: "en,fr,es,de,it,pt,ar,zh-CN,ja,ru",
+            layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
             autoDisplay: false,
-            layout:
-              window.google.translate.TranslateElement.InlineLayout.SIMPLE,
           },
           "google_translate_element"
         );
-      };
+      } else {
+        // Retry after a short delay if Google Translate isn't loaded yet
+        timeout = setTimeout(initializeTranslate, 100);
+      }
+    };
 
-      const script = document.createElement("script");
-      script.src =
-        "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+    if (!window.googleTranslateElementInit) {
+      window.googleTranslateElementInit = initializeTranslate;
+
+      script = document.createElement("script");
+      script.src = "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
       script.async = true;
+      script.onerror = () => {
+        console.error("Failed to load Google Translate script");
+      };
       document.body.appendChild(script);
     }
+
+    return () => {
+      clearTimeout(timeout);
+      if (script && script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+      try {
+        if (window.googleTranslateElementInit) {
+          delete window.googleTranslateElementInit;
+        }
+      } catch (e) {
+        console.warn("Could not clean up Google Translate", e);
+      }
+    };
   }, []);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const toggleCategories = () => setCategoriesOpen(!categoriesOpen);
-  const toggleProfileDropdown = () =>
-    setProfileDropdownOpen(!profileDropdownOpen);
-  const toggleTranslator = () => setTranslatorOpen(!translatorOpen);
+  const toggleProfileDropdown = () => setProfileDropdownOpen(!profileDropdownOpen);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -84,6 +105,22 @@ const Header = ({ favorites = [] }) => {
         />
       </div>
 
+      {/* Google Translate - Desktop */}
+      <div className="hidden md:flex items-center mr-4">
+        <div className="flex items-center">
+          <FaLanguage className="text-gray-600 mr-2" />
+          <div
+            id="google_translate_element"
+            className="translate-selector"
+            style={{
+              display: "inline-block",
+              position: "relative",
+              zIndex: 0,
+            }}
+          ></div>
+        </div>
+      </div>
+
       {/* Desktop Navigation */}
       <div className="hidden md:flex items-center space-x-6 text-sm">
         <Link to="/categories" className={isActive("/categories")}>
@@ -99,27 +136,6 @@ const Header = ({ favorites = [] }) => {
         >
           <GrFavorite size={20} />({favorites.length})
         </Link>
-
-        {/* Google Translate Button - Desktop */}
-        <div className="relative">
-          <button
-            onClick={toggleTranslator}
-            className="flex items-center space-x-1 text-gray-700 hover:text-primary transition"
-          >
-            <FaGlobe size={18} />
-            <span className="text-sm">Translate</span>
-          </button>
-
-          {/* Google Translate Dropdown */}
-          {translatorOpen && (
-            <div className="absolute right-0 mt-2 bg-white rounded-md shadow-lg p-2 z-50 w-60">
-              <div
-                id="google_translate_element"
-                className="google-translate-container"
-              ></div>
-            </div>
-          )}
-        </div>
 
         {showProfileIcon ? (
           <div className="relative">
@@ -165,34 +181,25 @@ const Header = ({ favorites = [] }) => {
         )}
       </div>
 
-      {/* Mobile Menu Button & Google Translate */}
-      <div className="flex items-center space-x-3 md:hidden">
-        {/* Google Translate Mobile Button */}
-        <button onClick={toggleTranslator} className="text-gray-700 p-1">
-          <FaGlobe size={20} />
-        </button>
-
-        {/* Mobile Menu Button */}
+      {/* Mobile Menu Button and Translator */}
+      <div className="md:hidden flex items-center space-x-4">
+        {/* Google Translate - Mobile */}
+        <div className="flex items-center">
+          <FaLanguage className="text-gray-600 mr-1" />
+          <div
+            id="google_translate_element"
+            className="translate-selector-mobile"
+            style={{
+              display: "inline-block",
+              position: "relative",
+              zIndex: 0,
+            }}
+          ></div>
+        </div>
         <button className="text-2xl" onClick={toggleMenu}>
           {menuOpen ? <FaTimes /> : <FaBars />}
         </button>
       </div>
-
-      {/* Mobile Google Translate Dropdown */}
-      {translatorOpen && (
-        <div className="fixed inset-x-0 top-16 bg-white shadow-lg p-4 z-40 md:hidden">
-          <div
-            id="google_translate_element_mobile"
-            className="google-translate-container"
-          ></div>
-          <button
-            onClick={toggleTranslator}
-            className="mt-2 text-sm text-primary"
-          >
-            Close
-          </button>
-        </div>
-      )}
 
       {/* Mobile Full-Screen Menu */}
       <div
@@ -272,13 +279,6 @@ const Header = ({ favorites = [] }) => {
             Favourites
           </Link>
 
-          {/* Mobile menu Translate option with icon */}
-          <div className="flex items-center space-x-2">
-            <FaGlobe size={20} />
-            <span>Translate</span>
-            <div className="ml-2" id="google_translate_element_menu"></div>
-          </div>
-
           {showProfileIcon ? (
             <button
               onClick={handleLogout}
@@ -306,6 +306,80 @@ const Header = ({ favorites = [] }) => {
           )}
         </nav>
       </div>
+
+      {/* Custom CSS for Google Translate */}
+      <style>
+        {`
+          /* Desktop styles */
+          .translate-selector .goog-te-combo {
+            border: 1px solid #d1d5db;
+            border-radius: 9999px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.875rem;
+            color: #374151;
+            background-color: white;
+            cursor: pointer;
+            min-width: 120px;
+          }
+          
+          /* Mobile styles */
+          .translate-selector-mobile .goog-te-combo {
+            border: 1px solid #d1d5db;
+            border-radius: 9999px;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.75rem;
+            color: #374151;
+            background-color: white;
+            cursor: pointer;
+            min-width: 90px;
+          }
+          
+          /* Common styles */
+          .goog-te-gadget {
+            font-size: 0 !important;
+          }
+          .goog-te-gadget-simple {
+            background-color: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+          }
+          .goog-te-menu-value span {
+            display: none;
+          }
+          .goog-te-menu-value:before {
+            content: "Language";
+            color: #4b5563;
+            font-size: 0.875rem;
+          }
+          .goog-te-menu-value img {
+            margin-right: 4px;
+          }
+          .goog-te-banner-frame {
+            display: none !important;
+          }
+          body {
+            top: 0 !important;
+          }
+          
+          /* Mobile specific adjustments */
+          @media (max-width: 768px) {
+            .goog-te-menu-value:before {
+              content: "";
+            }
+            .translate-selector-mobile .goog-te-combo {
+              padding: 0.25rem 0.5rem;
+            }
+          }
+          
+          /* Dropdown arrow styling */
+          .goog-te-menu-value:after {
+            content: "▼";
+            font-size: 0.6em;
+            margin-left: 4px;
+            color: #6b7280;
+          }
+        `}
+      </style>
     </header>
   );
 };
