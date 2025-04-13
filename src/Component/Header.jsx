@@ -147,10 +147,10 @@ const Header = ({ favorites = [] }) => {
       </div>
 
       {/* Google Translate - Shared */}
-      {/* <div className="flex items-center mr-4">
+      <div className="flex items-center mr-4">
         <FaLanguage className="text-gray-600 mr-2" />
         <div id="google_translate_element" className="translate-selector"></div>
-      </div> */}
+      </div>
 
       {/* Desktop Navigation */}
       <div className="hidden md:flex items-center space-x-6 text-sm">
