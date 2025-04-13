@@ -1,9 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
 
 function Footer() {
   return (
-    <footer className="p-8 bg-white  border-t">
+    <footer className="p-8 bg-white border-t">
       {/* Top Section */}
       <div className="flex flex-wrap lg:flex-nowrap justify-between gap-8">
         {/* Logo & Description */}
@@ -89,15 +90,27 @@ function Footer() {
           </button>
         </div>
 
-        {/* Social Media Links */}
+        {/* Social Media Links with React Icons */}
         <div className="w-full md:w-[40%] space-y-4">
           <h1 className="font-medium text-base">Follow us</h1>
-          <div className="flex items-center gap-5 text-sm">
-            <p className="cursor-pointer hover:text-black">Facebook</p>
-            <p className="cursor-pointer hover:text-black">Twitter</p>
-            <p className="cursor-pointer hover:text-black">Instagram</p>
+          <div className="flex items-center gap-5">
+            <a href="#" className="hover:text-gray-400 text-blue-600 transition-colors">
+              <FaFacebook size={24} />
+            </a>
+            <a href="#" className="hover:text-gray-400 text-blue-400 transition-colors">
+              <FaTwitter size={24} />
+            </a>
+            <a href="#" className="hover:text-gray-400 text-pink-600 transition-colors">
+              <FaInstagram size={24} />
+            </a>
           </div>
         </div>
+      </div>
+
+      {/* Powered By Section */}
+      <div className="flex items-center justify-center mt-6">
+        <p className="text-sm text-gray-600 mr-2">Powered by</p>
+        <img src="/powered.jpeg" alt="Powered by logo" className="h-10" />
       </div>
     </footer>
   );

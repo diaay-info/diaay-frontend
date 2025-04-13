@@ -12,7 +12,7 @@ const AdDetailss = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [activeTab, setActiveTab] = useState("description");
   const { favorites, addToFavorites, removeFromFavorites } = useFavorites();
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const isFavorite = favorites.some((fav) => fav._id === ad?._id);
 
   const handleCallVendor = () => {
@@ -59,9 +59,7 @@ const AdDetailss = () => {
   useEffect(() => {
     const fetchAdDetails = async () => {
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/api/ads/${adId}/active`
-        );
+        const response = await fetch(`${API_BASE_URL}/api/ads/${adId}/active`);
         const data = await response.json();
         if (response.ok) {
           setAd(data);
@@ -78,9 +76,7 @@ const AdDetailss = () => {
     const fetchSimilarProducts = async (category) => {
       try {
         const response = await fetch(
-          `${API_BASE_URL}/api/ads?category=${encodeURIComponent(
-            category
-          )}`
+          `${API_BASE_URL}/api/ads?category=${encodeURIComponent(category)}`
         );
         const data = await response.json();
         if (response.ok) {
@@ -364,16 +360,16 @@ const AdDetailss = () => {
         <hr className="my-10" />
 
         {/* Become a Vendor Section */}
-        <div className="flex justify-center text-center my-8">
-          <div className="bg-black rounded-md text-white p-8 max-w-xl">
-            <p className="font-medium text-xl md:text-2xl mb-6">
+        <div className="flex justify-center items-center text-center">
+          <div className="bg-black rounded-md text-white p-6 md:p-8 max-w-lg">
+            <p className="font-medium text-lg md:text-xl mb-6">
               Discover how our features can help you advertise and start earning
               with referrals.
             </p>
             <Link to="/start">
-              <div className="flex items-center gap-5 p-2 mx-auto rounded-3xl w-[12rem] bg-primary cursor-pointer">
-                <p className="font-medium">Become a vendor</p>
-                <div className="bg-white text-primary rounded-full p-1">
+              <div className="flex w-[15rem] mx-auto items-center justify-center gap-4 p-3 rounded-3xl bg-primary cursor-pointer">
+                <p className="font-medium">Start Now</p>
+                <div className="bg-white text-primary rounded-full p-2">
                   <FaLongArrowAltRight />
                 </div>
               </div>
