@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { HiMiniShoppingBag } from "react-icons/hi2";
 import { Link, useNavigate } from "react-router-dom";
-import { FaHandshake, FaEye, FaEyeSlash } from "react-icons/fa"; // Added eye icons
+import { FaHandshake, FaEye, FaEyeSlash, FaWhatsapp } from "react-icons/fa";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 const SignUpForm = () => {
   const [selectedRole, setSelectedRole] = useState("vendor");
@@ -10,12 +12,12 @@ const SignUpForm = () => {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
-    phoneNumber: "",
+    phone: "",
     password: "",
     confirmPassword: "",
     businessName: "",
     location: "",
-    role: "",
+    role: "vendor",
     termsAndConditions: false,
   });
 
@@ -32,7 +34,7 @@ const SignUpForm = () => {
     setSelectedRole(role);
     setFormData((prevData) => ({
       ...prevData,
-      role, // Update the role in formData
+      role,
     }));
   };
 
@@ -51,21 +53,18 @@ const SignUpForm = () => {
       isValid = false;
     }
 
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-    if (!formData.email) {
-      formErrors.email = "Email is required.";
-      isValid = false;
-    } else if (!emailRegex.test(formData.email)) {
-      formErrors.email = "Invalid email format.";
-      isValid = false;
+    // Email validation (now optional)
+    if (formData.email) {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+      if (!emailRegex.test(formData.email)) {
+        formErrors.email = "Invalid email format.";
+        isValid = false;
+      }
     }
 
-    const phoneRegex = /^[0-9]{7,15}$/; // Validate just the number part
-    if (!formData.phoneNumber) {
-      formErrors.phoneNumber = "Phone Number is required.";
-      isValid = false;
-    } else if (!phoneRegex.test(formData.phoneNumber)) {
-      formErrors.phoneNumber = "Invalid phone number format (7-15 digits).";
+    // Phone validation
+    if (!formData.phone) {
+      formErrors.phone = "Phone Number is required.";
       isValid = false;
     }
 
@@ -88,15 +87,7 @@ const SignUpForm = () => {
     setErrors(formErrors);
     return isValid;
   };
-  const countryCodes = [
-    { code: "+229", name: "Benin" },
-    { code: "+234", name: "Nigeria" },
-    { code: "+1", name: "USA" },
-    { code: "+44", name: "UK" },
-    { code: "+221", name: "Ghana" },
-    { code: "+254", name: "Kenya" },
-    { code: "+27", name: "South Africa" },
-  ];
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -105,14 +96,28 @@ const SignUpForm = () => {
     });
   };
 
+  const handlePhoneChange = (value) => {
+    // Ensure the phone number includes the + prefix
+    setFormData({
+      ...formData,
+      phone: `+${value}`,
+    });
+  };
+
+  const handleContactAdmin = () => {
+    const message = encodeURIComponent(
+      "I would like to sell products without subscription"
+    );
+    window.open(`https://wa.me/YOUR_ADMIN_NUMBER?text=${message}`, "_blank");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
       setIsLoading(true);
       try {
-        const fullPhoneNumber = `${formData.countryCode}${formData.phoneNumber}`;
         const existingUsers = ["1234567890"]; // Example list of registered users
-        if (existingUsers.includes(formData.phoneNumber)) {
+        if (existingUsers.includes(formData.phone)) {
           setUserExists(true);
           setIsLoading(false);
           return;
@@ -125,7 +130,7 @@ const SignUpForm = () => {
           },
           body: JSON.stringify({
             ...formData,
-            phoneNumber: fullPhoneNumber,
+            phoneNumber: formData.phone, // Ensure the field name matches what the backend expects
           }),
         });
 
@@ -142,8 +147,7 @@ const SignUpForm = () => {
           localStorage.setItem("userRole", data.user.role);
           localStorage.setItem("userPhoneVerified", data.user.phoneVerified);
 
-          // Navigate based on role
-          // Navigate based on role
+          // Navigate based on role with default case
           switch (data.user.role) {
             case "vendor":
               navigate("/vendor/dashboard");
@@ -151,8 +155,8 @@ const SignUpForm = () => {
             case "partner":
               navigate("/partner/dashboard");
               break;
-            case "customer":
-              navigate("/"); // Redirect to homepage for customers
+            default:
+              navigate("/"); // Default redirect if role is not recognized
               break;
           }
         } else {
@@ -181,18 +185,19 @@ const SignUpForm = () => {
 
         {/* Role Selection */}
         <div className="space-y-4">
-          {["vendor", "partner", "customer"].map((role) => (
+          {["vendor", "partner"].map((role) => (
             <button
               key={role}
+              type="button"
               className={`flex items-center justify-between border-2 font-medium py-3 px-4 sm:px-6 rounded-xl w-full ${
                 selectedRole === role
                   ? "border-purple-500 text-black"
                   : "border-gray-200 text-black"
               }`}
-              onClick={() => handleRoleSelect(role)} // Call handleRoleSelect on click
+              onClick={() => handleRoleSelect(role)}
             >
               <div className="flex items-center space-x-3">
-                {role === "vendor" || role === "customer" ? (
+                {role === "vendor" ? (
                   <HiMiniShoppingBag size={30} />
                 ) : (
                   <FaHandshake size={30} />
@@ -204,9 +209,7 @@ const SignUpForm = () => {
                   <p className="text-sm mt-1 text-gray-500">
                     {role === "vendor"
                       ? "Advertise your products and services easily."
-                      : role === "partner"
-                      ? "Earn commissions by referring customers."
-                      : "Enjoy access to amazing products and services."}
+                      : "Earn commissions by referring customers."}
                   </p>
                 </div>
               </div>
@@ -219,6 +222,23 @@ const SignUpForm = () => {
               ></div>
             </button>
           ))}
+
+          {/* WhatsApp Contact Button - Replacing Customer signup button */}
+          <button
+            type="button"
+            onClick={handleContactAdmin}
+            className="flex items-center justify-between border-2 font-medium py-3 px-4 sm:px-6 rounded-xl w-full border-green-500 text-black"
+          >
+            <div className="flex items-center space-x-3">
+              <FaWhatsapp size={30} className="text-green-500" />
+              <div>
+                <p>Sell Products without subscription?</p>
+                <p className="text-sm mt-1 text-gray-500">
+                  Please Contact Admin on WhatsApp
+                </p>
+              </div>
+            </div>
+          </button>
         </div>
 
         <Link to="/login">
@@ -259,30 +279,28 @@ const SignUpForm = () => {
             )}
           </div>
 
-          {selectedRole === "vendor" && (
-            <div>
-              <label
-                htmlFor="businessName"
-                className="block text-gray-700 font-bold"
-              >
-                Business Name*
-              </label>
-              <input
-                type="text"
-                id="businessName"
-                name="businessName"
-                value={formData.businessName}
-                onChange={handleChange}
-                className="border rounded py-2 px-3 w-full"
-                placeholder="Enter your business name"
-              />
-            </div>
-          )}
+          <div>
+            <label
+              htmlFor="businessName"
+              className="block text-gray-700 font-bold"
+            >
+              Business Name (Optional)
+            </label>
+            <input
+              type="text"
+              id="businessName"
+              name="businessName"
+              value={formData.businessName}
+              onChange={handleChange}
+              className="border rounded py-2 px-3 w-full"
+              placeholder="Enter your business name"
+            />
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="email" className="block text-gray-700 font-bold">
-                Email Address*
+                Email Address (Optional)
               </label>
               <input
                 type="email"
@@ -298,37 +316,29 @@ const SignUpForm = () => {
               )}
             </div>
             <div>
-              <label
-                htmlFor="phoneNumber"
-                className="block text-gray-700 font-bold"
-              >
+              <label htmlFor="phone" className="block text-gray-700 font-bold">
                 Phone Number*
               </label>
-              <div className="flex">
-                <select
-                  name="countryCode"
-                  value={formData.countryCode}
-                  onChange={handleChange}
-                  className="border rounded-l py-2 px-2 w-20"
-                >
-                  {countryCodes.map((country) => (
-                    <option key={country.code} value={country.code}>
-                      {country.code}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  type="tel"
-                  id="phoneNumber"
-                  name="phoneNumber"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  className="border rounded-r py-2 px-3 w-full"
-                  placeholder="Phone number"
-                />
-              </div>
-              {errors.phoneNumber && (
-                <p className="text-red-500 text-sm">{errors.phoneNumber}</p>
+              <PhoneInput
+                country={"sn"} // Default country (Nigeria)
+                value={formData.phone.replace(/^\+/, "")} // Remove + for display if it exists
+                onChange={handlePhoneChange}
+                inputStyle={{
+                  width: "100%",
+                  borderRadius: "0.5rem",
+                  paddingLeft: "3rem",
+                  border: "1px solid #d1d5db",
+                  marginTop: "0.25rem",
+                }}
+                inputProps={{
+                  name: "phone",
+                  required: true,
+                  autoFocus: true,
+                }}
+                enableAreaCodes={true}
+              />
+              {errors.phone && (
+                <p className="text-red-500 text-sm">{errors.phone}</p>
               )}
             </div>
           </div>

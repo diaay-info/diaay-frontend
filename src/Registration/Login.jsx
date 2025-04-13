@@ -1,72 +1,61 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 const Login = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [countryCode, setCountryCode] = useState("+229"); // Default country code
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const countryCodes = [
-    { code: "+229", name: "Benin" },
-    { code: "+234", name: "Nigeria" },
-    { code: "+1", name: "USA" },
-    { code: "+44", name: "UK" },
-    { code: "+221", name: "Ghana" },
-    { code: "+254", name: "Kenya" },
-    { code: "+27", name: "South Africa" },
-  ];
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
 
+  const handlePhoneChange = (value) => {
+    // Ensure the + sign is included in the phone number
+    setPhoneNumber(`+${value}`);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // Reset errors
+    setError("");
 
     if (!phoneNumber || !password) {
       setError("Please fill in all fields.");
       return;
     }
 
-    const fullPhoneNumber = `${countryCode}${phoneNumber}`;
-    console.log("API URL:", `${import.meta.env.VITE_API_BASE_URL}/api/auth/login`);
-    console.log("API URL:", `${API_BASE_URL}/api/auth/login`);
     setLoading(true);
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/auth/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            phoneNumber: fullPhoneNumber,
-            password,
-          }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phoneNumber, // This already includes the + prefix
+          password,
+        }),
+      });
 
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || "Something went wrong!");
       }
 
-      // Extract the needed user details
       const {
         accessToken,
         refreshToken,
         user: { id, email, role, phoneVerified },
       } = data;
 
-      // Store the details in localStorage
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("userId", id);
@@ -74,7 +63,6 @@ const Login = () => {
       localStorage.setItem("userRole", role);
       localStorage.setItem("userPhoneVerified", phoneVerified);
 
-      // Role-based navigation
       if (role === "admin") {
         navigate("/admin/dashboard");
       } else if (role === "vendor") {
@@ -95,7 +83,13 @@ const Login = () => {
     <div className="lg:flex items-center justify-center min-h-screen px-2">
       <div className="w-full max-w-md p-6 bg-white rounded-2xl lg:shadow-lg">
         <div className="text-center space-y-6 mb-10">
-          <img src="/logo.png" className="w-[4rem] mx-auto" />
+          <Link to="/">
+            <img
+              src="/logo.png"
+              alt="Diaay Logo"
+              className="w-[4rem] mx-auto"
+            />
+          </Link>
           <div className="space-y-2">
             <h2 className="text-lg font-semibold mt-4">
               Welcome back to Diaay
@@ -113,26 +107,24 @@ const Login = () => {
             <label className="block text-sm font-medium text-gray-700">
               Phone Number
             </label>
-            <div className="flex">
-              <select
-                value={countryCode}
-                onChange={(e) => setCountryCode(e.target.value)}
-                className="mt-1 px-3 py-2 border rounded-l-lg shadow-sm focus:ring-purple-500 focus:border-purple-500 border-gray-300"
-              >
-                {countryCodes.map((country) => (
-                  <option key={country.code} value={country.code}>
-                    {country.code}
-                  </option>
-                ))}
-              </select>
-              <input
-                type="tel"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="Enter your phone number"
-                className="flex-1 mt-1 px-4 py-2 border-t border-b border-r rounded-r-lg shadow-sm focus:ring-purple-500 focus:border-purple-500 border-gray-300"
-              />
-            </div>
+            <PhoneInput
+              country={"sn"} // Default to Nigeria, changed from Senegal
+              value={phoneNumber.replace(/^\+/, "")} // Remove the + for display
+              onChange={handlePhoneChange}
+              inputStyle={{
+                width: "100%",
+                borderRadius: "0.5rem",
+                paddingLeft: "3rem",
+                border: "1px solid #d1d5db",
+                marginTop: "0.25rem",
+              }}
+              inputProps={{
+                name: "phone",
+                required: true,
+                autoFocus: true,
+              }}
+              enableAreaCodes={true}
+            />
           </div>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">

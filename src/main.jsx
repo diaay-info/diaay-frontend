@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./index.css";
+import "react-phone-input-2/lib/style.css";
 import App from "./App.jsx";
 import ScrollToTop from "./ScrollToTop.jsx";
 import About from "./About.jsx";

@@ -1,46 +1,50 @@
 import React, { useState } from "react";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import { useNavigate } from "react-router-dom";
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccessMessage("");
 
-    if (!email) {
+    if (!phoneNumber) {
       setError("Please enter your phone number.");
       return;
     }
 
+    // Add "+" sign to the phone number if it doesn't already have one
+    const formattedPhoneNumber = phoneNumber.startsWith("+")
+      ? phoneNumber
+      : `+${phoneNumber}`;
+
     setLoading(true);
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/auth/forgot-password`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ phoneNumber: formattedPhoneNumber }),
+      });
 
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || "Failed to send reset link.");
       }
 
-      setSuccessMessage("Password reset link has been sent to your email.");
-      setTimeout(() => {
-        // Navigate to the recovery page
-        navigate("/recovery");
-      }, 2000); // Delay to show success message before navigation
+      setSuccessMessage(
+        "Password reset link has been sent to your phone number."
+      );
+      setTimeout(() => navigate("/recovery"), 2000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -74,12 +78,16 @@ const ForgotPassword = () => {
             <label className="block text-sm font-medium text-gray-700">
               Phone Number
             </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your phone number"
-              className="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500 border-gray-300"
+            <PhoneInput
+              country={"sn"} // default to Senegal
+              value={phoneNumber}
+              onChange={(phone) => setPhoneNumber(phone)}
+              inputStyle={{
+                width: "100%",
+                borderRadius: "0.5rem",
+                paddingleft: "3rem",
+                border: "1px solid #d1d5db",
+              }}
             />
           </div>
           <button

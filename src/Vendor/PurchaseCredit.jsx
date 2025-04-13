@@ -425,7 +425,7 @@ const PurchaseCredit = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
                 <p className="text-gray-600 mb-1">Amount:</p>
-                <p className="font-medium">{selectedAmount} XOF</p>
+                <p className="font-medium text-primary">{selectedAmount} XOF</p>
               </div>
               <div>
                 <p className="text-gray-600 mb-1">Payment Method:</p>
