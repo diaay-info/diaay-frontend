@@ -108,7 +108,7 @@ const SignUpForm = () => {
     const message = encodeURIComponent(
       "I would like to sell products without subscription"
     );
-    window.open(`https://wa.me/YOUR_ADMIN_NUMBER?text=${message}`, "_blank");
+    window.open(`https://wa.me/+221774285608?text=${message}`, "_blank");
   };
 
   const handleSubmit = async (e) => {
