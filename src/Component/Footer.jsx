@@ -61,7 +61,7 @@ function Footer() {
           <div className="space-y-4 w-[45%] md:w-auto">
             <h1 className="font-medium text-base">Legal</h1>
             <p className="font-normal text-sm text-gray-400 cursor-pointer hover:text-black">
-              <Link to="privacy-policy">Privacy Policy</Link>
+              <Link to="/privacy-policy">Privacy Policy</Link>
             </p>
             <p className="font-normal text-sm text-gray-400 cursor-pointer hover:text-black">
               <Link to="/rules">Terms and Conditions</Link>
