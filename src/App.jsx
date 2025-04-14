@@ -182,12 +182,12 @@ const HomePage = () => {
     {
       question: "How do I earn as a partner?",
       answer:
-        "You can contact our customer support team via the 'Contact Us' page or by emailing support@adventa.com.",
+        "You can contact our customer support team via the 'Contact Us' page or by emailing info@diaay.com.",
     },
     {
       question: "How long do ads stay active?",
       answer:
-        "You can contact our customer support team via the 'Contact Us' page or by emailing support@adventa.com.",
+        "You can contact our customer support team via the 'Contact Us' page or by emailing info@diaay.com.",
     },
   ];
 
