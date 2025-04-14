@@ -12,6 +12,7 @@ import {
   FaChevronUp,
   FaChevronLeft,
   FaChevronRight,
+  FaWhatsapp ,
 } from "react-icons/fa";
 
 const HomePage = () => {
@@ -37,7 +38,6 @@ const HomePage = () => {
     { name: "Sports", image: "/categories/leisure.png" },
     { name: "Jobs", image: "/categories/hire.png" },
     { name: "Other", image: "/categories/hire.png" },
-
   ];
 
   // Fetch Categories from API
@@ -191,6 +191,17 @@ const HomePage = () => {
     },
   ];
 
+  const handleWhatsAppRedirect = (e, ad) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Construct the WhatsApp URL with pre-written message
+    const productUrl = `${window.location.origin}/ads/${ad._id}/active`;
+    const message = encodeURIComponent(`Hello, I'm interested in getting this product: ${ad.title}\n${productUrl}`);
+
+    const phoneNumber = ad.productId.vendorPhone || ad.vendorPhone || "";
+    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+  };
   return (
     <div className="bg-background font-montserrat">
       <Header favorites={favorites} />
@@ -261,7 +272,7 @@ const HomePage = () => {
                       className="w-full h-40 object-contain"
                     />
                     <div className="p-4">
-                      <h3 className="lg:text-[o.7rem] text-[0.9rem] font-semibold">
+                      <h3 className="lg:text-[0.7rem] text-[0.9rem] font-semibold">
                         {ad.title}
                       </h3>
                       <p className="text-primary font-bold">
@@ -269,9 +280,18 @@ const HomePage = () => {
                       </p>
                       <hr />
 
-                      <p className=" flex items-center text-sm text-gray-600">
-                      <CiLocationOn />  {ad.productId.country}, {ad.productId.state}
-                      </p>
+                      <div className="flex justify-between items-center mt-2">
+                        <p className="flex items-center text-sm text-gray-600">
+                          <CiLocationOn /> {ad.productId.country},{" "}
+                          {ad.productId.state}
+                        </p>
+                        <button
+                          className="text-green-500 text-xl hover:text-green-600"
+                          onClick={(e) => handleWhatsAppRedirect(e, ad)}
+                        >
+                          <FaWhatsapp />
+                        </button>
+                      </div>
                     </div>
                   </Link>
                 ))
