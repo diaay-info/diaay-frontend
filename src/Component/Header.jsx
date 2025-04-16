@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GrFavorite } from "react-icons/gr";
 import {
-  FaSearch,
   FaBars,
   FaTimes,
   FaChevronDown,
@@ -136,16 +135,6 @@ const Header = ({ favorites = [] }) => {
         <img src="/llogo.png" className="w-32" alt="Logo" />
       </Link>
 
-      {/* Search Bar */}
-      <div className="hidden md:flex relative items-center flex-grow max-w-lg mx-6">
-        <FaSearch className="absolute left-4 text-gray-400" />
-        <input
-          type="text"
-          placeholder="Find the product you want"
-          className="border border-gray-300 rounded-full text-sm pl-10 pr-4 py-2 w-full focus:outline-none focus:ring focus:ring-primary"
-        />
-      </div>
-
       {/* Google Translate - Shared */}
       <div className="flex items-center mr-4">
         <FaLanguage className="text-gray-600 mr-2" />
@@ -246,14 +235,7 @@ const Header = ({ favorites = [] }) => {
           </div>
 
           {/* Search Bar - Mobile */}
-          <div className="relative w-full">
-            <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Find the product you want"
-              className="border border-gray-300 rounded-full text-sm pl-10 pr-4 py-2 w-full focus:outline-none focus:ring focus:ring-primary"
-            />
-          </div>
+          
 
           {/* Links */}
           <nav className="w-full flex flex-col space-y-8 text-xl">

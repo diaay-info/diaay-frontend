@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Header from "./Component/Header";
 import Footer from "./Component/Footer";
 import { FaLongArrowAltRight } from "react-icons/fa";
@@ -12,7 +12,8 @@ import {
   FaChevronUp,
   FaChevronLeft,
   FaChevronRight,
-  FaWhatsapp ,
+  FaWhatsapp,
+  FaSearch,
 } from "react-icons/fa";
 
 const HomePage = () => {
@@ -25,8 +26,19 @@ const HomePage = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [countries, setCountries] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const navigate = useNavigate();
+  const location = useLocation();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  const limit = 12; // Number of ads per page
+
   const categories = [
     { name: "Vehicles", image: "/categories/car.png" },
     { name: "House", image: "/categories/house.png" },
@@ -39,6 +51,56 @@ const HomePage = () => {
     { name: "Jobs", image: "/categories/hire.png" },
     { name: "Other", image: "/categories/hire.png" },
   ];
+
+  // Parse URL params on initial load
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const search = queryParams.get("search") || "";
+    const country = queryParams.get("country") || "";
+    const category = queryParams.get("category") || null;
+    const page = parseInt(queryParams.get("page")) || 1;
+
+    setSearchTerm(search);
+    setSelectedCountry(country);
+    setSelectedCategory(category);
+    setCurrentPage(page);
+  }, [location.search]);
+
+  // Update URL when filters change
+  useEffect(() => {
+    const queryParams = new URLSearchParams();
+
+    if (searchTerm) queryParams.set("search", searchTerm);
+    if (selectedCountry) queryParams.set("country", selectedCountry);
+    if (selectedCategory) queryParams.set("category", selectedCategory);
+    if (currentPage > 1) queryParams.set("page", currentPage.toString());
+
+    const newUrl = queryParams.toString()
+      ? `${location.pathname}?${queryParams.toString()}`
+      : location.pathname;
+
+    navigate(newUrl, { replace: true });
+  }, [searchTerm, selectedCountry, selectedCategory, currentPage]);
+
+  // Fetch Countries for filter dropdown
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/countries`);
+        const data = await response.json();
+
+        if (response.ok) {
+          setCountries(data || []);
+        } else {
+          console.error("Error fetching countries:", data);
+        }
+      } catch (error) {
+        console.error("Error fetching countries:", error);
+      }
+    };
+
+    fetchCountries();
+  }, []);
 
   // Fetch Categories from API
   useEffect(() => {
@@ -86,52 +148,61 @@ const HomePage = () => {
     fetchTopAds();
   }, []);
 
-  // Fetch Regular Ads from API
+  // Fetch All Ads from API
   useEffect(() => {
     const fetchAds = async () => {
+      setIsLoading(true);
       try {
-        const response = await fetch(`${API_BASE_URL}/api/ads`);
+        // Build query params for filtering
+        const params = new URLSearchParams();
+        params.append("page", currentPage.toString());
+        params.append("limit", limit.toString());
+        if (searchTerm) params.append("search", searchTerm);
+        if (selectedCountry) params.append("country", selectedCountry);
+        if (selectedCategory) params.append("category", selectedCategory);
+
+        const url = `${API_BASE_URL}/api/ads?${params.toString()}`;
+        const response = await fetch(url);
         const data = await response.json();
 
         if (response.ok) {
-          const adsArray = Array.isArray(data) ? data : data.ads || [];
-          const activeAds = adsArray.filter((ad) => ad.status === "active");
+          // Handle different response formats
+          let adsArray = [];
+
+          // Check if data has an ads property (based on the API response you shared)
+          if (data.ads && Array.isArray(data.ads)) {
+            adsArray = data.ads;
+          } else if (Array.isArray(data)) {
+            adsArray = data;
+          }
+
+          // Filter active ads
+          const activeAds = adsArray.filter(
+            (ad) => ad.status === "active" || !ad.status
+          );
+
           setAds(activeAds);
-          setFilteredAds(activeAds); // Initialize filtered ads with all active ads
-          setFeaturedAds(getRandomAds(activeAds));
+          setFilteredAds(activeAds);
+
+          // Limit featured ads to 100 as requested
+          const limitedAds = activeAds.slice(0, 100);
+          setFeaturedAds(limitedAds);
+
+          // Calculate total pages based on API response or total active ads
+          const totalItems = data.total || activeAds.length;
+          setTotalPages(Math.ceil(totalItems / limit) || 1);
         } else {
           console.error("Error fetching ads:", data);
         }
       } catch (error) {
         console.error("Error fetching ads:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchAds();
-  }, []);
-
-  // Filter ads when category is selected
-  useEffect(() => {
-    if (selectedCategory) {
-      const filtered = ads.filter(
-        (ad) =>
-          ad.productId?.category?.toLowerCase() ===
-            selectedCategory.toLowerCase() ||
-          ad.category?.toLowerCase() === selectedCategory.toLowerCase()
-      );
-      setFilteredAds(filtered);
-      setFeaturedAds(getRandomAds(filtered));
-    } else {
-      setFilteredAds(ads);
-      setFeaturedAds(getRandomAds(ads));
-    }
-  }, [selectedCategory, ads]);
-
-  // Function to get random ads
-  const getRandomAds = (ads, count = 4) => {
-    const shuffled = [...ads].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
-  };
+  }, [searchTerm, selectedCategory, selectedCountry, currentPage]);
 
   // Toggle favorite status
   const toggleFavorite = (ad) => {
@@ -147,7 +218,32 @@ const HomePage = () => {
     setSelectedCategory(
       categoryName === selectedCategory ? null : categoryName
     );
-    navigate(`/categories/${encodeURIComponent(categoryName.toLowerCase())}`);
+    setCurrentPage(1); // Reset to first page when changing category
+  };
+
+  // Handle search
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setCurrentPage(1); // Reset to first page when searching
+  };
+
+  // Handle country filter change
+  const handleCountryChange = (e) => {
+    setSelectedCountry(e.target.value);
+    setCurrentPage(1); // Reset to first page when changing country
+  };
+
+  // Format date function
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const options = { year: "numeric", month: "short", day: "numeric" };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  // Pagination
+  const goToPage = (page) => {
+    setCurrentPage(page);
+    window.scrollTo(0, 0);
   };
 
   // Carousel navigation
@@ -194,23 +290,54 @@ const HomePage = () => {
   const handleWhatsAppRedirect = (e, ad) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
+    // Get the phone number from the correct location in the data structure
+    const phoneNumber = ad.user?.phoneNumber || "";
+
     // Construct the WhatsApp URL with pre-written message
     const productUrl = `${window.location.origin}/ads/${ad._id}/active`;
-    const message = encodeURIComponent(`Hello, I'm interested in getting this product: ${ad.title}\n${productUrl}`);
+    const message = encodeURIComponent(
+      `Hello, I'm interested in getting this product: ${
+        ad.product?.name || "your product"
+      }\n${productUrl}`
+    );
 
-    const phoneNumber = ad.productId.vendorPhone || ad.vendorPhone || "";
-    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+    window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
   };
+
+  // Helper function to get values from the nested structure
+  const getAdImage = (ad) => {
+    if (ad.product?.images && ad.product.images.length > 0) {
+      return ad.product.images[0];
+    }
+    return "/placeholder-product.jpg";
+  };
+
+  const getAdTitle = (ad) => {
+    return ad.product?.name || ad.title || "No title";
+  };
+
+  const getAdPrice = (ad) => {
+    return ad.product?.price || 0;
+  };
+
+  const getAdLocation = (ad) => {
+    const country = ad.product?.country || "";
+    const state = ad.product?.state || "";
+    return { country, state };
+  };
+
   return (
-    <div className="bg-background font-montserrat">
+    <div className="bg-gray-50 font-montserrat">
       <Header favorites={favorites} />
 
       {/* Layout with Sidebar & Main Content */}
-      <section className="flex flex-col md:flex-row">
+      <section className="flex flex-col md:flex-row max-w-7xl mx-auto">
         {/* Sidebar Categories (Hidden on small screens) */}
-        <aside className="hidden md:block w-1/5 p-4 border border-r">
-          <h2 className="font-bold mb-4">Categories</h2>
+        <aside className="hidden md:block w-1/5 p-4 bg-white shadow-sm rounded-lg my-4 ml-4">
+          <h2 className="font-bold text-lg mb-4 text-gray-800 border-b pb-2">
+            Categories
+          </h2>
           {loadingCategories ? (
             <div className="space-y-4">
               {[...Array(8)].map((_, index) => (
@@ -221,14 +348,14 @@ const HomePage = () => {
               ))}
             </div>
           ) : (
-            <ul className="space-y-6 text-sm">
-              {categories.map((category) => (
+            <ul className="space-y-3 text-sm">
+              {categories.map((category, idx) => (
                 <li
-                  key={category._id}
-                  className={`hover:underline cursor-pointer ${
+                  key={idx}
+                  className={`px-3 py-2 rounded-md transition-all duration-200 hover:bg-gray-100 cursor-pointer ${
                     selectedCategory === category.name
-                      ? "text-primary font-bold"
-                      : "text-gray-600"
+                      ? "bg-purple-100 text-purple-700 font-medium"
+                      : "text-gray-700"
                   }`}
                   onClick={() => handleCategorySelect(category.name)}
                 >
@@ -241,130 +368,260 @@ const HomePage = () => {
 
         {/* Main Content */}
         <main className="w-full md:w-4/5 p-4">
+          {/* Search and Filter Section */}
+          <section className="mb-6 bg-white p-4 rounded-lg shadow-sm">
+            <form
+              onSubmit={handleSearch}
+              className="flex flex-col md:flex-row gap-3"
+            >
+              <div className="relative flex-grow">
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <FaSearch className="absolute left-3 top-3 text-gray-400" />
+              </div>
+
+              <div className="relative w-full md:w-48">
+                <select
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  value={selectedCountry}
+                  onChange={handleCountryChange}
+                >
+                  <option value="">All Countries</option>
+                  {countries.map((country, idx) => (
+                    <option key={idx} value={country.name}>
+                      {country.name}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                  <MdFilterList className="text-gray-500" />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+              >
+                Search
+              </button>
+            </form>
+          </section>
+
           {/* Featured Ads Section */}
-          <section className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">Featured Ads</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {featuredAds.length > 0 ? (
-                featuredAds.map((ad) => (
-                  <Link
-                    key={ad._id}
-                    to={`/ads/${ad._id}/active`}
-                    className="bg-white rounded-lg shadow-md overflow-hidden relative"
+          <section className="bg-white p-6 rounded-lg shadow-sm mb-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">
+              Featured Ads
+            </h2>
+
+            {isLoading ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {[...Array(8)].map((_, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-gray-100 rounded-lg overflow-hidden animate-pulse"
                   >
-                    <button
-                      className="absolute top-2 right-2 text-red-500 text-xl"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        toggleFavorite(ad);
-                      }}
-                    >
-                      {favorites.some((fav) => fav._id === ad._id) ? (
-                        <FaHeart />
-                      ) : (
-                        <FaRegHeart />
-                      )}
-                    </button>
-
-                    <img
-                      src={ad.productId.images[0]}
-                      alt={ad.title}
-                      className="w-full h-40 object-contain"
-                    />
-                    <div className="p-4">
-                      <h3 className="lg:text-[0.7rem] text-[0.9rem] font-semibold">
-                        {ad.title}
-                      </h3>
-                      <p className="text-primary font-bold">
-                        XOF {ad.productId.price}
-                      </p>
-                      <hr />
-
-                      <div className="flex justify-between items-center mt-2">
-                        <p className="flex items-center text-sm text-gray-600">
-                          <CiLocationOn /> {ad.productId.country},{" "}
-                          {ad.productId.state}
-                        </p>
-                        <button
-                          className="text-green-500 text-xl hover:text-green-600"
-                          onClick={(e) => handleWhatsAppRedirect(e, ad)}
-                        >
-                          <FaWhatsapp />
-                        </button>
-                      </div>
+                    <div className="h-48 bg-gray-200"></div>
+                    <div className="p-4 space-y-2">
+                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+                      <div className="h-4 bg-gray-200 rounded w-full"></div>
                     </div>
-                  </Link>
-                ))
-              ) : (
-                <p>Loading ads...</p>
-              )}
-            </div>
+                  </div>
+                ))}
+              </div>
+            ) : featuredAds.length > 0 ? (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {featuredAds.map((ad) => (
+                    <Link
+                      key={ad._id}
+                      to={`/ads/${ad._id}/active`}
+                      className="bg-white rounded-lg shadow-md overflow-hidden relative border border-gray-200 hover:shadow-lg transition-shadow duration-200 h-80 flex flex-col"
+                    >
+                      <button
+                        className="absolute top-2 right-2 z-10 text-red-500 text-xl bg-white bg-opacity-70 rounded-full p-1.5"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          toggleFavorite(ad);
+                        }}
+                      >
+                        {favorites.some((fav) => fav._id === ad._id) ? (
+                          <FaHeart />
+                        ) : (
+                          <FaRegHeart />
+                        )}
+                      </button>
+
+                      <div className="h-40 overflow-hidden">
+                        <img
+                          src={getAdImage(ad)}
+                          alt={getAdTitle(ad)}
+                          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "/placeholder-product.jpg";
+                          }}
+                        />
+                      </div>
+
+                      <div className="p-3 flex-grow flex flex-col">
+                        <div className="mb-1">
+                          <span className="text-xs text-gray-500">
+                            {formatDate(ad.createdAt)}
+                          </span>
+                        </div>
+                        <h3 className="text-sm font-medium line-clamp-2 mb-1 h-10">
+                          {getAdTitle(ad)}
+                        </h3>
+                        <p className="text-purple-600 font-bold mt-auto">
+                          XOF{" "}
+                          {getAdPrice(ad)?.toLocaleString() ||
+                            "Price on request"}
+                        </p>
+                        <hr className="my-2" />
+
+                        <div className="flex justify-between items-center">
+                          <p className="flex items-center text-xs text-gray-600 truncate max-w-[70%]">
+                            <CiLocationOn className="mr-1 flex-shrink-0" />
+                            <span className="truncate">
+                              {getAdLocation(ad).country},{" "}
+                              {getAdLocation(ad).state}
+                            </span>
+                          </p>
+                          <button
+                            className="text-green-500 text-xl hover:text-green-600 flex-shrink-0"
+                            onClick={(e) => handleWhatsAppRedirect(e, ad)}
+                          >
+                            <FaWhatsapp />
+                          </button>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center mt-8">
+                    <nav className="flex items-center space-x-1">
+                      <button
+                        onClick={() => goToPage(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className={`px-3 py-1 rounded-md ${
+                          currentPage === 1
+                            ? "text-gray-400 cursor-not-allowed"
+                            : "text-gray-700 hover:bg-purple-100"
+                        }`}
+                      >
+                        <FaChevronLeft size={14} />
+                      </button>
+
+                      {[...Array(totalPages)].map((_, idx) => {
+                        const pageNumber = idx + 1;
+                        // Show limited page numbers with ellipsis
+                        if (
+                          pageNumber === 1 ||
+                          pageNumber === totalPages ||
+                          (pageNumber >= currentPage - 1 &&
+                            pageNumber <= currentPage + 1)
+                        ) {
+                          return (
+                            <button
+                              key={idx}
+                              onClick={() => goToPage(pageNumber)}
+                              className={`px-3 py-1 rounded-md ${
+                                currentPage === pageNumber
+                                  ? "bg-purple-600 text-white"
+                                  : "text-gray-700 hover:bg-purple-100"
+                              }`}
+                            >
+                              {pageNumber}
+                            </button>
+                          );
+                        } else if (
+                          pageNumber === currentPage - 2 ||
+                          pageNumber === currentPage + 2
+                        ) {
+                          return <span key={idx}>...</span>;
+                        }
+                        return null;
+                      })}
+
+                      <button
+                        onClick={() => goToPage(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className={`px-3 py-1 rounded-md ${
+                          currentPage === totalPages
+                            ? "text-gray-400 cursor-not-allowed"
+                            : "text-gray-700 hover:bg-purple-100"
+                        }`}
+                      >
+                        <FaChevronRight size={14} />
+                      </button>
+                    </nav>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">
+                  No products found matching your criteria
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchTerm("");
+                    setSelectedCategory(null);
+                    setSelectedCountry("");
+                  }}
+                  className="mt-4 text-purple-600 hover:text-purple-800"
+                >
+                  Clear all filters
+                </button>
+              </div>
+            )}
           </section>
 
           {/* Categories Section */}
-          <section className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">Categories</h2>
-            <hr />
+          <section className="bg-white p-6 rounded-lg shadow-sm mb-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">
+              Categories
+            </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-5">
               {categories.map((category, index) => (
                 <div
                   key={index}
-                  className={`bg-white rounded-lg p-4 text-center shadow-md cursor-pointer ${
+                  className={`bg-white rounded-lg p-4 text-center border hover:border-purple-400 transition-all duration-200 cursor-pointer ${
                     selectedCategory === category.name
-                      ? "ring-2 ring-primary"
-                      : ""
+                      ? "border-purple-500 shadow-md"
+                      : "border-gray-200"
                   }`}
                   onClick={() => handleCategorySelect(category.name)}
                 >
-                  <img
-                    src={category.image}
-                    alt={category.name}
-                    className="mx-auto mb-3 object-contain"
-                  />
-                  <h3 className="font-medium">{category.name}</h3>
+                  <div className="flex justify-center items-center h-16 mb-3">
+                    <img
+                      src={category.image}
+                      alt={category.name}
+                      className="max-h-full object-contain"
+                    />
+                  </div>
+                  <h3 className="font-medium text-gray-800">{category.name}</h3>
                 </div>
               ))}
             </div>
           </section>
 
-          {/* FAQ Section */}
-          <section className="mt-8 p-2">
-            <h2 className="text-2xl font-semibold mb-4 border-b">FAQs</h2>
-            <div className="space-y-4">
-              {faqs.map((faq, index) => (
-                <div
-                  key={index}
-                  className={`border rounded-lg ${
-                    activeIndex === index
-                      ? "bg-purple-500 text-white"
-                      : "bg-white text-gray-800"
-                  }`}
-                >
-                  <div
-                    className="flex justify-between items-center p-4 cursor-pointer"
-                    onClick={() => toggleFAQ(index)}
-                  >
-                    <h3 className="font-medium">{faq.question}</h3>
-                    {activeIndex === index ? (
-                      <FaChevronUp />
-                    ) : (
-                      <FaChevronDown />
-                    )}
-                  </div>
-                  {activeIndex === index && (
-                    <div className="p-4 border-t">
-                      <p>{faq.answer}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
           {/* Top adverts */}
-          <section className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Top Adverts</h2>
-              <button className="px-3 py-1 border border-gray-700 text-xs rounded-full hover:bg-gray-200">
+          <section className="bg-white p-6 rounded-lg shadow-sm mb-6">
+            <div className="flex justify-between items-center mb-4 border-b pb-2">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Top Adverts
+              </h2>
+              <button className="px-4 py-1.5 border border-purple-600 text-purple-600 text-sm rounded-full hover:bg-purple-50 transition-colors duration-200">
                 View All
               </button>
             </div>
@@ -372,18 +629,18 @@ const HomePage = () => {
             {topAds.length > 0 ? (
               <div className="relative group">
                 {/* Carousel */}
-                <div className="overflow-hidden rounded-xl ">
+                <div className="overflow-hidden rounded-xl">
                   <div
                     className="flex transition-transform duration-300 ease-in-out"
                     style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                   >
                     {topAds.map((ad) => (
                       <div key={ad._id} className="w-full flex-shrink-0">
-                        <div className=" h-96 flex items-center justify-center">
+                        <div className="h-96 flex items-center justify-center bg-gray-50 rounded-lg p-4">
                           <img
                             src={ad.image}
                             alt={ad.title}
-                            className=" object-fit p-4"
+                            className="max-h-full object-contain"
                             onError={(e) => {
                               e.target.onerror = null;
                               e.target.src = "/placeholder-ad.jpg"; // Fallback image
@@ -398,13 +655,13 @@ const HomePage = () => {
                 {/* Navigation Arrows - Only show on hover */}
                 <button
                   onClick={prevSlide}
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 p-3 rounded-full shadow-md hover:bg-opacity-100 transition-opacity duration-200 opacity-0 group-hover:opacity-100"
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white p-3 rounded-full shadow-md hover:bg-gray-100 transition-all duration-200 opacity-0 group-hover:opacity-100"
                 >
                   <FaChevronLeft className="text-gray-700" />
                 </button>
                 <button
                   onClick={nextSlide}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 p-3 rounded-full shadow-md hover:bg-opacity-100 transition-opacity duration-200 opacity-0 group-hover:opacity-100"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white p-3 rounded-full shadow-md hover:bg-gray-100 transition-all duration-200 opacity-0 group-hover:opacity-100"
                 >
                   <FaChevronRight className="text-gray-700" />
                 </button>
@@ -417,7 +674,7 @@ const HomePage = () => {
                       onClick={() => setCurrentSlide(index)}
                       className={`w-2 h-2 rounded-full transition-all duration-200 ${
                         currentSlide === index
-                          ? "bg-primary w-4"
+                          ? "bg-purple-600 w-4"
                           : "bg-gray-300"
                       }`}
                       aria-label={`Go to slide ${index + 1}`}
@@ -426,23 +683,62 @@ const HomePage = () => {
                 </div>
               </div>
             ) : (
-              <div className="bg-gray-100 rounded-lg p-8 text-center">
-                <p>No active top adverts available</p>
+              <div className="bg-gray-50 rounded-lg p-8 text-center">
+                <p className="text-gray-500">No active top adverts available</p>
               </div>
             )}
           </section>
 
+          {/* FAQ Section */}
+          <section className="bg-white p-6 rounded-lg shadow-sm mb-6">
+            <h2 className="text-xl font-semibold mb-4 border-b pb-2 text-gray-800">
+              FAQs
+            </h2>
+            <div className="space-y-4">
+              {faqs.map((faq, index) => (
+                <div
+                  key={index}
+                  className="border rounded-lg overflow-hidden shadow-sm"
+                >
+                  <div
+                    className={`flex justify-between items-center p-4 cursor-pointer ${
+                      activeIndex === index
+                        ? "bg-purple-600 text-white"
+                        : "bg-white hover:bg-gray-50"
+                    }`}
+                    onClick={() => toggleFAQ(index)}
+                  >
+                    <h3 className="font-medium">{faq.question}</h3>
+                    {activeIndex === index ? (
+                      <FaChevronUp />
+                    ) : (
+                      <FaChevronDown />
+                    )}
+                  </div>
+                  {activeIndex === index && (
+                    <div className="p-4 border-t bg-white text-gray-700">
+                      <p>{faq.answer}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+
           {/* Become a Vendor Section */}
-          <div className="flex justify-center items-center text-center">
-            <div className="bg-black rounded-md text-white p-6 md:p-8 max-w-lg">
-              <p className="font-medium text-lg md:text-xl mb-6">
+          <div className="bg-gradient-to-r from-purple-700 to-purple-900 rounded-lg shadow-lg overflow-hidden mb-6">
+            <div className="p-8 text-center">
+              <h2 className="text-2xl font-bold text-white mb-4">
+                Start Selling Today
+              </h2>
+              <p className="text-white text-lg mb-6 max-w-2xl mx-auto">
                 Discover how our features can help you advertise and start
                 earning with referrals.
               </p>
               <Link to="/start">
-                <div className="flex w-[15rem] mx-auto items-center justify-center gap-4 p-3 rounded-3xl bg-primary cursor-pointer">
+                <div className="inline-flex items-center justify-center gap-3 px-6 py-3 bg-white text-purple-700 rounded-full hover:bg-gray-100 transition-colors duration-200 shadow-md cursor-pointer">
                   <p className="font-medium">Start Now</p>
-                  <div className="bg-white text-primary rounded-full p-2">
+                  <div className="bg-purple-600 text-white rounded-full p-1.5">
                     <FaLongArrowAltRight />
                   </div>
                 </div>

@@ -300,7 +300,7 @@ const SignUpForm = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="email" className="block text-gray-700 font-bold">
-                Email Address *
+                Email Address 
               </label>
               <input
                 type="email"
