@@ -152,7 +152,7 @@ const About = () => {
                     type="submit"
                     className="w-full py-2 px-4 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
-                    Submit 
+                    Submit Form
                   </button>
                 </form>
               </div>
