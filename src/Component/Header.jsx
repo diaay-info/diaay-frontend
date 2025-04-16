@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GrFavorite } from "react-icons/gr";
 import {
@@ -15,7 +15,6 @@ const Header = ({ favorites = [] }) => {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const translatorInitialized = useRef(false);
 
   // Check if user is authenticated AND is a customer
   const isAuthenticated = !!localStorage.getItem("accessToken");
@@ -24,81 +23,36 @@ const Header = ({ favorites = [] }) => {
   const showProfileIcon = isAuthenticated && isCustomer;
   const userName = localStorage.getItem("Name") || "Profile";
 
-  // Load Google Translate script
-  useEffect(() => {
-    // Skip if already initialized
-    if (translatorInitialized.current) return;
-
-    const initializeTranslate = () => {
-      if (
-        window.google &&
-        window.google.translate &&
-        window.google.translate.TranslateElement
-      ) {
-        // First remove any existing instances
-        const existingElements = document.querySelectorAll(
-          ".goog-te-combo, .goog-te-menu-frame, .goog-te-banner-frame"
-        );
-        existingElements.forEach((el) => el.remove());
-
-        // Create new instance
-        new window.google.translate.TranslateElement(
-          {
-            pageLanguage: "en",
-            includedLanguages: "en,fr,es,de,it,pt,ar,zh-CN,ja,ru",
-            layout:
-              window.google.translate.TranslateElement.InlineLayout.SIMPLE,
-            autoDisplay: false,
-          },
-          "google_translate_element"
-        );
-
-        translatorInitialized.current = true;
-      } else {
-        // Retry after a short delay if Google Translate isn't loaded yet
-        setTimeout(initializeTranslate, 100);
-      }
-    };
-
-    // Check if script is already loaded
-    if (window.google && window.google.translate) {
-      initializeTranslate();
-      return;
-    }
-
-    // Create a unique name for the initialization function
-    const functionName =
-      "googleTranslateInit_" + Math.random().toString(36).substring(2, 9);
-    window[functionName] = initializeTranslate;
-
-    // Check if script is already in the DOM
-    const existingScript = document.querySelector(
-      'script[src*="translate.google.com"]'
-    );
-    if (existingScript) {
-      return;
-    }
-
-    // Load the script
-    const script = document.createElement("script");
-    script.src = `https://translate.google.com/translate_a/element.js?cb=${functionName}`;
-    script.async = true;
-    script.onerror = () =>
-      console.error("Failed to load Google Translate script");
-    document.body.appendChild(script);
-
-    return () => {
-      // Cleanup function
-      if (window[functionName]) {
-        delete window[functionName];
-      }
-    };
-  }, []);
-
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const toggleCategories = () => setCategoriesOpen(!categoriesOpen);
   const toggleProfileDropdown = () =>
     setProfileDropdownOpen(!profileDropdownOpen);
+
+  // Add this to your component - a minimal translate script loader
+  useEffect(() => {
+    // Check if the script is already loaded
+    if (!window.googleTranslateElementInit) {
+      // Define the initialization function globally
+      window.googleTranslateElementInit = function() {
+        new window.google.translate.TranslateElement(
+          { 
+            pageLanguage: 'en',
+            layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE
+          }, 
+          'google_translate_element'
+        );
+      };
+      
+      // Helper function to load Google Translate script
+      const script = document.createElement('script');
+      script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+      script.async = true;
+      document.body.appendChild(script);
+    }
+    
+    // No cleanup needed - we'll keep the function around since it doesn't hurt
+    // and prevents the error when unmounting
+  }, []);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -135,14 +89,28 @@ const Header = ({ favorites = [] }) => {
         <img src="/llogo.png" className="w-32" alt="Logo" />
       </Link>
 
-      {/* Google Translate - Shared */}
-      <div className="flex items-center mr-4">
-        <FaLanguage className="text-gray-600 mr-2" />
-        <div id="google_translate_element" className="translate-selector"></div>
+      {/* Mobile area with menu + translate */}
+      <div className="md:hidden flex items-center space-x-3">
+        {/* SIMPLIFIED: Single translate element for all devices */}
+        <div id="google_translate_element" className="mobile-translator"></div>
+        
+        <button
+          className="text-2xl"
+          onClick={toggleMenu}
+          aria-label="Toggle menu"
+        >
+          {menuOpen ? <FaTimes /> : <FaBars />}
+        </button>
       </div>
 
       {/* Desktop Navigation */}
       <div className="hidden md:flex items-center space-x-6 text-sm">
+        {/* Desktop translate is the same element now */}
+        <div className="flex items-center mr-4">
+          <FaLanguage className="text-gray-600 mr-2" />
+          <div id="google_translate_element" className="desktop-translator"></div>
+        </div>
+        
         <Link to="/" className={isActive("/")}>
           Home
         </Link>
@@ -206,17 +174,6 @@ const Header = ({ favorites = [] }) => {
         )}
       </div>
 
-      {/* Mobile Menu Button */}
-      <div className="md:hidden flex items-center space-x-4">
-        <button
-          className="text-2xl"
-          onClick={toggleMenu}
-          aria-label="Toggle menu"
-        >
-          {menuOpen ? <FaTimes /> : <FaBars />}
-        </button>
-      </div>
-
       {/* Mobile Full-Screen Menu */}
       {menuOpen && (
         <div className="fixed inset-0 bg-white z-50 flex flex-col items-center p-6 space-y-6 md:hidden">
@@ -233,9 +190,6 @@ const Header = ({ favorites = [] }) => {
               <FaTimes />
             </button>
           </div>
-
-          {/* Search Bar - Mobile */}
-          
 
           {/* Links */}
           <nav className="w-full flex flex-col space-y-8 text-xl">
@@ -344,62 +298,55 @@ const Header = ({ favorites = [] }) => {
       {/* Custom CSS for Google Translate */}
       <style>
         {`
-          /* Desktop styles */
-          .translate-selector .goog-te-combo {
-            border: 1px solid #d1d5db;
-            border-radius: 9999px;
-            padding: 0.4rem 0.8rem;
-            font-size: 0.875rem;
-            color: #374151;
-            background-color: white;
-            cursor: pointer;
-            min-width: 120px;
-          }
-          
-          /* Common styles */
+          /* Basic Google Translate cleanup */
           .goog-te-gadget {
             font-size: 0 !important;
           }
-          .goog-te-gadget-simple {
-            background-color: transparent !important;
-            border: none !important;
-            padding: 0 !important;
-          }
-          .goog-te-menu-value span {
-            display: none;
-          }
-          .goog-te-menu-value:before {
-            content: "Language";
-            color: #4b5563;
-            font-size: 0.875rem;
-          }
-          .goog-te-menu-value img {
-            margin-right: 4px;
-          }
-          .goog-te-banner-frame {
+          .goog-te-banner-frame, .goog-te-menu-frame {
             display: none !important;
           }
           body {
             top: 0 !important;
           }
           
-          /* Mobile specific adjustments */
-          @media (max-width: 768px) {
-            .goog-te-menu-value:before {
-              content: "";
-            }
-            .translate-selector .goog-te-combo {
-              padding: 0.25rem 0.5rem;
-              min-width: 90px;
-            }
+          /* Hide "Translate" text and attribution */
+          .goog-te-gadget span {
+            display: none !important;
           }
           
-          /* Dropdown arrow styling */
-          .goog-te-menu-value:after {
-            content: "▼";
-            font-size: 0.6em;
-            margin-left: 4px;
-            color: #6b7280;
+          /* IMPORTANT: Force visibility of dropdown */
+          .goog-te-combo {
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            position: static !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 4px !important;
+            color: #374151 !important;
+            background-color: white !important;
+            cursor: pointer !important;
+          }
+          
+          /* Desktop-specific styles */
+          .desktop-translator .goog-te-combo {
+            border-radius: 9999px !important;
+            padding: 0.4rem 0.8rem !important;
+            font-size: 0.875rem !important;
+            max-width: 120px !important;
+          }
+          
+          /* Mobile-specific styles */
+          .mobile-translator .goog-te-combo {
+            padding: 0.3rem 0.5rem !important;
+            font-size: 0.75rem !important;
+            width: 100px !important;
+            height: auto !important;
+          }
+          
+          /* Handle Google Translate frame */
+          .skiptranslate {
+            visibility: visible !important;
+            opacity: 1 !important;
           }
         `}
       </style>

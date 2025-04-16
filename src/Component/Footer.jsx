@@ -4,7 +4,7 @@ import { FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
 
 function Footer() {
   return (
-    <footer className="p-8 bg-white border-t">
+    <footer className="p-8 bg-gray-100 border-t">
       {/* Top Section */}
       <div className="flex flex-wrap lg:flex-nowrap justify-between gap-8">
         {/* Logo & Description */}

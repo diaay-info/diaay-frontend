@@ -98,7 +98,9 @@ const About = () => {
                 <h1 className="text-lg md:text-xl font-medium">Our Location</h1>
                 <p className="text-sm">Diaay Company</p>
                 <p className="text-sm">Senegal, Cotonou</p>
-                <p className="text-sm">Dakar Senegal, Karack en face ecole police.</p>
+                <p className="text-sm">
+                  Dakar Senegal, Karack en face ecole police.
+                </p>
               </div>
             </div>
 
@@ -113,26 +115,38 @@ const About = () => {
                     You can reach us anytime.
                   </p>
                 </div>
-                <form className="space-y-4">
+                <form
+                  className="space-y-4"
+                  action="mailto:info@diaay.com"
+                  method="post"
+                  encType="text/plain"
+                >
                   <input
                     type="text"
+                    name="fullName"
                     placeholder="Full Name"
                     className="w-full py-2 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    required
                   />
                   <input
                     type="email"
+                    name="email"
                     placeholder="Email Address"
                     className="w-full py-2 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    required
                   />
                   <input
                     type="tel"
+                    name="phone"
                     placeholder="Phone Number"
                     className="w-full py-2 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                   <textarea
                     rows="4"
+                    name="message"
                     placeholder="Your Message"
                     className="w-full py-2 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    required
                   ></textarea>
                   <button
                     type="submit"

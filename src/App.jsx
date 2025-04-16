@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import Select from "react-select";
+import countryList from "react-select-country-list";
 import Header from "./Component/Header";
 import Footer from "./Component/Footer";
 import { FaLongArrowAltRight } from "react-icons/fa";
@@ -17,17 +19,18 @@ import {
 } from "react-icons/fa";
 
 const HomePage = () => {
+  // Existing state variables
   const [activeIndex, setActiveIndex] = useState(null);
   const [ads, setAds] = useState([]);
   const [featuredAds, setFeaturedAds] = useState([]);
   const [filteredAds, setFilteredAds] = useState([]);
   const [favorites, setFavorites] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [topAds, setTopAds] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [countries, setCountries] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -37,20 +40,10 @@ const HomePage = () => {
   const location = useLocation();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  const limit = 12; // Number of ads per page
+  // Initialize country list with memoization to prevent unnecessary re-renders
+  const countries = useMemo(() => countryList().getData(), []);
 
-  const categories = [
-    { name: "Vehicles", image: "/categories/car.png" },
-    { name: "House", image: "/categories/house.png" },
-    { name: "Fashion", image: "/categories/beauty.png" },
-    { name: "Food", image: "/categories/food.png" },
-    { name: "Health & Beauty", image: "/categories/food.png" },
-    { name: "Electronics", image: "/categories/phone.png" },
-    { name: "Services", image: "/categories/services.png" },
-    { name: "Sports", image: "/categories/leisure.png" },
-    { name: "Jobs", image: "/categories/hire.png" },
-    { name: "Other", image: "/categories/hire.png" },
-  ];
+  const limit = 12; // Number of ads per page
 
   // Parse URL params on initial load
   useEffect(() => {
@@ -80,49 +73,47 @@ const HomePage = () => {
       : location.pathname;
 
     navigate(newUrl, { replace: true });
-  }, [searchTerm, selectedCountry, selectedCategory, currentPage]);
+  }, [
+    searchTerm,
+    selectedCountry,
+    selectedCategory,
+    currentPage,
+    navigate,
+    location.pathname,
+  ]);
 
-  // Fetch Countries for filter dropdown
-  useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/countries`);
-        const data = await response.json();
-
-        if (response.ok) {
-          setCountries(data || []);
-        } else {
-          console.error("Error fetching countries:", data);
-        }
-      } catch (error) {
-        console.error("Error fetching countries:", error);
-      }
-    };
-
-    fetchCountries();
-  }, []);
-
-  // Fetch Categories from API
   useEffect(() => {
     const fetchCategories = async () => {
       try {
+        setLoadingCategories(true);
         const response = await fetch(`${API_BASE_URL}/api/categories`);
         const data = await response.json();
 
         if (response.ok) {
-          setCategories(data.categories || []);
+          // Make sure to check the structure of your API response
+          // and extract the categories properly
+          if (data.categories && Array.isArray(data.categories)) {
+            setCategories(data.categories);
+          } else if (Array.isArray(data)) {
+            setCategories(data);
+          } else {
+            console.error("Unexpected categories data format:", data);
+            setCategories([]);
+          }
         } else {
           console.error("Error fetching categories:", data);
+          setCategories([]);
         }
       } catch (error) {
         console.error("Error fetching categories:", error);
+        setCategories([]);
       } finally {
         setLoadingCategories(false);
       }
     };
 
     fetchCategories();
-  }, []);
+  }, [API_BASE_URL]);
 
   // Fetch Top Ads from API
   useEffect(() => {
@@ -181,11 +172,21 @@ const HomePage = () => {
             (ad) => ad.status === "active" || !ad.status
           );
 
+          // Filter ads by country if a country is selected
+          const countryFilteredAds = selectedCountry
+            ? activeAds.filter((ad) => {
+                const adCountry = ad.product?.country || "";
+                return (
+                  adCountry.toLowerCase() === selectedCountry.toLowerCase()
+                );
+              })
+            : activeAds;
+
           setAds(activeAds);
-          setFilteredAds(activeAds);
+          setFilteredAds(countryFilteredAds);
 
           // Limit featured ads to 100 as requested
-          const limitedAds = activeAds.slice(0, 100);
+          const limitedAds = countryFilteredAds.slice(0, 100);
           setFeaturedAds(limitedAds);
 
           // Calculate total pages based on API response or total active ads
@@ -213,6 +214,31 @@ const HomePage = () => {
     );
   };
 
+  // Handle country selection for the react-select component
+  const handleCountryChange = (selectedOption) => {
+    setSelectedCountry(selectedOption ? selectedOption.label : "");
+    setCurrentPage(1); // Reset to first page when changing country
+  };
+
+  // Custom styling for react-select
+  const customStyles = {
+    control: (provided) => ({
+      ...provided,
+      borderColor: '#d1d5db',
+      boxShadow: 'none',
+      '&:hover': {
+        borderColor: '#9333ea',
+      },
+      borderRadius: '0.5rem',
+      padding: '1px',
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected ? '#9333ea' : state.isFocused ? '#f3e8ff' : null,
+      color: state.isSelected ? 'white' : '#4b5563',
+    }),
+  };
+  
   // Handle category selection
   const handleCategorySelect = (categoryName) => {
     setSelectedCategory(
@@ -225,12 +251,6 @@ const HomePage = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     setCurrentPage(1); // Reset to first page when searching
-  };
-
-  // Handle country filter change
-  const handleCountryChange = (e) => {
-    setSelectedCountry(e.target.value);
-    setCurrentPage(1); // Reset to first page when changing country
   };
 
   // Format date function
@@ -334,7 +354,7 @@ const HomePage = () => {
       {/* Layout with Sidebar & Main Content */}
       <section className="flex flex-col md:flex-row max-w-7xl mx-auto">
         {/* Sidebar Categories (Hidden on small screens) */}
-        <aside className="hidden md:block w-1/5 p-4 bg-white shadow-sm rounded-lg my-4 ml-4">
+        <aside className="hidden md:block w-1/5 p-4 bg-gray-100 shadow-sm rounded-lg my-4 ml-4">
           <h2 className="font-bold text-lg mb-4 text-gray-800 border-b pb-2">
             Categories
           </h2>
@@ -385,22 +405,22 @@ const HomePage = () => {
                 <FaSearch className="absolute left-3 top-3 text-gray-400" />
               </div>
 
-              <div className="relative w-full md:w-48">
-                <select
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  value={selectedCountry}
+              <div className="relative z-50 w-full md:w-64">
+                <Select
+                  options={countries}
+                  value={selectedCountry ? countries.find(country => country.label === selectedCountry) : null}
                   onChange={handleCountryChange}
-                >
-                  <option value="">All Countries</option>
-                  {countries.map((country, idx) => (
-                    <option key={idx} value={country.name}>
-                      {country.name}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                  <MdFilterList className="text-gray-500" />
-                </div>
+                  styles={customStyles}
+                  placeholder="Select a country"
+                  isClearable
+                  formatOptionLabel={country => (
+                    <div className="flex items-center">
+                      <span className="mr-2">{country.value}</span>
+                      <span>{country.label}</span>
+                    </div>
+                  )}
+                  className="country-select"
+                />
               </div>
 
               <button
@@ -586,30 +606,30 @@ const HomePage = () => {
             )}
           </section>
 
-          {/* Categories Section */}
-          <section className="bg-white p-6 rounded-lg shadow-sm mb-6">
+          {/* Categories Section - Mobile Only */}
+          <section className="bg-white p-4 md:hidden rounded-lg shadow-sm mb-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">
               Categories
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-5">
+            <div className="grid grid-cols-4 gap-2 mt-4">
               {categories.map((category, index) => (
                 <div
                   key={index}
-                  className={`bg-white rounded-lg p-4 text-center border hover:border-purple-400 transition-all duration-200 cursor-pointer ${
+                  className={`bg-white rounded-lg p-2 text-center border hover:border-purple-400 transition-all duration-200 cursor-pointer ${
                     selectedCategory === category.name
                       ? "border-purple-500 shadow-md"
                       : "border-gray-200"
                   }`}
                   onClick={() => handleCategorySelect(category.name)}
                 >
-                  <div className="flex justify-center items-center h-16 mb-3">
-                    <img
-                      src={category.image}
-                      alt={category.name}
-                      className="max-h-full object-contain"
-                    />
-                  </div>
-                  <h3 className="font-medium text-gray-800">{category.name}</h3>
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="h-12 w-12 mx-auto object-contain mb-1"
+                  />
+                  <h3 className="font-medium text-xs text-gray-800 truncate">
+                    {category.name}
+                  </h3>
                 </div>
               ))}
             </div>
@@ -752,5 +772,4 @@ const HomePage = () => {
     </div>
   );
 };
-
 export default HomePage;
