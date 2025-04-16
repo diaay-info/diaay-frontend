@@ -175,7 +175,9 @@ const SignUpForm = () => {
       {/* Left Section */}
       <div className="bg-white shadow-lg rounded-lg p-6 lg:p-8 w-full lg:w-2/5 mb-6 lg:mb-0">
         <div className="mb-6 flex justify-center">
-          <img src="/logo.png" alt="Logo" className="h-12" />
+          <Link to="/">
+            <img src="/logo.png" alt="Logo" className="h-12" />
+          </Link>
         </div>
 
         <div className="text-center space-y-3 mb-8">
@@ -300,7 +302,7 @@ const SignUpForm = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="email" className="block text-gray-700 font-bold">
-                Email Address 
+                Email Address
               </label>
               <input
                 type="email"
