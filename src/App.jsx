@@ -405,7 +405,7 @@ const HomePage = () => {
                 <FaSearch className="absolute left-3 top-3 text-gray-400" />
               </div>
 
-              <div className="relative z-50 w-full md:w-64">
+              <div className="relative w-full md:w-64">
                 <Select
                   options={countries}
                   value={selectedCountry ? countries.find(country => country.label === selectedCountry) : null}
