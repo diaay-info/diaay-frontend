@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import Header from "./Component/Header";
 import Footer from "./Component/Footer";
@@ -15,10 +15,43 @@ const CategoryPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const [favorites, setFavorites] = useState([]);
   const navigate = useNavigate();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const limit = 12;
+
+  // Debounce function
+  const debounce = (func, delay) => {
+    let timer;
+    return function (...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => func.apply(this, args), delay);
+    };
+  };
+
+  // Debounced search handler
+  const handleSearch = useCallback(
+    debounce((term) => {
+      setSearchTerm(term);
+      setCurrentPage(1);
+    }, 500),
+    []
+  );
+
+  // Handle input changes
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSearchInput(value);
+    handleSearch(value);
+  };
+
+  // Prevent form submission
+  const handleInputKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
+  };
 
   // Fetch all categories
   useEffect(() => {
@@ -74,11 +107,6 @@ const CategoryPage = () => {
 
     fetchCategoryAds();
   }, [categoryName, currentPage, searchTerm, API_BASE_URL]);
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    setCurrentPage(1);
-  };
 
   const toggleFavorite = (ad) => {
     setFavorites((prev) =>
@@ -204,18 +232,20 @@ const CategoryPage = () => {
           </h1>
         </div>
 
-        <form onSubmit={handleSearch} className="mb-6 max-w-md">
+        {/* Search input without form */}
+        <div className="mb-6 max-w-md">
           <div className="relative">
             <input
               type="text"
               placeholder={`Search in ${decodeURIComponent(categoryName)}...`}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={searchInput}
+              onChange={handleInputChange}
+              onKeyDown={handleInputKeyDown}
             />
             <FaSearch className="absolute left-3 top-3 text-gray-400" />
           </div>
-        </form>
+        </div>
 
         {ads.length > 0 ? (
           <>
