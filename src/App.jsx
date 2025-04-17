@@ -65,7 +65,6 @@ const HomePage = () => {
 
     if (searchTerm) queryParams.set("search", searchTerm);
     if (selectedCountry) queryParams.set("country", selectedCountry);
-    if (selectedCategory) queryParams.set("category", selectedCategory);
     if (currentPage > 1) queryParams.set("page", currentPage.toString());
 
     const newUrl = queryParams.toString()
@@ -73,14 +72,7 @@ const HomePage = () => {
       : location.pathname;
 
     navigate(newUrl, { replace: true });
-  }, [
-    searchTerm,
-    selectedCountry,
-    selectedCategory,
-    currentPage,
-    navigate,
-    location.pathname,
-  ]);
+  }, [searchTerm, selectedCountry, currentPage, navigate, location.pathname]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -150,7 +142,6 @@ const HomePage = () => {
         params.append("limit", limit.toString());
         if (searchTerm) params.append("search", searchTerm);
         if (selectedCountry) params.append("country", selectedCountry);
-        if (selectedCategory) params.append("category", selectedCategory);
 
         const url = `${API_BASE_URL}/api/ads?${params.toString()}`;
         const response = await fetch(url);
@@ -203,7 +194,7 @@ const HomePage = () => {
     };
 
     fetchAds();
-  }, [searchTerm, selectedCategory, selectedCountry, currentPage]);
+  }, [searchTerm, selectedCountry, currentPage]);
 
   // Toggle favorite status
   const toggleFavorite = (ad) => {
@@ -224,21 +215,25 @@ const HomePage = () => {
   const customStyles = {
     control: (provided) => ({
       ...provided,
-      borderColor: '#d1d5db',
-      boxShadow: 'none',
-      '&:hover': {
-        borderColor: '#9333ea',
+      borderColor: "#d1d5db",
+      boxShadow: "none",
+      "&:hover": {
+        borderColor: "#9333ea",
       },
-      borderRadius: '0.5rem',
-      padding: '1px',
+      borderRadius: "0.5rem",
+      padding: "1px",
     }),
     option: (provided, state) => ({
       ...provided,
-      backgroundColor: state.isSelected ? '#9333ea' : state.isFocused ? '#f3e8ff' : null,
-      color: state.isSelected ? 'white' : '#4b5563',
+      backgroundColor: state.isSelected
+        ? "#9333ea"
+        : state.isFocused
+        ? "#f3e8ff"
+        : null,
+      color: state.isSelected ? "white" : "#4b5563",
     }),
   };
-  
+
   // Handle category selection
   const handleCategorySelect = (categoryName) => {
     setSelectedCategory(
@@ -377,7 +372,7 @@ const HomePage = () => {
                       ? "bg-purple-100 text-purple-700 font-medium"
                       : "text-gray-700"
                   }`}
-                  onClick={() => handleCategorySelect(category.name)}
+                  onClick={() => navigate(`/categories/${category.name}`)}
                 >
                   {category.name}
                 </li>
@@ -408,12 +403,18 @@ const HomePage = () => {
               <div className="relative w-full md:w-64">
                 <Select
                   options={countries}
-                  value={selectedCountry ? countries.find(country => country.label === selectedCountry) : null}
+                  value={
+                    selectedCountry
+                      ? countries.find(
+                          (country) => country.label === selectedCountry
+                        )
+                      : null
+                  }
                   onChange={handleCountryChange}
                   styles={customStyles}
                   placeholder="Select a country"
                   isClearable
-                  formatOptionLabel={country => (
+                  formatOptionLabel={(country) => (
                     <div className="flex items-center">
                       <span className="mr-2">{country.value}</span>
                       <span>{country.label}</span>
@@ -620,7 +621,7 @@ const HomePage = () => {
                       ? "border-purple-500 shadow-md"
                       : "border-gray-200"
                   }`}
-                  onClick={() => handleCategorySelect(category.name)}
+                  onClick={() => navigate(`/categories/${category.name}`)}
                 >
                   <img
                     src={category.image}

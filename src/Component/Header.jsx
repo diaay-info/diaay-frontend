@@ -457,31 +457,7 @@ const Header = ({ favorites = [] }) => {
             </button>
           </div>
 
-          {/* Mobile language selector inside menu */}
-          <div className="w-full">
-            <div className="mb-4">
-              <p className="text-sm text-gray-500 mb-2">Select Language</p>
-              <div className="grid grid-cols-2 gap-2">
-                {languages.map((lang) => (
-                  <button
-                    key={lang.code}
-                    className={`text-left px-3 py-2 text-sm rounded ${
-                      currentLanguage === lang.name
-                        ? "bg-primary text-white"
-                        : "bg-gray-100 hover:bg-gray-200"
-                    }`}
-                    onClick={() => {
-                      changeLanguage(lang.code);
-                      // Don't close the menu automatically
-                    }}
-                  >
-                    {lang.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <hr className="my-2" />
-          </div>
+          
 
           {/* Links */}
           <nav className="w-full flex flex-col space-y-8 text-xl">
@@ -510,44 +486,13 @@ const Header = ({ favorites = [] }) => {
             >
               About
             </Link>
-            <div>
-              <button
-                onClick={toggleCategories}
-                className="flex items-center text-lg w-full focus:outline-none hover:text-primary transition"
-              >
-                Categories
-                <FaChevronDown
-                  className={`ml-2 transition-transform ${
-                    categoriesOpen ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-              {categoriesOpen && (
-                <ul className="mt-2 pl-4 w-full text-gray-600 space-y-2">
-                  {[
-                    "House",
-                    "Vehicles",
-                    "Real Estate",
-                    "Fashion ",
-                    "Health & Beauty",
-                    "Other",
-                    "Multimedia",
-                    "Equipment & Appliances",
-                  ].map((category, index) => (
-                    <li key={index} className="hover:text-primary transition">
-                      <Link
-                        to={`/categories/${category
-                          .toLowerCase()
-                          .replace(/\s+/g, "-")}`}
-                        onClick={toggleMenu}
-                      >
-                        {category}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+            <Link
+              to="/categories"
+              className={`block ${isActive("/categories")}`}
+              onClick={toggleMenu}
+            >
+              Category
+            </Link>
             <Link
               to="/favorites"
               state={{ favorites }}
