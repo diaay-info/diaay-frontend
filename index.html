@@ -5,25 +5,11 @@
     <link rel="icon" type="image/svg+xml" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Diaay</title>
+    <!-- Remove the Google translate script from HTML - we'll handle it in React -->
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <script type="text/javascript">
-      function googleTranslateElementInit() {
-        new google.translate.TranslateElement(
-          { pageLanguage: "en" },
-          "google_translate_element"
-        );
-        new google.translate.TranslateElement(
-          { pageLanguage: "en" },
-          "google_translate_element_mobile"
-        );
-      }
-    </script>
-    <script
-      type="text/javascript"
-      src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
-    ></script>
+    <!-- Remove the inline Google translate script - we're implementing it in the React component -->
   </body>
 </html>
