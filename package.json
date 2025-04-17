@@ -17,6 +17,7 @@
     "axios": "^1.8.4",
     "browser-image-compression": "^2.0.2",
     "classnames": "^2.5.1",
+    "country-state-city": "^3.2.1",
     "intlayer": "^5.3.11",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -31,6 +32,8 @@
     "react-select": "^5.10.1",
     "react-select-country-list": "^2.2.3",
     "react-toastify": "^11.0.5",
+    "states-us": "^1.1.1",
+    "sweetalert2": "^11.19.1",
     "uuid": "^11.0.5",
     "vite-intlayer": "^5.3.11",
     "yup": "^1.6.1"

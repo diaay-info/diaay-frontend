@@ -50,12 +50,10 @@ const HomePage = () => {
     const queryParams = new URLSearchParams(location.search);
     const search = queryParams.get("search") || "";
     const country = queryParams.get("country") || "";
-    const category = queryParams.get("category") || null;
     const page = parseInt(queryParams.get("page")) || 1;
 
     setSearchTerm(search);
     setSelectedCountry(country);
-    setSelectedCategory(category);
     setCurrentPage(page);
   }, [location.search]);
 
@@ -234,12 +232,10 @@ const HomePage = () => {
     }),
   };
 
-  // Handle category selection
   const handleCategorySelect = (categoryName) => {
-    setSelectedCategory(
-      categoryName === selectedCategory ? null : categoryName
-    );
-    setCurrentPage(1); // Reset to first page when changing category
+    // Navigate to the category page with proper URL encoding
+    const encodedCategory = encodeURIComponent(categoryName);
+    navigate(`/categories/${encodedCategory}`);
   };
 
   // Handle search
@@ -372,7 +368,7 @@ const HomePage = () => {
                       ? "bg-purple-100 text-purple-700 font-medium"
                       : "text-gray-700"
                   }`}
-                  onClick={() => navigate(`/categories/${category.name}`)}
+                  onClick={() => handleCategorySelect(category.name)}
                 >
                   {category.name}
                 </li>
@@ -621,12 +617,16 @@ const HomePage = () => {
                       ? "border-purple-500 shadow-md"
                       : "border-gray-200"
                   }`}
-                  onClick={() => navigate(`/categories/${category.name}`)}
+                  onClick={() => handleCategorySelect(category.name)}
                 >
                   <img
-                    src={category.image}
+                    src={category.image || "/placeholder-category.jpg"}
                     alt={category.name}
                     className="h-12 w-12 mx-auto object-contain mb-1"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/placeholder-category.jpg";
+                    }}
                   />
                   <h3 className="font-medium text-xs text-gray-800 truncate">
                     {category.name}
@@ -773,4 +773,5 @@ const HomePage = () => {
     </div>
   );
 };
+
 export default HomePage;
