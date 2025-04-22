@@ -24,8 +24,6 @@ const Sidebar = () => {
 
   return (
     <>
-      
-
       {/* Sidebar */}
       <div
         className={`fixed top-0 left-0 h-screen bg-white shadow-lg p-4 w-64 transform ${
@@ -46,6 +44,11 @@ const Sidebar = () => {
 
         {/* Navigation Links */}
         <nav className="space-y-2">
+          <NavLink to="/" className="flex items-center p-3 rounded-lg text-sm ">
+            {" "}
+            <FaThLarge className="mr-3" />
+            Home{" "}
+          </NavLink>
           <NavLink
             to="/admin/dashboard"
             className={`flex items-center p-3 rounded-lg text-sm ${
@@ -84,7 +87,7 @@ const Sidebar = () => {
                 : "text-gray-700 hover:bg-gray-200"
             }`}
           >
-            <FaAd className="mr-3" /> Ads Management
+            <FaAd className="mr-3" /> Product Management
           </NavLink>
           <NavLink
             to="/admin/finance"
@@ -106,16 +109,7 @@ const Sidebar = () => {
           >
             <FaBell className="mr-3" /> Notifications
           </NavLink>
-          <NavLink
-            to="/admin/support"
-            className={`flex items-center p-3 rounded-lg text-sm ${
-              isActiveLink("support")
-                ? "bg-purple-500 text-white"
-                : "text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            <FaQuestionCircle className="mr-3" /> Support Requests
-          </NavLink>
+
           <NavLink
             to="/admin/settings"
             className={`flex items-center p-3 rounded-lg text-sm ${

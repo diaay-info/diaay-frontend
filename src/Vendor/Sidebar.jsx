@@ -33,6 +33,11 @@ function Sidebar({ isOpen, setIsOpen }) {
 
         {/* Navigation Links */}
         <nav className="space-y-2">
+          <NavLink to="/" className="flex items-center p-3 rounded-lg text-sm ">
+            {" "}
+            <FaThLarge className="mr-3" />
+            Home{" "}
+          </NavLink>
           <NavLink
             to="/vendor/dashboard"
             className={({ isActive }) =>
@@ -59,7 +64,7 @@ function Sidebar({ isOpen, setIsOpen }) {
           >
             <FaBox className="mr-3" /> Products
           </NavLink>
-          <NavLink
+          {/* <NavLink
             to="/ads"
             className={({ isActive }) =>
               `flex items-center p-3 rounded-lg text-sm ${
@@ -71,7 +76,7 @@ function Sidebar({ isOpen, setIsOpen }) {
             onClick={() => window.innerWidth < 1024 && setIsOpen(false)}
           >
             <FaAd className="mr-3" /> Ads Management
-          </NavLink>
+          </NavLink> */}
           <NavLink
             to="/credits"
             className={({ isActive }) =>

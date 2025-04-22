@@ -93,7 +93,7 @@ function VendorDashboard() {
     <Layout>
       <div className="min-h-screen p-0 md:p-4 w-full max-w-full">
         {/* Analytics Section */}
-        <section className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 mb-4">
+        <section className="grid grid-cols-1 sm:grid-cols-2  gap-2 md:gap-4 mb-4">
           <div className="bg-white p-2 md:p-3 rounded-lg shadow-sm text-center">
             <FaBox className="text-purple-500 text-lg md:text-xl mx-auto" />
             <p className="text-sm md:text-base font-bold mt-1">
@@ -101,13 +101,7 @@ function VendorDashboard() {
             </p>
             <p className="text-gray-600 text-xs">Total Products</p>
           </div>
-          <div className="bg-white p-2 md:p-3 rounded-lg shadow-sm text-center">
-            <FaAd className="text-purple-500 text-lg md:text-xl mx-auto" />
-            <p className="text-sm md:text-base font-bold mt-1">
-              {vendorData.activeAds}
-            </p>
-            <p className="text-gray-600 text-xs">Active Ads</p>
-          </div>
+         
 
           <div className="bg-white p-2 md:p-3 rounded-lg shadow-sm text-center">
             <FaCreditCard className="text-purple-500 text-lg md:text-xl mx-auto" />
@@ -176,11 +170,24 @@ function VendorDashboard() {
                         <td className="px-2 py-3 whitespace-nowrap">
                           {product.price} XOF
                         </td>
-                        <td className="px-2 py-3 whitespace-nowrap">
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                            Active
-                          </span>
-                        </td>
+                        <td className="px-2 py-3 whitespace-nowrap font-semibold">
+                                    <span
+                                      className={`px-2 py-1 rounded-full text-xs ${
+                                        product.status === "active"
+                                          ? "text-green-600"
+                                          : product.status === "expired"
+                                          ? "text-red-600"
+                                          : "text-yellow-500"
+                                      }`}
+                                    >
+                                      {product.status
+                                        ? product.status
+                                            .charAt(0)
+                                            .toUpperCase() +
+                                          product.status.slice(1)
+                                        : "N/A"}
+                                    </span>
+                                  </td>
                         <td className="px-2 py-3 whitespace-nowrap">
                           {product.createdAt
                             ? new Date(product.createdAt).toLocaleDateString()

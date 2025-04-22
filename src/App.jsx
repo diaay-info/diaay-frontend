@@ -21,9 +21,9 @@ import {
 const HomePage = () => {
   // Existing state variables
   const [activeIndex, setActiveIndex] = useState(null);
-  const [ads, setAds] = useState([]);
-  const [featuredAds, setFeaturedAds] = useState([]);
-  const [filteredAds, setFilteredAds] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [categories, setCategories] = useState([]);
   const [topAds, setTopAds] = useState([]);
@@ -43,7 +43,7 @@ const HomePage = () => {
   // Initialize country list with memoization to prevent unnecessary re-renders
   const countries = useMemo(() => countryList().getData(), []);
 
-  const limit = 12; // Number of ads per page
+  const limit = 12; // Number of products per page
 
   // Parse URL params on initial load
   useEffect(() => {
@@ -127,11 +127,11 @@ const HomePage = () => {
     };
 
     fetchTopAds();
-  }, []);
+  }, [API_BASE_URL]);
 
-  // Fetch All Ads from API
+  // Fetch Products from API (changed from ads to products)
   useEffect(() => {
-    const fetchAds = async () => {
+    const fetchProducts = async () => {
       setIsLoading(true);
       try {
         // Build query params for filtering
@@ -141,65 +141,65 @@ const HomePage = () => {
         if (searchTerm) params.append("search", searchTerm);
         if (selectedCountry) params.append("country", selectedCountry);
 
-        const url = `${API_BASE_URL}/api/ads?${params.toString()}`;
+        const url = `${API_BASE_URL}/api/products?${params.toString()}`;
         const response = await fetch(url);
         const data = await response.json();
 
         if (response.ok) {
           // Handle different response formats
-          let adsArray = [];
+          let productsArray = [];
 
-          // Check if data has an ads property (based on the API response you shared)
-          if (data.ads && Array.isArray(data.ads)) {
-            adsArray = data.ads;
+          // Check if data has a products property
+          if (data.products && Array.isArray(data.products)) {
+            productsArray = data.products;
           } else if (Array.isArray(data)) {
-            adsArray = data;
+            productsArray = data;
           }
 
-          // Filter active ads
-          const activeAds = adsArray.filter(
-            (ad) => ad.status === "active" || !ad.status
+          // Filter active products
+          const activeProducts = productsArray.filter(
+            (product) => product.status === "active"
           );
 
-          // Filter ads by country if a country is selected
-          const countryFilteredAds = selectedCountry
-            ? activeAds.filter((ad) => {
-                const adCountry = ad.product?.country || "";
+          // Filter products by country if a country is selected
+          const countryFilteredProducts = selectedCountry
+            ? activeProducts.filter((product) => {
+                const productCountry = product.country || "";
                 return (
-                  adCountry.toLowerCase() === selectedCountry.toLowerCase()
+                  productCountry.toLowerCase() === selectedCountry.toLowerCase()
                 );
               })
-            : activeAds;
+            : activeProducts;
 
-          setAds(activeAds);
-          setFilteredAds(countryFilteredAds);
+          setProducts(activeProducts);
+          setFilteredProducts(countryFilteredProducts);
 
-          // Limit featured ads to 100 as requested
-          const limitedAds = countryFilteredAds.slice(0, 100);
-          setFeaturedAds(limitedAds);
+          // Limit featured products to 100 as requested
+          const limitedProducts = countryFilteredProducts.slice(0, 100);
+          setFeaturedProducts(limitedProducts);
 
-          // Calculate total pages based on API response or total active ads
-          const totalItems = data.total || activeAds.length;
+          // Calculate total pages based on API response or total active products
+          const totalItems = data.total || activeProducts.length;
           setTotalPages(Math.ceil(totalItems / limit) || 1);
         } else {
-          console.error("Error fetching ads:", data);
+          console.error("Error fetching products:", data);
         }
       } catch (error) {
-        console.error("Error fetching ads:", error);
+        console.error("Error fetching products:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchAds();
-  }, [searchTerm, selectedCountry, currentPage]);
+    fetchProducts();
+  }, [searchTerm, selectedCountry, currentPage, API_BASE_URL]);
 
   // Toggle favorite status
-  const toggleFavorite = (ad) => {
+  const toggleFavorite = (product) => {
     setFavorites((prev) =>
-      prev.some((fav) => fav._id === ad._id)
-        ? prev.filter((fav) => fav._id !== ad._id)
-        : [...prev, ad]
+      prev.some((fav) => fav._id === product._id)
+        ? prev.filter((fav) => fav._id !== product._id)
+        : [...prev, product]
     );
   };
 
@@ -298,43 +298,43 @@ const HomePage = () => {
     },
   ];
 
-  const handleWhatsAppRedirect = (e, ad) => {
+  const handleWhatsAppRedirect = (e, product) => {
     e.preventDefault();
     e.stopPropagation();
 
-    // Get the phone number from the correct location in the data structure
-    const phoneNumber = ad.user?.phoneNumber || "";
+    // Get the phone number from the product owner
+    const phoneNumber = product.user?.phoneNumber || "";
 
     // Construct the WhatsApp URL with pre-written message
-    const productUrl = `${window.location.origin}/ads/${ad._id}/active`;
+    const productUrl = `${window.location.origin}/products/${product._id}`;
     const message = encodeURIComponent(
       `Hello, I'm interested in getting this product: ${
-        ad.product?.name || "your product"
+        product.name || "your product"
       }\n${productUrl}`
     );
 
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
   };
 
-  // Helper function to get values from the nested structure
-  const getAdImage = (ad) => {
-    if (ad.product?.images && ad.product.images.length > 0) {
-      return ad.product.images[0];
+  // Helper function to get values from product
+  const getProductImage = (product) => {
+    if (product.images && product.images.length > 0) {
+      return product.images[0];
     }
     return "/placeholder-product.jpg";
   };
 
-  const getAdTitle = (ad) => {
-    return ad.product?.name || ad.title || "No title";
+  const getProductTitle = (product) => {
+    return product.name || "No title";
   };
 
-  const getAdPrice = (ad) => {
-    return ad.product?.price || 0;
+  const getProductPrice = (product) => {
+    return product.price || 0;
   };
 
-  const getAdLocation = (ad) => {
-    const country = ad.product?.country || "";
-    const state = ad.product?.state || "";
+  const getProductLocation = (product) => {
+    const country = product.country || "";
+    const state = product.state || "";
     return { country, state };
   };
 
@@ -429,10 +429,10 @@ const HomePage = () => {
             </form>
           </section>
 
-          {/* Featured Ads Section */}
+          {/* Featured Products Section (Changed from Ads to Products) */}
           <section className="bg-white p-6 rounded-lg shadow-sm mb-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">
-              Featured Ads
+              Featured Products
             </h2>
 
             {isLoading ? (
@@ -451,23 +451,23 @@ const HomePage = () => {
                   </div>
                 ))}
               </div>
-            ) : featuredAds.length > 0 ? (
+            ) : featuredProducts.length > 0 ? (
               <>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {featuredAds.map((ad) => (
+                  {featuredProducts.map((product) => (
                     <Link
-                      key={ad._id}
-                      to={`/ads/${ad._id}/active`}
+                      key={product._id}
+                      to={`/products/${product._id}`}
                       className="bg-white rounded-lg shadow-md overflow-hidden relative border border-gray-200 hover:shadow-lg transition-shadow duration-200 h-80 flex flex-col"
                     >
                       <button
                         className="absolute top-2 right-2 z-10 text-red-500 text-xl bg-white bg-opacity-70 rounded-full p-1.5"
                         onClick={(e) => {
                           e.preventDefault();
-                          toggleFavorite(ad);
+                          toggleFavorite(product);
                         }}
                       >
-                        {favorites.some((fav) => fav._id === ad._id) ? (
+                        {favorites.some((fav) => fav._id === product._id) ? (
                           <FaHeart />
                         ) : (
                           <FaRegHeart />
@@ -476,8 +476,8 @@ const HomePage = () => {
 
                       <div className="h-40 overflow-hidden">
                         <img
-                          src={getAdImage(ad)}
-                          alt={getAdTitle(ad)}
+                          src={getProductImage(product)}
+                          alt={getProductTitle(product)}
                           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                           onError={(e) => {
                             e.target.onerror = null;
@@ -489,15 +489,15 @@ const HomePage = () => {
                       <div className="p-3 flex-grow flex flex-col">
                         <div className="mb-1">
                           <span className="text-xs text-gray-500">
-                            {formatDate(ad.createdAt)}
+                            {formatDate(product.createdAt)}
                           </span>
                         </div>
                         <h3 className="text-sm font-medium line-clamp-2 mb-1 h-10">
-                          {getAdTitle(ad)}
+                          {getProductTitle(product)}
                         </h3>
                         <p className="text-purple-600 font-bold mt-auto">
                           XOF{" "}
-                          {getAdPrice(ad)?.toLocaleString() ||
+                          {getProductPrice(product)?.toLocaleString() ||
                             "Price on request"}
                         </p>
                         <hr className="my-2" />
@@ -506,13 +506,13 @@ const HomePage = () => {
                           <p className="flex items-center text-xs text-gray-600 truncate max-w-[70%]">
                             <CiLocationOn className="mr-1 flex-shrink-0" />
                             <span className="truncate">
-                              {getAdLocation(ad).country},{" "}
-                              {getAdLocation(ad).state}
+                              {getProductLocation(product).country},{" "}
+                              {getProductLocation(product).state}
                             </span>
                           </p>
                           <button
                             className="text-green-500 text-xl hover:text-green-600 flex-shrink-0"
-                            onClick={(e) => handleWhatsAppRedirect(e, ad)}
+                            onClick={(e) => handleWhatsAppRedirect(e, product)}
                           >
                             <FaWhatsapp />
                           </button>

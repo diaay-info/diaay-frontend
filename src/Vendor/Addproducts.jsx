@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import { FaTrash } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import useDirectSpacesUpload from "../Hooks/useDirectSpacesUpload";
@@ -19,6 +20,9 @@ const ProductForm = () => {
   const [countries, setCountries] = useState([]);
   const [statesList, setStatesList] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedDuration, setSelectedDuration] = useState(7); // Default to 7 days
+  const [creditBalance, setCreditBalance] = useState(0);
+  const [loadingCredits, setLoadingCredits] = useState(false);
   const navigate = useNavigate();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -65,7 +69,30 @@ const ProductForm = () => {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     setAccessToken(token || "");
+
+    // Fetch credit balance when accessToken is available
+    if (token) {
+      fetchCreditBalance(token);
+    }
   }, []);
+
+  // Fetch user's credit balance
+  const fetchCreditBalance = async (token) => {
+    setLoadingCredits(true);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/credits/balance`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setCreditBalance(response.data.balance.balance || 0);
+    } catch (error) {
+      console.error("Error fetching credit balance:", error);
+      setCreditBalance(0);
+    } finally {
+      setLoadingCredits(false);
+    }
+  };
 
   // Watch country and state values
   const watchCountry = watch("country");
@@ -182,6 +209,21 @@ const ProductForm = () => {
     setValue("state", e.target.value);
   };
 
+  // Handle duration selection
+  const handleDurationChange = (days) => {
+    setSelectedDuration(days);
+  };
+
+  // Get credit requirement based on duration
+  const getRequiredCredits = (days) => {
+    return days === 7 ? 1 : days === 14 ? 2 : 3;
+  };
+
+  // Get cost  based on duration
+  const getCost = (days) => {
+    return days === 7 ? 1000 : days === 14 ? 2000 : 3000;
+  };
+
   const handleFeatureChange = (index, field, value) => {
     const updatedFeatures = [...features];
     updatedFeatures[index][field] = value;
@@ -235,6 +277,17 @@ const ProductForm = () => {
       return;
     }
 
+    // Check if user has enough credits for the selected duration
+    const requiredCredits = getRequiredCredits(selectedDuration);
+    if (creditBalance < requiredCredits) {
+      Swal.fire({
+        icon: "error",
+        title: "Insufficient Credits",
+        text: `You need ${requiredCredits} credits for this ad duration but only have ${creditBalance} credits. Please add more credits or select a shorter duration.`,
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -244,10 +297,13 @@ const ProductForm = () => {
         price: Number(data.price),
         stock: Number(data.stock),
         country: data.country,
-        state: data.state,
+        city: data.state,
         category: data.category,
         features: features.filter((f) => f.name && f.value),
         images: uploadedImageUrls,
+        duration: selectedDuration,
+        credit: requiredCredits,
+        cost: Number(getCost(selectedDuration)),
       };
 
       const response = await axios.post(
@@ -304,26 +360,27 @@ const ProductForm = () => {
     setFeatures([{ name: "", value: "" }]);
     setSelectedCountry("");
     setStatesList([]);
+    setSelectedDuration(7); // Reset to default 7 days
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">
+    <div className="w-full max-w-6xl mx-auto p-3 sm:p-4 md:p-6 bg-white rounded-lg shadow-md">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 sm:mb-0">
           Add New Product
         </h2>
         <button
           onClick={() => navigate("/products")}
-          className="border px-4 py-2 rounded-lg hover:bg-primary hover:text-white"
+          className="w-full sm:w-auto border px-4 py-2 rounded-lg hover:bg-primary hover:text-white text-sm sm:text-base"
         >
           Cancel
         </button>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
           {/* Left Column - Main Form Fields */}
-          <div className="flex-1 space-y-4">
+          <div className="w-full lg:w-1/2 space-y-3 sm:space-y-4">
             {/* Product Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -364,7 +421,7 @@ const ProductForm = () => {
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {/* Price */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -528,7 +585,7 @@ const ProductForm = () => {
           </div>
 
           {/* Right Column - Images and Features */}
-          <div className="flex-1 space-y-4">
+          <div className="w-full lg:w-1/2 space-y-3 sm:space-y-4 mt-4 lg:mt-0">
             {/* Images with Drag & Drop */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -558,7 +615,7 @@ const ProductForm = () => {
                     Please wait, uploading images...
                   </p>
                 ) : (
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 text-sm sm:text-base">
                     {imageFiles.length >= 3
                       ? "Maximum of 3 images reached"
                       : "Drag & drop images here, or click to select files"}
@@ -571,18 +628,18 @@ const ProductForm = () => {
 
               {/* Image Previews */}
               {imagePreviews.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-3">
+                <div className="mt-3 flex flex-wrap gap-2 sm:gap-3">
                   {imagePreviews.map((preview, index) => (
                     <div key={index} className="relative">
                       <img
                         src={preview}
                         alt={`Preview ${index + 1}`}
-                        className="h-24 w-24 object-cover rounded-md border border-gray-300"
+                        className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 object-cover rounded-md border border-gray-300"
                       />
                       <button
                         type="button"
                         onClick={() => handleRemoveImage(index)}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm"
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-xs sm:text-sm"
                         title="Remove image"
                         disabled={uploading}
                       >
@@ -615,13 +672,70 @@ const ProductForm = () => {
               )}
             </div>
 
+            {/* Ad Duration Selection */}
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Select Ad Duration*
+              </label>
+              <div className="space-y-2">
+                {[7, 14, 30].map((days) => (
+                  <div
+                    key={days}
+                    className="flex items-center border border-gray-200 rounded-md p-3 hover:bg-gray-100"
+                  >
+                    <input
+                      type="radio"
+                      id={`duration-${days}`}
+                      name="adDuration"
+                      checked={selectedDuration === days}
+                      onChange={() => handleDurationChange(days)}
+                      className="mr-2"
+                    />
+                    <label
+                      htmlFor={`duration-${days}`}
+                      className="flex-1 cursor-pointer"
+                    >
+                      <span className="font-medium">{days} days</span> -{" "}
+                      {days === 7 ? 1 : days === 14 ? 2 : 3} credits
+                      <span className="block text-sm text-gray-600">
+                        ({days === 7 ? 1000 : days === 14 ? 2000 : 3000} XOF)
+                      </span>
+                    </label>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                <p className="text-sm font-medium">
+                  Your Available Credits:
+                  {loadingCredits ? (
+                    <span className="inline-block ml-1 w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
+                  ) : (
+                    <span className="ml-1 font-bold text-blue-700">
+                      {creditBalance}
+                    </span>
+                  )}
+                </p>
+                {creditBalance < getRequiredCredits(selectedDuration) && (
+                  <p className="text-sm text-red-600 mt-1">
+                    You need{" "}
+                    {getRequiredCredits(selectedDuration) - creditBalance} more
+                    credits for this ad duration.
+                  </p>
+                )}
+              </div>
+            </div>
+
             {/* Features */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Features
               </label>
               {features.map((feature, index) => (
-                <div key={index} className="flex gap-2 mb-2">
+                <div
+                  key={index}
+                  className="flex flex-col sm:flex-row gap-2 mb-3"
+                >
                   <input
                     type="text"
                     placeholder="Feature name"
@@ -644,9 +758,9 @@ const ProductForm = () => {
                     <button
                       type="button"
                       onClick={() => removeFeatureField(index)}
-                      className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                      className="mt-1 sm:mt-0 text-red-500 rounded-md hover:text-red-400 text-sm sm:text-base"
                     >
-                      Remove
+                      <FaTrash />
                     </button>
                   )}
                 </div>
@@ -654,7 +768,7 @@ const ProductForm = () => {
               <button
                 type="button"
                 onClick={addFeatureField}
-                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                className="mt-2 px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm sm:text-base"
               >
                 Add Feature
               </button>
@@ -663,20 +777,22 @@ const ProductForm = () => {
         </div>
 
         {/* Submit Button */}
-        <div className="pt-6">
+        <div className="pt-4 sm:pt-6">
           <button
             type="submit"
             disabled={
               isSubmitting ||
               uploading ||
               (imageFiles.length > 0 &&
-                uploadedImageUrls.length < imageFiles.length)
+                uploadedImageUrls.length < imageFiles.length) ||
+              creditBalance < getRequiredCredits(selectedDuration)
             }
-            className={`w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-purple-700 ${
+            className={`w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-purple-700 text-sm sm:text-base ${
               isSubmitting ||
               uploading ||
               (imageFiles.length > 0 &&
-                uploadedImageUrls.length < imageFiles.length)
+                uploadedImageUrls.length < imageFiles.length) ||
+              creditBalance < getRequiredCredits(selectedDuration)
                 ? "opacity-50 cursor-not-allowed"
                 : ""
             }`}

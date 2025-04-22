@@ -18,22 +18,20 @@ const AdsManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const navigate = useNavigate();
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(() => {
     const fetchAds = async () => {
       setLoading(true);
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/api/admin/adverts`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
+        const response = await fetch(`${API_BASE_URL}/api/products/admin`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
         const data = await response.json();
-        setAds(Array.isArray(data.data) ? data.data : []);
+        setAds(Array.isArray(data.products) ? data.products : []);
       } catch (error) {
         console.error("Error fetching ads:", error);
         setAds([]);
@@ -45,11 +43,26 @@ const AdsManagement = () => {
     fetchAds();
   }, []);
 
-  const paginatedAds = ads.slice(
+  // Filter ads based on search query and status filter
+  const filteredAds = ads.filter((ad) => {
+    const matchesSearch =
+      searchQuery === "" ||
+      (ad.name && ad.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const matchesStatus =
+      statusFilter === "All Status" ||
+      (statusFilter === "Approved" && ad.status === "active") ||
+      (statusFilter === "Rejected" && ad.status === "rejected") ||
+      (statusFilter === "Pending" && ad.status === "pending");
+
+    return matchesSearch && matchesStatus;
+  });
+
+  const paginatedAds = filteredAds.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-  const totalPages = Math.ceil(ads.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredAds.length / itemsPerPage);
 
   const selectedRowsContainPending = ads
     .filter((ad) => selectedRows.includes(ad._id))
@@ -60,7 +73,7 @@ const AdsManagement = () => {
       await Promise.all(
         selectedRows.map(async (id) => {
           const response = await fetch(
-            `${API_BASE_URL}/api/ads/${id}/status`,
+            `${API_BASE_URL}/api/products/admin/${id}/approve`,
             {
               method: "PATCH",
               headers: {
@@ -183,8 +196,10 @@ const AdsManagement = () => {
                             }}
                           />
                         </td>
-                        <td className="p-3">{ad.userId?.email || "N/A"}</td>
-                        <td className="p-3">{ad.title || "N/A"}</td>
+                        <td className="p-3">
+                          {ad.userId?.fullName || "N/A"}
+                        </td>
+                        <td className="p-3">{ad.name || "N/A"}</td>
                         <td className="p-3">{ad.duration ?? "N/A"} days</td>
                         <td className="p-3">
                           {ad.createdAt
@@ -213,7 +228,7 @@ const AdsManagement = () => {
             )}
 
             {/* Pagination */}
-            {ads.length > itemsPerPage && (
+            {filteredAds.length > itemsPerPage && (
               <div className="flex flex-row justify-center md:justify-end items-center mt-4 gap-2">
                 <button
                   onClick={() =>
@@ -241,6 +256,66 @@ const AdsManagement = () => {
           </div>
         </div>
       </div>
+
+      {/* Approval Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold">Confirm Action</h3>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <IoMdClose size={24} />
+              </button>
+            </div>
+            <p className="mb-6">
+              Are you sure you want to approve the selected products?
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => updateAdStatus(false)}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Reject
+              </button>
+              <button
+                onClick={() => updateAdStatus(true)}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Approve
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {isSuccessModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold">Success</h3>
+              <button
+                onClick={() => setIsSuccessModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <IoMdClose size={24} />
+              </button>
+            </div>
+            <p className="mb-6">{successMessage}</p>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setIsSuccessModalOpen(false)}
+                className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

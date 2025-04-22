@@ -69,11 +69,13 @@ const ProductPage = () => {
     }
   };
 
+ 
+
   useEffect(() => {
     const fetchProducts = async () => {
       const token = localStorage.getItem("accessToken");
       try {
-        const res = await fetch(`${API_BASE_URL}/api/report`, {
+        const res = await fetch(`${API_BASE_URL}/api/products/vendor`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -81,7 +83,9 @@ const ProductPage = () => {
         });
         const data = await res.json();
         if (res.ok) {
-          setProducts((data.vendorProducts || []).filter((p) => p));
+          // Updated to handle different response structure if needed
+          const productsList = Array.isArray(data) ? data : data.vendorProducts || [];
+          setProducts(productsList.filter((p) => p));
         } else {
           throw new Error(data.message || "Failed to fetch products");
         }
@@ -172,6 +176,7 @@ const ProductPage = () => {
                             <th className="px-2 py-3 text-left">Price</th>
                             <th className="px-2 py-3 text-left">Status</th>
                             <th className="px-2 py-3 text-left">Date</th>
+                            {/* <th className="px-2 py-3 text-left">Actions</th> */}
                           </tr>
                         </thead>
                         <tbody>
@@ -180,49 +185,60 @@ const ProductPage = () => {
                               product && (
                                 <tr
                                   key={product._id}
-                                  className="hover:bg-gray-100 text-xs md:text-sm cursor-pointer"
+                                  className="hover:bg-gray-100 text-xs md:text-sm"
                                 >
-                                  <Link
-                                    to={`/products/${product._id}`}
-                                    className="contents"
-                                  >
-                                    <td className="px-2 py-3 whitespace-nowrap">
+                                  <td className="px-2 py-3 whitespace-nowrap">
+                                    <Link to={`/vendor/products/${product._id}`}>
                                       {product.name || "N/A"}
-                                    </td>
-                                    <td className="px-2 py-3 whitespace-nowrap">
-                                      {product.category || "N/A"}
-                                    </td>
-                                    <td className="px-2 py-3 whitespace-nowrap text-purple-600">
-                                      {product.price
-                                        ? `${product.price} XOF`
+                                    </Link>
+                                  </td>
+                                  <td className="px-2 py-3 whitespace-nowrap">
+                                    {product.category || "N/A"}
+                                  </td>
+                                  <td className="px-2 py-3 whitespace-nowrap text-purple-600">
+                                    {product.price
+                                      ? `${product.price} XOF`
+                                      : "N/A"}
+                                  </td>
+                                  <td className="px-2 py-3 whitespace-nowrap font-semibold">
+                                    <span
+                                      className={`px-2 py-1 rounded-full text-xs ${
+                                        product.status === "active"
+                                          ? "text-green-600"
+                                          : product.status === "expired"
+                                          ? "text-red-600"
+                                          : "text-yellow-500"
+                                      }`}
+                                    >
+                                      {product.status
+                                        ? product.status
+                                            .charAt(0)
+                                            .toUpperCase() +
+                                          product.status.slice(1)
                                         : "N/A"}
-                                    </td>
-                                    <td className="px-2 py-3 whitespace-nowrap font-semibold">
-                                      <span
-                                        className={`px-2 py-1 rounded-full text-xs ${
-                                          product.status === "active"
-                                            ? "text-green-600"
-                                            : product.status === "expired"
-                                            ? "text-red-600"
-                                            : "text-yellow-500"
-                                        }`}
+                                    </span>
+                                  </td>
+                                  <td className="px-2 py-3 whitespace-nowrap">
+                                    {product.createdAt
+                                      ? new Date(
+                                          product.createdAt
+                                        ).toLocaleDateString()
+                                      : "N/A"}
+                                  </td>
+                                  {/* <td className="px-2 py-3 whitespace-nowrap">
+                                    <div className="flex space-x-2">
+                                      <button
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          handleRenewProduct(product._id);
+                                        }}
+                                        className="px-3 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600"
                                       >
-                                        {product.status
-                                          ? product.status
-                                              .charAt(0)
-                                              .toUpperCase() +
-                                            product.status.slice(1)
-                                          : "N/A"}
-                                      </span>
-                                    </td>
-                                    <td className="px-2 py-3 whitespace-nowrap">
-                                      {product.createdAt
-                                        ? new Date(
-                                            product.createdAt
-                                          ).toLocaleDateString()
-                                        : "N/A"}
-                                    </td>
-                                  </Link>
+                                        Renew
+                                      </button>
+                                    </div>
+                                  </td> */}
                                 </tr>
                               )
                           )}

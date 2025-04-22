@@ -158,8 +158,24 @@ const Credit = ({ onPurchaseCreditclick }) => {
                           <td className="p-2 text-[#7C0DEA]">
                             {product.price}
                           </td>
-                          <td className="p-2 text-green-600">Active</td>
-                          <td className="p-2">
+                          <td className="px-2 py-3 whitespace-nowrap font-semibold">
+                                    <span
+                                      className={`px-2 py-1 rounded-full text-xs ${
+                                        product.status === "active"
+                                          ? "text-green-600"
+                                          : product.status === "expired"
+                                          ? "text-red-600"
+                                          : "text-yellow-500"
+                                      }`}
+                                    >
+                                      {product.status
+                                        ? product.status
+                                            .charAt(0)
+                                            .toUpperCase() +
+                                          product.status.slice(1)
+                                        : "N/A"}
+                                    </span>
+                                  </td>                          <td className="p-2">
                             {product.createdAt
                               ? new Date(product.createdAt).toLocaleDateString()
                               : "N/A"}

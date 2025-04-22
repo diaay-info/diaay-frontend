@@ -62,12 +62,12 @@ createRoot(document.getElementById("root")).render(
           <Route path="/verify" element={<Verify />} />
           <Route path="/login" element={<Login />} />
           <Route path="/password" element={<Forgotpassword />} />
-          <Route path="/ads/:adId/active" element={<AdDetailss />} />
+          <Route path="/products/:id" element={<AdDetailss />} />
           <Route path="/recovery" element={<Recovery />} />
           <Route path="/reset" element={<ResetPassword />} />
           <Route path="/vendor/dashboard" element={<VendorDashboard />} />
           <Route path="/products" element={<Products />} />
-          <Route path="/products/:id" element={<ProductDetails />} />
+          <Route path="/vendor/products/:id" element={<ProductDetails />} />
           <Route path="/ads" element={<Ads />} />
           <Route path="selectedads" element={<SelectProductForAd />} />
           <Route path="/create-ad/:productId" element={<CreateAd />} />
