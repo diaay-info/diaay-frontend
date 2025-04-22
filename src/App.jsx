@@ -304,6 +304,7 @@ const HomePage = () => {
 
     // Get the phone number from the product owner
     const phoneNumber = userId?.phoneNumber || "";
+    console.log("phone:", phoneNumber);
 
     // Construct the WhatsApp URL with pre-written message
     const productUrl = `${window.location.origin}/products/${product._id}`;
