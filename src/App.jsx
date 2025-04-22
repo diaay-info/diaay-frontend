@@ -43,7 +43,7 @@ const HomePage = () => {
   // Initialize country list with memoization to prevent unnecessary re-renders
   const countries = useMemo(() => countryList().getData(), []);
 
-  const limit = 12; // Number of products per page
+  const limit = 30; // Number of products per page
 
   // Parse URL params on initial load
   useEffect(() => {
