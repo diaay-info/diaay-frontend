@@ -303,7 +303,7 @@ const HomePage = () => {
     e.stopPropagation();
 
     // Get the phone number from the product owner
-    const phoneNumber = product.user?.phoneNumber || "";
+    const phoneNumber = userId?.phoneNumber || "";
 
     // Construct the WhatsApp URL with pre-written message
     const productUrl = `${window.location.origin}/products/${product._id}`;
