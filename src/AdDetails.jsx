@@ -139,9 +139,11 @@ const AdDetailss = () => {
           <Link to="/" className="hover:text-primary">
             Home
           </Link>{" "}
-         
           &gt;
-          <Link to={`/category/${ad?.category}`} className="hover:text-primary">
+          <Link
+            to={`/categories/${ad?.category}`}
+            className="hover:text-primary"
+          >
             {" "}
             {ad?.category}
           </Link>{" "}
@@ -193,11 +195,7 @@ const AdDetailss = () => {
               {ad ? `XOF ${ad.price}` : <Skeleton width={120} />}
             </p>
             <p className="text-gray-600">
-              {ad ? (
-                `${ad.country}, ${ad.state}`
-              ) : (
-                <Skeleton width={150} />
-              )}
+              {ad ? `${ad.country}, ${ad.city}` : <Skeleton width={150} />}
             </p>
             <hr className="mb-10" />
 
@@ -296,7 +294,7 @@ const AdDetailss = () => {
                             XOF {p.price || "N/A"}
                           </p>
                           <p className="text-sm text-gray-600">
-                            {p.country}, {p.state}
+                            {p.country}, {p.city}
                           </p>
                         </div>
                       </Link>
@@ -321,7 +319,9 @@ const AdDetailss = () => {
                 )}
               </div>
             ) : (
-              <Skeleton height={150} count={2} />
+              <div className="bg-gray-50 rounded-lg p-8 text-center">
+                <p className="text-gray-600">No similar products available.</p>
+              </div>
             )}
           </section>
         </div>

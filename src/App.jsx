@@ -303,8 +303,14 @@ const HomePage = () => {
     e.stopPropagation();
 
     // Get the phone number from the product owner
-    const phoneNumber = userId?.phoneNumber || "";
+    const phoneNumber =  product.userId.phoneNumber || "";
     console.log("phone:", phoneNumber);
+
+    // If no phone number is available, show an alert
+    if (!phoneNumber) {
+      alert("Seller's contact information is not available");
+      return;
+    }
 
     // Construct the WhatsApp URL with pre-written message
     const productUrl = `${window.location.origin}/products/${product._id}`;
@@ -335,8 +341,8 @@ const HomePage = () => {
 
   const getProductLocation = (product) => {
     const country = product.country || "";
-    const state = product.state || "";
-    return { country, state };
+    const city = product.city || "";
+    return { country, city };
   };
 
   return (
@@ -508,7 +514,7 @@ const HomePage = () => {
                             <CiLocationOn className="mr-1 flex-shrink-0" />
                             <span className="truncate">
                               {getProductLocation(product).country},{" "}
-                              {getProductLocation(product).state}
+                              {getProductLocation(product).city}
                             </span>
                           </p>
                           <button

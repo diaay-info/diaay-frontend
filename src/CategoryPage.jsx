@@ -9,7 +9,7 @@ import { FaWhatsapp } from "react-icons/fa";
 const CategoryPage = () => {
   const { categoryName } = useParams();
   const [categories, setCategories] = useState([]);
-  const [ads, setAds] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -72,11 +72,11 @@ const CategoryPage = () => {
     fetchCategories();
   }, [API_BASE_URL]);
 
-  // Fetch ads by category when one is selected
+  // Fetch products by category when one is selected
   useEffect(() => {
     if (!categoryName) return;
 
-    const fetchCategoryAds = async () => {
+    const fetchCategoryProducts = async () => {
       try {
         setLoading(true);
         setError(null);
@@ -89,30 +89,32 @@ const CategoryPage = () => {
         });
 
         const response = await fetch(
-          `${API_BASE_URL}/api/ads?${params.toString()}`
+          `${API_BASE_URL}/api/products?${params.toString()}`
         );
 
-        if (!response.ok) throw new Error("Failed to fetch ads");
+        if (!response.ok) throw new Error("Failed to fetch products");
 
         const data = await response.json();
-        setAds(data.ads || data || []);
-        setTotalPages(Math.ceil((data.total || data.length) / limit));
+        // Handle both response formats: {products: [...]} or directly [...]
+        const productsData = data.products || data || [];
+        setProducts(productsData);
+        setTotalPages(Math.ceil((data.total || productsData.length) / limit));
       } catch (error) {
-        console.error("Error fetching ads:", error);
+        console.error("Error fetching products:", error);
         setError(error.message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCategoryAds();
+    fetchCategoryProducts();
   }, [categoryName, currentPage, searchTerm, API_BASE_URL]);
 
-  const toggleFavorite = (ad) => {
+  const toggleFavorite = (product) => {
     setFavorites((prev) =>
-      prev.some((fav) => fav._id === ad._id)
-        ? prev.filter((fav) => fav._id !== ad._id)
-        : [...prev, ad]
+      prev.some((fav) => fav._id === product._id)
+        ? prev.filter((fav) => fav._id !== product._id)
+        : [...prev, product]
     );
   };
 
@@ -121,23 +123,44 @@ const CategoryPage = () => {
     return new Date(dateString).toLocaleDateString();
   };
 
-  const getAdImage = (ad) => {
-    return ad.product?.images?.[0] || "/placeholder-product.jpg";
+  const getProductImage = (product) => {
+    return product?.images?.[0] || "/placeholder-product.jpg";
   };
 
-  const getAdTitle = (ad) => {
-    return ad.product?.name || ad.title || "No title";
+  const getProductTitle = (product) => {
+    return product?.name || product.title || "No title";
   };
 
-  const getAdPrice = (ad) => {
-    return ad.product?.price || 0;
+  const getProductPrice = (product) => {
+    return product?.price || 0;
   };
 
-  const getAdLocation = (ad) => {
+  const getProductLocation = (product) => {
     return {
-      country: ad.product?.country || "",
-      state: ad.product?.state || "",
+      country: product?.country || "",
+      state: product?.city || "",
     };
+  };
+
+  const handleWhatsAppRedirect = (e, product) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Try to get phone number from different possible locations in the product object
+    const phoneNumber =
+      product.userId?.phoneNumber ;
+
+    if (!phoneNumber) {
+      alert("Seller's contact information is not available");
+      return;
+    }
+
+    const productUrl = `${window.location.origin}/products/${product._id}`;
+    const message = encodeURIComponent(
+      `Hello, I'm interested in ${getProductTitle(product)}\n${productUrl}`
+    );
+
+    window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
   };
 
   if (loading) {
@@ -213,7 +236,7 @@ const CategoryPage = () => {
     );
   }
 
-  // Show ads for selected category
+  // Show products for selected category
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -247,21 +270,25 @@ const CategoryPage = () => {
           </div>
         </div>
 
-        {ads.length > 0 ? (
+        {products.length > 0 ? (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {ads.map((ad) => (
+              {products.map((product) => (
                 <div
-                  key={ad._id}
+                  key={product._id}
                   className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
                 >
                   <div className="relative">
-                    <Link to={`/ads/${ad._id}/active`} className="block">
+                    <Link to={`/products/${product._id}`} className="block">
                       <div className="h-48 overflow-hidden">
                         <img
-                          src={getAdImage(ad)}
-                          alt={getAdTitle(ad)}
+                          src={getProductImage(product)}
+                          alt={getProductTitle(product)}
                           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "/placeholder-product.jpg";
+                          }}
                         />
                       </div>
                     </Link>
@@ -269,10 +296,10 @@ const CategoryPage = () => {
                       className="absolute top-3 right-3 bg-white bg-opacity-80 rounded-full p-2 hover:bg-opacity-100 transition-all"
                       onClick={(e) => {
                         e.preventDefault();
-                        toggleFavorite(ad);
+                        toggleFavorite(product);
                       }}
                     >
-                      {favorites.some((fav) => fav._id === ad._id) ? (
+                      {favorites.some((fav) => fav._id === product._id) ? (
                         <FaHeart className="text-red-500" />
                       ) : (
                         <FaRegHeart className="text-gray-600" />
@@ -282,38 +309,30 @@ const CategoryPage = () => {
                   <div className="p-4">
                     <div className="mb-1">
                       <span className="text-xs text-gray-500">
-                        {formatDate(ad.createdAt)}
+                        {formatDate(product.createdAt)}
                       </span>
                     </div>
-                    <Link to={`/ads/${ad._id}/active`}>
+                    <Link to={`/products/${product._id}`}>
                       <h3 className="font-semibold text-lg mb-2 line-clamp-2 hover:text-primary transition-colors">
-                        {getAdTitle(ad)}
+                        {getProductTitle(product)}
                       </h3>
                     </Link>
                     <p className="text-primary-600 font-bold mb-3">
                       XOF{" "}
-                      {getAdPrice(ad)?.toLocaleString() || "Price on request"}
+                      {getProductPrice(product)?.toLocaleString() ||
+                        "Price on request"}
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center text-xs text-gray-600">
                         <CiLocationOn className="mr-1" />
                         <span className="truncate max-w-[100px]">
-                          {getAdLocation(ad).country}, {getAdLocation(ad).state}
+                          {getProductLocation(product).country},{" "}
+                          {getProductLocation(product).state}
                         </span>
                       </div>
                       <button
                         className="text-green-500 hover:text-green-600 transition-colors"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          const phoneNumber = ad.user?.phoneNumber || "";
-                          const message = encodeURIComponent(
-                            `Hello, I'm interested in ${getAdTitle(ad)}`
-                          );
-                          window.open(
-                            `https://wa.me/${phoneNumber}?text=${message}`,
-                            "_blank"
-                          );
-                        }}
+                        onClick={(e) => handleWhatsAppRedirect(e, product)}
                       >
                         <FaWhatsapp size={20} />
                       </button>
@@ -403,7 +422,7 @@ const CategoryPage = () => {
               </svg>
             </div>
             <p className="text-gray-600 mb-4">
-              No ads found in {decodeURIComponent(categoryName)}
+              No products found in {decodeURIComponent(categoryName)}
             </p>
             <button
               onClick={() => navigate(-1)}
