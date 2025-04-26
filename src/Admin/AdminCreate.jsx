@@ -130,7 +130,24 @@ const AdminCreate = () => {
 
       const result = await response.json();
 
-      if (result.success) {
+      // Check specifically for the phone verification message
+      if (
+        result.message &&
+        result.message.includes("verify your phone number")
+      ) {
+        // This is a successful registration that needs phone verification
+        Swal.fire({
+          icon: "success",
+          title: "Registration Successful",
+          text:
+            result.message ||
+            "Registration successful. Please verify the phone number.",
+          confirmButtonColor: "#3085d6",
+        }).then(() => {
+          navigate("/admin/users");
+        });
+      } else if (result.success) {
+        // Standard success case
         Swal.fire({
           icon: "success",
           title: "Success!",

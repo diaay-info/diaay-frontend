@@ -378,7 +378,7 @@ const Header = ({ favorites = [] }) => {
         </div>
 
         <Link to="/" className={isActive("/")}>
-          Home
+          Home Page
         </Link>
         <Link to="/categories" className={isActive("/categories")}>
           Categories

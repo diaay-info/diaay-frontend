@@ -441,7 +441,7 @@ const PurchaseCredit = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-gray-700 mb-1">
-                  Payment Reference *
+                  Payment Reference 
                 </label>
                 <input
                   type="text"

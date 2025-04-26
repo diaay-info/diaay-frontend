@@ -48,7 +48,7 @@ const Sidebar = () => {
           <NavLink to="/" className="flex items-center p-3 rounded-lg text-sm ">
             {" "}
             <FaHome className="mr-3" />
-            Home{" "}
+            Home Page{" "}
           </NavLink>
           <NavLink
             to="/admin/dashboard"

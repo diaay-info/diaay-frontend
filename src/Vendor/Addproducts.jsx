@@ -9,6 +9,17 @@ import useCategories from "../Hooks/useCategories";
 import Swal from "sweetalert2";
 import { Country, State, City } from "country-state-city";
 
+// Currency mapping function
+const getCurrencyByCountry = (country) => {
+  const currencyMap = {
+    Nigeria: "NGN",
+    Senegal: "XOF",
+    "United States": "USD",
+    // Add more countries as needed
+  };
+  return currencyMap[country] || "USD"; // Default to USD if country not found
+};
+
 const ProductForm = () => {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
@@ -219,7 +230,7 @@ const ProductForm = () => {
     return days === 7 ? 1 : days === 14 ? 2 : 3;
   };
 
-  // Get cost  based on duration
+  // Get cost based on duration
   const getCost = (days) => {
     return days === 7 ? 1000 : days === 14 ? 2000 : 3000;
   };
@@ -288,6 +299,9 @@ const ProductForm = () => {
       return;
     }
 
+    // Get currency based on selected country
+    const currency = getCurrencyByCountry(data.country);
+
     setIsSubmitting(true);
 
     try {
@@ -295,6 +309,7 @@ const ProductForm = () => {
         name: data.name,
         description: data.description,
         price: Number(data.price),
+        currency: currency, // Add the currency to the payload
         stock: Number(data.stock),
         country: data.country,
         city: data.state,
@@ -474,7 +489,7 @@ const ProductForm = () => {
               {/* Stock */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Spare*
+                  Available*
                 </label>
                 <input
                   type="number"
@@ -507,7 +522,7 @@ const ProductForm = () => {
                   errors.country ? "border-red-500" : "border-gray-300"
                 }`}
               >
-                <option value="">Select a country</option>
+                <option value="">Senegal</option>
                 {countries.map((country, index) => (
                   <option key={index} value={country.label}>
                     {country.label}

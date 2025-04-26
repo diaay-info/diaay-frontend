@@ -111,7 +111,7 @@ const Header = () => {
             }`}
             onClick={toggleMobileMenu}
           >
-            Home{" "}
+            Home Page{" "}
           </NavLink>
           <NavLink
             to="/admin/dashboard"

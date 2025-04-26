@@ -140,7 +140,7 @@ const UserManagement = () => {
                   <thead className="bg-primary text-white text-xs md:text-sm uppercase font-semibold">
                     <tr>
                       <th className="p-2 md:p-3 text-left">Name</th>
-                      <th className="p-2 md:p-3 text-left">Email</th>
+                      <th className="p-2 md:p-3 text-left">Phone number</th>
                       <th className="p-2 md:p-3 text-left">Role</th>
                       <th className="p-2 md:p-3 text-left">Date Created</th>
                       <th className="p-2 md:p-3 text-left">Status</th>
@@ -161,7 +161,7 @@ const UserManagement = () => {
                           </Link>
                         </td>
                         <td className="p-2 md:p-3 text-gray-600">
-                          {user.email}
+                          {user.phoneNumber}
                         </td>
                         <td className="p-2 md:p-3 text-gray-600">
                           {user.role}
