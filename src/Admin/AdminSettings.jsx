@@ -3,6 +3,9 @@ import Sidebar from "./AdminSideBar";
 import Header from "./AdminHeader";
 
 function Settings() {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [vendorData, setVendorData] = useState({
     fullName: "",
     email: "",
@@ -10,8 +13,53 @@ function Settings() {
     userId: "",
     userRole: "",
     avatar: localStorage.getItem("userAvatar") || "",
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  // Fetch user data from API
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("accessToken");
+
+        const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+
+        const userData = await response.json();
+
+        // Update state with fetched data
+        setVendorData((prev) => ({
+          ...prev,
+          fullName: userData.name || userData.fullName || "",
+          email: userData.email || "",
+          phone: userData.phoneNumber || userData.phone || "",
+          userId: userData._id || userData.userId || "",
+          userRole: userData.role || userData.userRole || "",
+        }));
+
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [API_BASE_URL]);
+
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -25,28 +73,96 @@ function Settings() {
     }
   };
 
-  useEffect(() => {
-    const storedData = {
-      fullName: localStorage.getItem("fullName") || "",
-      email: localStorage.getItem("userEmail") || "",
-      phone: localStorage.getItem("phoneNumber") || "",
-      userId: localStorage.getItem("userId") || "",
-      userRole: localStorage.getItem("userRole") || "",
-    };
-    setVendorData((prev) => ({ ...prev, ...storedData }));
-  }, []);
-
   const handleChange = (e) => {
     setVendorData({ ...vendorData, [e.target.name]: e.target.value });
   };
 
-  const handleSave = () => {
-    localStorage.setItem("fullName", vendorData.fullName);
-    localStorage.setItem("userEmail", vendorData.email);
-    localStorage.setItem("phoneNumber", vendorData.phone);
-    localStorage.setItem("userRole", vendorData.userRole);
-    alert("Changes saved successfully!");
+  const handleSave = async () => {
+    try {
+      // Validate passwords if the user is trying to change them
+      if (vendorData.newPassword) {
+        if (!vendorData.currentPassword) {
+          alert("Please enter your current password");
+          return;
+        }
+
+        if (vendorData.newPassword !== vendorData.confirmPassword) {
+          alert("New passwords don't match");
+          return;
+        }
+      }
+
+      // Prepare data for API
+      const updateData = {
+        fullName: vendorData.fullName,
+        email: vendorData.email,
+        phoneNumber: vendorData.phone,
+      };
+
+      // Add password fields if the user is updating password
+      if (vendorData.newPassword) {
+        updateData.currentPassword = vendorData.currentPassword;
+        updateData.newPassword = vendorData.newPassword;
+      }
+
+      // Save data to API
+      const token = localStorage.getItem("accessToken");
+      const response = await fetch(`${API_BASE_URL}/api/auth/update-profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update profile");
+      }
+
+      // Clear password fields
+      setVendorData((prev) => ({
+        ...prev,
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      }));
+
+      alert("Changes saved successfully!");
+    } catch (err) {
+      console.error("Error saving profile:", err);
+      alert(`Failed to save changes: ${err.message}`);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex">
+        <Sidebar />
+        <div className="flex-1 p-6 md:ml-64 bg-gray-100 min-h-screen">
+          <Header />
+          <div className="flex justify-center items-center h-64">
+            <p className="text-lg text-gray-600">Loading user data...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex">
+        <Sidebar />
+        <div className="flex-1 p-6 md:ml-64 bg-gray-100 min-h-screen">
+          <Header />
+          <div className="flex justify-center items-center h-64">
+            <p className="text-lg text-red-600">Error: {error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex">
@@ -107,6 +223,7 @@ function Settings() {
                     value={vendorData.currentPassword}
                     onChange={handleChange}
                     className="border py-2 px-4 w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    placeholder="Enter current password to change"
                   />
                 </div>
                 <div>
@@ -119,6 +236,7 @@ function Settings() {
                     value={vendorData.newPassword}
                     onChange={handleChange}
                     className="border py-2 px-4 w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    placeholder="Leave blank to keep current"
                   />
                 </div>
                 <div>
@@ -131,6 +249,7 @@ function Settings() {
                     value={vendorData.confirmPassword}
                     onChange={handleChange}
                     className="border py-2 px-4 w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    placeholder="Confirm new password"
                   />
                 </div>
               </div>

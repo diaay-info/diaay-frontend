@@ -3,6 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import {
   FaBars,
   FaTimes,
+  FaHome,
   FaAd,
   FaMoneyBillWave,
   FaCogs,
@@ -35,7 +36,7 @@ function Sidebar({ isOpen, setIsOpen }) {
         <nav className="space-y-2">
           <NavLink to="/" className="flex items-center p-3 rounded-lg text-sm ">
             {" "}
-            <FaThLarge className="mr-3" />
+            <FaHome className="mr-3" />
             Home{" "}
           </NavLink>
           <NavLink

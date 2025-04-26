@@ -16,6 +16,12 @@ const UserDetails = () => {
     message: "",
     status: "",
   });
+  const [passwordModal, setPasswordModal] = useState({
+    show: false,
+    password: "",
+    confirmPassword: "",
+    error: "",
+  });
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const allowedStatuses = ["pending", "active", "inactive", "banned"];
@@ -115,6 +121,83 @@ const UserDetails = () => {
         return "bg-red-500";
       default:
         return "bg-gray-500";
+    }
+  };
+
+  // Handle password reset
+  const handleResetPassword = () => {
+    setPasswordModal({
+      show: true,
+      password: "",
+      confirmPassword: "",
+      error: "",
+    });
+  };
+
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordModal((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const submitPasswordReset = async () => {
+    // Validate passwords
+    if (passwordModal.password !== passwordModal.confirmPassword) {
+      setPasswordModal((prev) => ({
+        ...prev,
+        error: "Passwords don't match",
+      }));
+      return;
+    }
+
+    if (passwordModal.password.length < 6) {
+      setPasswordModal((prev) => ({
+        ...prev,
+        error: "Password must be at least 6 characters",
+      }));
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/auth/admin-reset-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          body: JSON.stringify({
+            userId: id,
+            password: passwordModal.password,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert("Password reset successfully!");
+        setPasswordModal({
+          show: false,
+          password: "",
+          confirmPassword: "",
+          error: "",
+        });
+      } else {
+        setPasswordModal((prev) => ({
+          ...prev,
+          error: result.message || "Failed to reset password",
+        }));
+      }
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      setPasswordModal((prev) => ({
+        ...prev,
+        error: "An error occurred while resetting the password",
+      }));
     }
   };
 
@@ -263,10 +346,24 @@ const UserDetails = () => {
                   )}
                 </div>
               )}
+
+              {/* Reset Password Button */}
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold mb-2">
+                  Password Management
+                </h3>
+                <button
+                  onClick={handleResetPassword}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                >
+                  Reset Password
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
+        {/* Status Change Modal */}
         {modal.show && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-lg text-center">
@@ -290,6 +387,73 @@ const UserDetails = () => {
                   className="border px-8 py-1 rounded-md"
                 >
                   No
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Password Reset Modal */}
+        {passwordModal.show && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+              <h3 className="text-xl font-bold mb-4">
+                Reset Password for {user.fullName}
+              </h3>
+
+              {passwordModal.error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">
+                  {passwordModal.error}
+                </div>
+              )}
+
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={passwordModal.password}
+                  onChange={handlePasswordChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  placeholder="Enter new password"
+                />
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Confirm New Password
+                </label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={passwordModal.confirmPassword}
+                  onChange={handlePasswordChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  placeholder="Confirm new password"
+                />
+              </div>
+
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() =>
+                    setPasswordModal({
+                      show: false,
+                      password: "",
+                      confirmPassword: "",
+                      error: "",
+                    })
+                  }
+                  className="border px-4 py-2 rounded-md"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={submitPasswordReset}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                >
+                  Reset Password
                 </button>
               </div>
             </div>

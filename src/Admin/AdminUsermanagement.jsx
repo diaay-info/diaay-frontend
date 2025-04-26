@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { FiUsers } from "react-icons/fi";
+import { FiUsers, FiUserPlus } from "react-icons/fi";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import Sidebar from "./AdminSideBar";
 import Header from "./AdminHeader";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const UserManagement = () => {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("All Roles");
@@ -15,6 +16,7 @@ const UserManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -67,6 +69,10 @@ const UserManagement = () => {
     currentPage * itemsPerPage
   );
 
+  const handleCreateAdmin = () => {
+    navigate("/admin/users/create");
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       <Sidebar />
@@ -77,6 +83,8 @@ const UserManagement = () => {
           {error && (
             <div className="text-red-500 text-center mb-4">{error}</div>
           )}
+
+       
 
           {/* Filters */}
           <div className="bg-white p-4 rounded-xl shadow mb-6 flex flex-col md:flex-row gap-4">
@@ -96,6 +104,7 @@ const UserManagement = () => {
               <option>Vendor</option>
               <option>Customer</option>
               <option>Partner</option>
+              <option>Admin</option>
             </select>
             <select
               className="w-full md:w-1/4 px-4 py-2 border border-gray-300 rounded-lg"
@@ -107,6 +116,13 @@ const UserManagement = () => {
               <option>Inactive</option>
               <option>Pending</option>
             </select>
+            <button
+              onClick={handleCreateAdmin}
+              className="bg-primary hover:bg-purple-700 text-white w-full md:w-1/4 px-4 py-2  rounded-lg flex items-center gap-2"
+            >
+              <FiUserPlus />
+              Create Admin
+            </button>
           </div>
 
           {/* User Table */}

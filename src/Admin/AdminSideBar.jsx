@@ -8,6 +8,7 @@ import {
   FaMoneyBillWave,
   FaBell,
   FaQuestionCircle,
+  FaHome,
   FaCogs,
   FaSignOutAlt,
   FaThLarge,
@@ -46,7 +47,7 @@ const Sidebar = () => {
         <nav className="space-y-2">
           <NavLink to="/" className="flex items-center p-3 rounded-lg text-sm ">
             {" "}
-            <FaThLarge className="mr-3" />
+            <FaHome className="mr-3" />
             Home{" "}
           </NavLink>
           <NavLink
@@ -99,16 +100,16 @@ const Sidebar = () => {
           >
             <FaMoneyBillWave className="mr-3" /> Financial Management
           </NavLink>
-          <NavLink
-            to="/admin/notifications"
+          {/* <NavLink
+            to="/admin/reset-password"
             className={`flex items-center p-3 rounded-lg text-sm ${
-              isActiveLink("notifications")
+              isActiveLink("resetpassword")
                 ? "bg-purple-500 text-white"
                 : "text-gray-700 hover:bg-gray-200"
             }`}
           >
-            <FaBell className="mr-3" /> Notifications
-          </NavLink>
+            <FaBell className="mr-3" /> Reset Password
+          </NavLink> */}
 
           <NavLink
             to="/admin/settings"
