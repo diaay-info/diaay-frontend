@@ -86,13 +86,11 @@ const Header = () => {
 
         {/* Profile & Notifications */}
         <div className="flex items-center gap-4">
-         
           {/* User Profile - Hidden on very small screens */}
           <div className="flex items-center">
             <span className="mr-2 hidden sm:block text-sm md:text-base font-bold">
               {loading ? "Loading..." : user.fullName || "Admin"}
             </span>
-            
           </div>
         </div>
       </div>
@@ -104,6 +102,17 @@ const Header = () => {
         }`}
       >
         <nav className="flex flex-col">
+          <NavLink
+            to="/"
+            className={`flex items-center p-3 border-b text-sm ${
+              isActiveLink("home")
+                ? "bg-purple-100 text-purple-700 font-medium"
+                : "text-gray-700"
+            }`}
+            onClick={toggleMobileMenu}
+          >
+            Home{" "}
+          </NavLink>
           <NavLink
             to="/admin/dashboard"
             className={`flex items-center p-3 border-b text-sm ${
