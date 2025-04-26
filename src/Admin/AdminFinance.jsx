@@ -15,7 +15,7 @@ const Finance = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -29,7 +29,7 @@ const Finance = () => {
         );
         const result = await response.json();
         console.log("Stats API Response:", result);
-       
+
         setStats(result);
       } catch (error) {
         console.error("Error fetching stats:", error);
@@ -39,14 +39,11 @@ const Finance = () => {
 
     const fetchTransactions = async () => {
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/api/credits/admin/all`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
+        const response = await fetch(`${API_BASE_URL}/api/credits/admin/all`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
         const result = await response.json();
 
         console.log("Transactions API Response:", result);
@@ -76,6 +73,11 @@ const Finance = () => {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  // Function to handle row click and navigate to credit details
+  const handleRowClick = (creditId) => {
+    navigate(`/admin/finance/credit/${creditId}`);
+  };
 
   return (
     <div className="flex flex-col md:flex-row">
@@ -138,13 +140,14 @@ const Finance = () => {
                     {paginatedTransactions.map((transaction, index) => (
                       <tr
                         key={index}
-                        className="hover:bg-gray-100 text-xs md:text-sm"
+                        className="hover:bg-gray-100 text-xs md:text-sm cursor-pointer transition-colors duration-150"
+                        onClick={() => handleRowClick(transaction._id)}
                       >
                         <td className="border-b p-2 md:p-3">
                           {transaction.userId.email}
                         </td>
                         <td className="border-b p-2 md:p-3">
-                          {formatNumber(transaction.amount)} 
+                          {formatNumber(transaction.amount)}
                         </td>
                         <td className="border-b p-2 md:p-3">
                           {transaction.paymentMethod}

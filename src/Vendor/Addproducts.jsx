@@ -251,6 +251,7 @@ const ProductForm = () => {
     setFeatures(updatedFeatures);
   };
 
+  // In the onSubmit function, replace the existing payload code with this:
   const onSubmit = async (data) => {
     if (!accessToken) {
       Swal.fire({
@@ -302,14 +303,16 @@ const ProductForm = () => {
     // Get currency based on selected country
     const currency = getCurrencyByCountry(data.country);
 
+    // Format the price with currency
+    const formattedPrice = `${currency} ${Number(data.price)}`;
+
     setIsSubmitting(true);
 
     try {
       const payload = {
         name: data.name,
         description: data.description,
-        price: Number(data.price),
-        currency: currency, // Add the currency to the payload
+        price: formattedPrice, // Include the currency with price
         stock: Number(data.stock),
         country: data.country,
         city: data.state,
