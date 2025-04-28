@@ -8,7 +8,6 @@ function Settings() {
     phoneNumber: "",
     userId: "",
     userRole: "",
-    avatar: "",
     businessName: "",
     location: "",
   });
@@ -38,7 +37,6 @@ function Settings() {
           phoneNumber: userData.phoneNumber || "",
           userId: userData.id || "",
           userRole: userData.role || "",
-          avatar: userData.avatar || "",
           businessName: userData.businessName || "",
           location: userData.location || "",
         });
@@ -52,17 +50,7 @@ function Settings() {
     fetchUserData();
   }, []);
 
-  const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const imageUrl = reader.result;
-        setVendorData((prev) => ({ ...prev, avatar: imageUrl }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+ 
 
   const handleChange = (e) => {
     setVendorData({ ...vendorData, [e.target.name]: e.target.value });
@@ -122,7 +110,7 @@ function Settings() {
             <div className="bg-white shadow-md p-6 rounded-xl space-y-6">
               <h2 className="text-lg font-semibold">Personal Information</h2>
 
-              <div className="flex flex-col items-center">
+              {/* <div className="flex flex-col items-center">
                 <img
                   src={vendorData.avatar || "logo.png"}
                   className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border"
@@ -143,7 +131,7 @@ function Settings() {
                 >
                   Upload or Change Profile Picture
                 </label>
-              </div>
+              </div> */}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>

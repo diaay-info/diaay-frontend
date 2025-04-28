@@ -66,14 +66,14 @@ function Header({ toggleMobileSidebar }) {
         </button>
 
         {/* Profile (hidden on smallest screens) */}
-        <div className="hidden md:flex items-center space-x-2">
+        {/* <div className="hidden md:flex items-center space-x-2">
           <img
             src={userData.avatar || "/placeholder-avatar.png"}
             alt="Profile"
             className="w-10 h-10 rounded-full object-cover border"
           />
          
-        </div>
+        </div> */}
       </div>
     </header>
   );
