@@ -503,7 +503,7 @@ const HomePage = () => {
                           {getProductTitle(product)}
                         </h3>
                         <p className="text-purple-600 font-bold mt-auto">
-                          XOF{" "}
+                          {" "}
                           {getProductPrice(product)?.toLocaleString() ||
                             "Price on request"}
                         </p>

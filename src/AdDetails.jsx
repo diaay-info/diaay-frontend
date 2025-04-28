@@ -67,19 +67,30 @@ const AdDetailss = () => {
 
     const fetchSimilarProducts = async (category) => {
       try {
+        console.log("Fetching similar products for category:", category);
         const res = await fetch(`${API_BASE_URL}/api/categories`);
         const data = await res.json();
+        console.log("Categories data:", data);
+
         const match = data.find((cat) => cat.name === category);
+        console.log("Matched category:", match);
 
         if (match) {
           const productsRes = await fetch(
-            `${API_BASE_URL}/api/ads?category=${encodeURIComponent(match.name)}`
+            `${API_BASE_URL}/api/products?category=${encodeURIComponent(
+              match.name
+            )}`
           );
           const productsData = await productsRes.json();
-          const filtered = Array.isArray(productsData)
-            ? productsData
-            : productsData.ads || [];
-          setSimilarProducts(filtered.filter((p) => p._id !== id));
+          console.log("Similar products data:", productsData);
+
+          // Fix: Extract products array from the response
+          const filtered = productsData.products
+            ? productsData.products.filter((p) => p._id !== id)
+            : [];
+
+          console.log("Filtered products:", filtered);
+          setSimilarProducts(filtered);
         }
       } catch (err) {
         console.error("Failed to fetch similar products", err);
@@ -192,7 +203,7 @@ const AdDetailss = () => {
             </p>
             <hr />
             <p className="text-primary font-bold text-3xl">
-              {ad ? `XOF ${ad.price}` : <Skeleton width={120} />}
+              {ad ? ` ${ad.price}` : <Skeleton width={120} />}
             </p>
             <p className="text-gray-600">
               {ad ? `${ad.country}, ${ad.city}` : <Skeleton width={150} />}
@@ -266,61 +277,112 @@ const AdDetailss = () => {
           </div>
 
           <section className="relative">
-            <h2 className="text-2xl font-bold mb-4">Similar Products</h2>
+            <h2 className="text-2xl font-bold mb-6">Similar Products</h2>
             {similarProducts.length > 0 ? (
               <div className="relative overflow-hidden">
                 <div
-                  className="flex transition-transform duration-300"
+                  className="flex transition-transform duration-300 ease-in-out"
                   style={{
                     transform: `translateX(-${currentSlide * 100}%)`,
-                    width: `${similarProducts.length * 50}%`,
+                    width: `${similarProducts.length * 100}%`,
                   }}
                 >
                   {similarProducts.map((p) => (
                     <div
                       key={p._id}
-                      className="flex-shrink-0 w-full sm:w-1/2 p-2"
+                      className="flex-shrink-0 w-full md:w-1/3 lg:w-1/2 p-2"
                     >
-                      <Link to={`/products/${p._id}`}>
-                        {" "}
-                        <div className="bg-white rounded-lg shadow-md p-4 h-full hover:shadow-lg transition-shadow">
-                          <img
-                            src={p.images?.[0] || "/placeholder.png"}
-                            alt={p.name}
-                            className="w-full h-40 object-cover rounded-lg mb-4"
-                          />
-                          <h3 className="text-lg font-semibold">{p.name}</h3>
-                          <p className="text-gray-600">
-                            XOF {p.price || "N/A"}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            {p.country}, {p.city}
-                          </p>
+                      <Link to={`/products/${p._id}`} className="block h-full">
+                        <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 h-full flex flex-col overflow-hidden border border-gray-100">
+                          <div className="relative overflow-hidden">
+                            <img
+                              src={p.images?.[0] || "/placeholder.png"}
+                              alt={p.name}
+                              className="w-full h-40 object-cover transition-transform duration-300 hover:scale-105"
+                            />
+                            <div className="absolute top-0 right-0 bg-primary text-white text-xs font-medium px-2 py-1 m-2 rounded-full">
+                              Similar
+                            </div>
+                          </div>
+                          <div className="p-4 flex flex-col flex-grow">
+                            <h3 className="text-lg font-semibold text-gray-800 mb-1 line-clamp-1">
+                              {p.name}
+                            </h3>
+                            <p className="text-primary font-bold text-xl mb-1">
+                              {p.price || "N/A"}
+                            </p>
+                            <div className="mt-auto flex items-center text-sm text-gray-500">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4 mr-1"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                />
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                />
+                              </svg>
+                              <span className="truncate">
+                                {p.country}, {p.city}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </Link>
                     </div>
                   ))}
                 </div>
-                {similarProducts.length > 2 && (
+                {similarProducts.length > 4 && (
                   <>
                     <button
                       onClick={prevSlide}
-                      className="absolute left-0 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md z-10"
+                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg z-10 hover:bg-gray-50 transition-colors"
+                      aria-label="Previous slide"
                     >
-                      <FaArrowLeft />
+                      <FaArrowLeft className="text-gray-700" />
                     </button>
                     <button
                       onClick={nextSlide}
-                      className="absolute right-0 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md z-10"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg z-10 hover:bg-gray-50 transition-colors"
+                      aria-label="Next slide"
                     >
-                      <FaArrowRight />
+                      <FaArrowRight className="text-gray-700" />
                     </button>
                   </>
                 )}
               </div>
             ) : (
-              <div className="bg-gray-50 rounded-lg p-8 text-center">
-                <p className="text-gray-600">No similar products available.</p>
+              <div className="bg-gray-50 rounded-xl p-10 text-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-12 w-12 mx-auto text-gray-400 mb-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                  />
+                </svg>
+                <p className="text-gray-600 font-medium">
+                  No similar products available.
+                </p>
+                <p className="text-gray-500 text-sm mt-2">
+                  Check back later for more options
+                </p>
               </div>
             )}
           </section>

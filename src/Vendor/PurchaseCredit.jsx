@@ -13,7 +13,7 @@ const PurchaseCredit = () => {
   const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutes in seconds
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
   const [paymentDetails, setPaymentDetails] = useState({
     referenceId: "", // Changed from 'reference'
@@ -42,10 +42,6 @@ const PurchaseCredit = () => {
   };
 
   const validatePaymentDetails = () => {
-    if (!paymentDetails.referenceId) {
-      setErrorMessage("Please enter the payment reference.");
-      return false;
-    }
     if (!paymentDetails.transferNumber) {
       setErrorMessage("Please enter the phone number used for payment.");
       return false;
@@ -97,21 +93,18 @@ const PurchaseCredit = () => {
         throw new Error("Authentication error. Please log in again.");
       }
 
-      const response = await fetch(
-        `${API_BASE_URL}/api/credits/purchase`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            amount: selectedAmount,
-            paymentMethod,
-            ...paymentDetails, // Now includes ReferenceId and TeansferNumber directly
-          }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/credits/purchase`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          amount: selectedAmount,
+          paymentMethod,
+          ...paymentDetails, // Now includes ReferenceId and TeansferNumber directly
+        }),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -335,31 +328,7 @@ const PurchaseCredit = () => {
       ) : showSummary ? (
         <div className="">
           {/* Payment Summary */}
-          {/* <div className="bg-white p-6 rounded-lg shadow-md">
-            <h4 className="text-lg font-semibold mb-4 border-b pb-2">
-              Order Summary
-            </h4>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Credits:</span>
-                <span className="font-medium">{selectedAmount} XOF</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Payment Method:</span>
-                <span className="font-medium capitalize">
-                  {paymentMethod.replace("_", " ")}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Amount:</span>
-                <span className="font-medium">
-                  {selectedAmount / 1000} credit
-                </span>
-              </div>
-            </div>
-          </div> */}
 
-          {/* Payment Instructions */}
           {/* Payment Instructions */}
           <div className="space-y-6">
             <div className="bg-white p-6 rounded-lg shadow-md">
@@ -388,25 +357,18 @@ const PurchaseCredit = () => {
                     account below.
                   </p>
                 </div>
-                {/* <p className="text-sm text-red-500 mt-1">
-        Valid for: {formatTime(timeLeft)}
-      </p> */}
               </div>
-              <div className="space-y-3">
-                <div className="text-center">
-                  <div className="">
-                    <span className="text-center mr-2 font-bold text-2xl">
-                      +221 77 412 77 42
-                    </span>
-                    <button
-                      onClick={copyToClipboard}
-                      className="text-purple-500 hover:text-purple-700"
-                      title="Copy to clipboard"
-                    >
-                      <FaRegCopy size={16} />
-                    </button>
-                  </div>
-                </div>
+              <div className="space-y-3 text-center">
+                {/* WhatsApp Contact Button */}
+                <a
+                  href="https://wa.me/+221774285608?text=I%20need%20to%20buy%20credit"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-4 py-3 px-6 bg-green-500 text-white text-center rounded-lg hover:bg-green-600 transition"
+                >
+                  Please Contact your dedicated sales on WhatsApp by clicking
+                  here
+                </a>
                 <hr />
                 <p>Click on submit your payment to continue</p>
               </div>
@@ -441,7 +403,7 @@ const PurchaseCredit = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-gray-700 mb-1">
-                  Payment Reference 
+                  Payment Reference
                 </label>
                 <input
                   type="text"
@@ -449,7 +411,7 @@ const PurchaseCredit = () => {
                   value={paymentDetails.referenceId}
                   onChange={handlePaymentDetailChange}
                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
+                  
                 />
               </div>
               <div>

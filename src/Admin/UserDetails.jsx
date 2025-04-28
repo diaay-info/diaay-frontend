@@ -171,7 +171,7 @@ const UserDetails = () => {
           },
           body: JSON.stringify({
             userId: id,
-            password: passwordModal.password,
+            newPassword: passwordModal.password,
           }),
         }
       );

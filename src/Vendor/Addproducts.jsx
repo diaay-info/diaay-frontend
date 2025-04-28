@@ -30,10 +30,10 @@ const ProductForm = () => {
   const [accessToken, setAccessToken] = useState("");
   const [countries, setCountries] = useState([]);
   const [statesList, setStatesList] = useState([]);
-  const [selectedCountry, setSelectedCountry] = useState("");
-  const [selectedDuration, setSelectedDuration] = useState(7); // Default to 7 days
+  const [selectedCountry, setSelectedCountry] = useState("Senegal"); // Default to Senegal
   const [creditBalance, setCreditBalance] = useState(0);
   const [loadingCredits, setLoadingCredits] = useState(false);
+  const [productCount, setProductCount] = useState(0);
   const navigate = useNavigate();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -46,13 +46,45 @@ const ProductForm = () => {
         label: country.name,
       }))
     );
+
+    // Set initial country value
+    setValue("country", "Senegal");
+
+    // Load states for Senegal immediately
+    const senegalCode = allCountries.find((c) => c.name === "Senegal")?.isoCode;
+    if (senegalCode) {
+      const senegalStates = State.getStatesOfCountry(senegalCode).map(
+        (state) => ({
+          value: state.isoCode,
+          label: state.name,
+        })
+      );
+      setStatesList(senegalStates);
+    }
   }, []);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      country: "Senegal",
+    },
+  });
+
+  // Watch country and state values
+  const watchCountry = watch("country");
+  const watchState = watch("state");
 
   // Update states when country changes
   useEffect(() => {
-    if (selectedCountry) {
+    if (watchCountry) {
       const countryCode = countries.find(
-        (c) => c.label === selectedCountry
+        (c) => c.label === watchCountry
       )?.value;
       if (countryCode) {
         const countryStates = State.getStatesOfCountry(countryCode).map(
@@ -63,27 +95,17 @@ const ProductForm = () => {
         );
         setStatesList(countryStates);
       }
-    } else {
-      setStatesList([]);
     }
-  }, [selectedCountry, countries]);
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm();
+  }, [watchCountry, countries]);
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     setAccessToken(token || "");
 
-    // Fetch credit balance when accessToken is available
+    // Fetch credit balance and product count when accessToken is available
     if (token) {
       fetchCreditBalance(token);
+      fetchUserProductCount(token);
     }
   }, []);
 
@@ -105,9 +127,20 @@ const ProductForm = () => {
     }
   };
 
-  // Watch country and state values
-  const watchCountry = watch("country");
-  const watchState = watch("state");
+  // Fetch user's product count
+  const fetchUserProductCount = async (token) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/products/count`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setProductCount(response.data.count || 0);
+    } catch (error) {
+      console.error("Error fetching product count:", error);
+      setProductCount(0);
+    }
+  };
 
   // Import the direct upload hook
   const {
@@ -220,21 +253,6 @@ const ProductForm = () => {
     setValue("state", e.target.value);
   };
 
-  // Handle duration selection
-  const handleDurationChange = (days) => {
-    setSelectedDuration(days);
-  };
-
-  // Get credit requirement based on duration
-  const getRequiredCredits = (days) => {
-    return days === 7 ? 1 : days === 14 ? 2 : 3;
-  };
-
-  // Get cost based on duration
-  const getCost = (days) => {
-    return days === 7 ? 1000 : days === 14 ? 2000 : 3000;
-  };
-
   const handleFeatureChange = (index, field, value) => {
     const updatedFeatures = [...features];
     updatedFeatures[index][field] = value;
@@ -250,6 +268,9 @@ const ProductForm = () => {
     updatedFeatures.splice(index, 1);
     setFeatures(updatedFeatures);
   };
+
+  // Check if user can post for free
+  const canPostForFree = productCount < 5;
 
   // In the onSubmit function, replace the existing payload code with this:
   const onSubmit = async (data) => {
@@ -289,13 +310,12 @@ const ProductForm = () => {
       return;
     }
 
-    // Check if user has enough credits for the selected duration
-    const requiredCredits = getRequiredCredits(selectedDuration);
-    if (creditBalance < requiredCredits) {
+    // Check if user already has 5 products and needs a credit
+    if (!canPostForFree && creditBalance < 1) {
       Swal.fire({
         icon: "error",
         title: "Insufficient Credits",
-        text: `You need ${requiredCredits} credits for this ad duration but only have ${creditBalance} credits. Please add more credits or select a shorter duration.`,
+        text: "You've used your 5 free product listings. You need 1 credit to add more products.",
       });
       return;
     }
@@ -319,9 +339,9 @@ const ProductForm = () => {
         category: data.category,
         features: features.filter((f) => f.name && f.value),
         images: uploadedImageUrls,
-        duration: selectedDuration,
-        credit: requiredCredits,
-        cost: Number(getCost(selectedDuration)),
+        duration: 365, // Set to 1 year (365 days)
+        credit: canPostForFree ? 0 : 1, // Use 1 credit if not free
+        cost: canPostForFree ? 0 : 1000, // Set cost if using credit
       };
 
       const response = await axios.post(
@@ -369,16 +389,28 @@ const ProductForm = () => {
   };
 
   const resetForm = () => {
-    reset();
+    reset({
+      country: "Senegal", // Preserve Senegal as default when resetting
+    });
     // Clean up object URLs to prevent memory leaks
     imagePreviews.forEach((preview) => URL.revokeObjectURL(preview));
     setImagePreviews([]);
     setImageFiles([]);
     setUploadedImageUrls([]);
     setFeatures([{ name: "", value: "" }]);
-    setSelectedCountry("");
-    setStatesList([]);
-    setSelectedDuration(7); // Reset to default 7 days
+    setSelectedCountry("Senegal");
+
+    // Need to reload states for Senegal after reset
+    const senegalCode = countries.find((c) => c.label === "Senegal")?.value;
+    if (senegalCode) {
+      const senegalStates = State.getStatesOfCountry(senegalCode).map(
+        (state) => ({
+          value: state.isoCode,
+          label: state.name,
+        })
+      );
+      setStatesList(senegalStates);
+    }
   };
 
   return (
@@ -417,7 +449,6 @@ const ProductForm = () => {
                 </p>
               )}
             </div>
-
             {/* Description */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -438,7 +469,6 @@ const ProductForm = () => {
                 </p>
               )}
             </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {/* Price */}
               <div>
@@ -511,7 +541,6 @@ const ProductForm = () => {
                 )}
               </div>
             </div>
-
             {/* Country Dropdown */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -520,43 +549,37 @@ const ProductForm = () => {
               <select
                 {...register("country", { required: "Country is required" })}
                 onChange={handleCountryChange}
-                value={watchCountry || ""}
-                className={`w-full px-3 py-2 border rounded-md ${
-                  errors.country ? "border-red-500" : "border-gray-300"
-                }`}
+                value={watchCountry || "Senegal"}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
-                <option value="">Senegal</option>
-                {countries.map((country, index) => (
-                  <option key={index} value={country.label}>
-                    {country.label}
-                  </option>
-                ))}
+                <option value="Senegal">Senegal</option>
+                {countries
+                  .filter((country) => country.label !== "Senegal") // Filter out Senegal to avoid duplication
+                  .map((country, index) => (
+                    <option key={index} value={country.label}>
+                      {country.label}
+                    </option>
+                  ))}
               </select>
-              {errors.country && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.country.message}
-                </p>
-              )}
             </div>
-
             {/* State Dropdown */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                State/Province*
+                Location*
               </label>
               <select
                 {...register("state", { required: "State is required" })}
                 onChange={handleStateChange}
                 value={watchState || ""}
-                disabled={!watchCountry || statesList.length === 0}
+                disabled={statesList.length === 0}
                 className={`w-full px-3 py-2 border rounded-md ${
                   errors.state ? "border-red-500" : "border-gray-300"
-                } ${!watchCountry ? "bg-gray-100" : ""}`}
+                } ${statesList.length === 0 ? "bg-gray-100" : ""}`}
               >
                 <option value="">
                   {statesList.length === 0
-                    ? "Select country first"
-                    : "Select a state/province"}
+                    ? "Loading locations..."
+                    : "Select a location"}
                 </option>
                 {statesList.map((state, index) => (
                   <option key={index} value={state.label}>
@@ -570,7 +593,6 @@ const ProductForm = () => {
                 </p>
               )}
             </div>
-
             {/* Category */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -690,57 +712,42 @@ const ProductForm = () => {
               )}
             </div>
 
-            {/* Ad Duration Selection */}
+            {/* Product Listing Information */}
             <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                Select Ad Duration*
-              </label>
-              <div className="space-y-2">
-                {[7, 14, 30].map((days) => (
-                  <div
-                    key={days}
-                    className="flex items-center border border-gray-200 rounded-md p-3 hover:bg-gray-100"
-                  >
-                    <input
-                      type="radio"
-                      id={`duration-${days}`}
-                      name="adDuration"
-                      checked={selectedDuration === days}
-                      onChange={() => handleDurationChange(days)}
-                      className="mr-2"
-                    />
-                    <label
-                      htmlFor={`duration-${days}`}
-                      className="flex-1 cursor-pointer"
-                    >
-                      <span className="font-medium">{days} days</span> -{" "}
-                      {days === 7 ? 1 : days === 14 ? 2 : 3} credits
-                      <span className="block text-sm text-gray-600">
-                        ({days === 7 ? 1000 : days === 14 ? 2000 : 3000} XOF)
-                      </span>
-                    </label>
-                  </div>
-                ))}
-              </div>
+              <h3 className="text-md font-medium text-gray-800 mb-2">
+                Product Listing Information
+              </h3>
+              
 
               <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
                 <p className="text-sm font-medium">
-                  Your Available Credits:
-                  {loadingCredits ? (
-                    <span className="inline-block ml-1 w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
+                  {canPostForFree ? (
+                    <>
+                      You can add{" "}
+                      <span className="font-bold text-blue-700">
+                        {5 - productCount}
+                      </span>{" "}
+                      more products for free
+                    </>
                   ) : (
-                    <span className="ml-1 font-bold text-blue-700">
-                      {creditBalance}
-                    </span>
+                    <>
+                      Your Available Credits:
+                      {loadingCredits ? (
+                        <span className="inline-block ml-1 w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
+                      ) : (
+                        <span className="ml-1 font-bold text-blue-700">
+                          {creditBalance}
+                        </span>
+                      )}
+                      {creditBalance < 1 && (
+                        <p className="text-sm text-red-600 mt-1">
+                          You need 1 credit to list more products after your
+                          free listings.
+                        </p>
+                      )}
+                    </>
                   )}
                 </p>
-                {creditBalance < getRequiredCredits(selectedDuration) && (
-                  <p className="text-sm text-red-600 mt-1">
-                    You need{" "}
-                    {getRequiredCredits(selectedDuration) - creditBalance} more
-                    credits for this ad duration.
-                  </p>
-                )}
               </div>
             </div>
 
@@ -803,14 +810,14 @@ const ProductForm = () => {
               uploading ||
               (imageFiles.length > 0 &&
                 uploadedImageUrls.length < imageFiles.length) ||
-              creditBalance < getRequiredCredits(selectedDuration)
+              (!canPostForFree && creditBalance < 1)
             }
             className={`w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-purple-700 text-sm sm:text-base ${
               isSubmitting ||
               uploading ||
               (imageFiles.length > 0 &&
                 uploadedImageUrls.length < imageFiles.length) ||
-              creditBalance < getRequiredCredits(selectedDuration)
+              (!canPostForFree && creditBalance < 1)
                 ? "opacity-50 cursor-not-allowed"
                 : ""
             }`}

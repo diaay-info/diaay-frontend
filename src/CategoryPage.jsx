@@ -318,7 +318,7 @@ const CategoryPage = () => {
                       </h3>
                     </Link>
                     <p className="text-primary-600 font-bold mb-3">
-                      XOF{" "}
+                      {" "}
                       {getProductPrice(product)?.toLocaleString() ||
                         "Price on request"}
                     </p>

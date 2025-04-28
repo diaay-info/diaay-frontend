@@ -96,7 +96,7 @@ const ProductDetails = () => {
 
   const handleRenew = async () => {
     if (!product || product.status !== "expired") return;
-    
+
     setIsRenewing(true);
     try {
       const res = await fetch(`${API_BASE_URL}/api/products/${id}/renew`, {
@@ -106,7 +106,7 @@ const ProductDetails = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      
+
       if (res.ok) {
         const updatedProduct = await res.json();
         setProduct(updatedProduct);
@@ -122,6 +122,28 @@ const ProductDetails = () => {
     }
   };
 
+  // Format price to display correctly with currency
+  const formatPrice = (priceString) => {
+    if (!priceString) return "N/A";
+
+    // Return the price as is if it already includes currency code
+    if (
+      typeof priceString === "string" &&
+      (priceString.includes("NGN") || priceString.includes("$"))
+    ) {
+      return priceString;
+    }
+
+    // Otherwise try to format it as currency
+    try {
+      const numericPrice = parseFloat(priceString);
+      if (isNaN(numericPrice)) return priceString;
+      return `$${numericPrice.toFixed(2)}`;
+    } catch {
+      return priceString;
+    }
+  };
+
   if (!product) {
     return (
       <Layout>
@@ -132,8 +154,11 @@ const ProductDetails = () => {
               <div className="w-full md:w-1/3">
                 <div className="h-64 bg-gray-200 rounded-lg mb-4"></div>
                 <div className="flex gap-2">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="h-16 w-16 bg-gray-200 rounded"></div>
+                  {[1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className="h-16 w-16 bg-gray-200 rounded"
+                    ></div>
                   ))}
                 </div>
               </div>
@@ -171,7 +196,7 @@ const ProductDetails = () => {
     }
 
     if (key === "price") {
-      return `$${parseFloat(value).toFixed(2)}`;
+      return formatPrice(value);
     }
 
     return value.toString();
@@ -179,14 +204,14 @@ const ProductDetails = () => {
 
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
-      case 'active':
-        return 'bg-green-100 text-green-800';
-      case 'expired':
-        return 'bg-red-100 text-red-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+      case "active":
+        return "bg-green-100 text-green-800";
+      case "expired":
+        return "bg-red-100 text-red-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -200,16 +225,27 @@ const ProductDetails = () => {
       <div className="bg-gray-50 min-h-screen p-4 sm:p-6 lg:p-8">
         <div className="max-w-5xl mx-auto">
           {/* Back button */}
-          <button 
-            onClick={() => navigate('/products')}
+          <button
+            onClick={() => navigate("/products")}
             className="flex items-center text-gray-600 hover:text-indigo-600 mb-4 transition"
           >
-            <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
+            <svg
+              className="w-5 h-5 mr-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M15 19l-7-7 7-7"
+              ></path>
             </svg>
             Back to Products
           </button>
-          
+
           <div className="bg-white shadow-lg rounded-xl overflow-hidden">
             {/* Header */}
             <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-5">
@@ -219,12 +255,16 @@ const ProductDetails = () => {
                     Product Details
                   </h2>
                 </div>
-                
+
                 <div className="flex flex-wrap gap-3 items-center">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(product.status)}`}>
-                    {product.status || 'Unknown'}
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
+                      product.status
+                    )}`}
+                  >
+                    {product.status || "Unknown"}
                   </span>
-                  
+
                   {product.status === "expired" && (
                     <button
                       onClick={handleRenew}
@@ -233,16 +273,43 @@ const ProductDetails = () => {
                     >
                       {isRenewing ? (
                         <>
-                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          <svg
+                            className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
                           </svg>
                           Renewing...
                         </>
                       ) : (
                         <>
-                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                          <svg
+                            className="w-4 h-4 mr-1"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                            ></path>
                           </svg>
                           Renew Ad
                         </>
@@ -303,24 +370,19 @@ const ProductDetails = () => {
                         <label className={labelClass}>Price</label>
                         {editMode ? (
                           <div className="relative mt-1 rounded-md shadow-sm">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                              <span className="text-gray-500 sm:text-sm">XOF</span>
-                            </div>
                             <input
                               name="price"
-                              type="number"
-                              step="0.01"
                               value={form.price || ""}
                               onChange={handleChange}
-                              className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-12 pr-3 sm:text-sm border-gray-300 rounded-md p-2"
+                              className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-3 pr-3 sm:text-sm border-gray-300 rounded-md p-2"
+                              placeholder="e.g. NGN 7890"
                             />
                           </div>
                         ) : (
                           <div className="flex items-baseline">
                             <span className="text-2xl font-bold text-indigo-600">
-                              {parseFloat(product.price).toFixed(2)}
+                              {formatPrice(product.price)}
                             </span>
-                            <span className="ml-1 text-gray-500">XOF</span>
                           </div>
                         )}
                       </div>
@@ -363,7 +425,9 @@ const ProductDetails = () => {
                     {/* Features */}
                     <div className="py-4">
                       <div className="flex items-center justify-between mb-2">
-                        <label className={`${labelClass} flex items-center m-0`}>
+                        <label
+                          className={`${labelClass} flex items-center m-0`}
+                        >
                           <span>Features</span>
                           <span className="ml-2 bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">
                             {Array.isArray(product.features)
@@ -372,7 +436,7 @@ const ProductDetails = () => {
                           </span>
                         </label>
                       </div>
-                      
+
                       {editMode ? (
                         <div>
                           <textarea
@@ -387,7 +451,13 @@ const ProductDetails = () => {
                             className={inputClass}
                             placeholder="Enter features as JSON array"
                           />
-                          <p className="text-xs text-gray-500 mt-1">Format: [{'{"}name": "Feature name", "value": "Feature value"{'}'}]</p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Format: [
+                            {
+                              '{"}name": "Feature name", "value": "Feature value"{'
+                            }
+                            '}]
+                          </p>
                         </div>
                       ) : (
                         <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
@@ -408,13 +478,13 @@ const ProductDetails = () => {
                     <div className="pt-6 flex flex-wrap justify-end gap-3">
                       {!editMode && (
                         <button
-                          onClick={() => navigate('/products')}
+                          onClick={() => navigate("/products")}
                           className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition"
                         >
                           Back
                         </button>
                       )}
-                      
+
                       <button
                         onClick={() => setEditMode(!editMode)}
                         className={`px-4 py-2 rounded-md text-sm font-medium transition ${
@@ -425,25 +495,47 @@ const ProductDetails = () => {
                       >
                         {editMode ? "Cancel" : "Edit"}
                       </button>
-                      
+
                       {editMode && (
                         <button
                           onClick={handleUpdate}
                           className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition flex items-center"
                         >
-                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                          <svg
+                            className="w-4 h-4 mr-1"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M5 13l4 4L19 7"
+                            ></path>
                           </svg>
                           Save Changes
                         </button>
                       )}
-                      
+
                       <button
                         onClick={handleDelete}
                         className="bg-red-50 text-red-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-red-100 transition flex items-center"
                       >
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        <svg
+                          className="w-4 h-4 mr-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          ></path>
                         </svg>
                         Delete
                       </button>
