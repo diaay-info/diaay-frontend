@@ -75,7 +75,7 @@ const PurchaseCredit = () => {
   const generateWhatsAppLink = () => {
     const message = `Hello, kindly confirm payment of ${selectedAmount} XOF with reference ${paymentDetails.ReferenceId} from phone number ${paymentDetails.TeansferNumber}`;
     const encodedMessage = encodeURIComponent(message);
-    return `https://wa.me/+221774285608?text=${encodedMessage}`;
+    return `https://wa.me/+221774127742?text=${encodedMessage}`;
   };
 
   const handleSubmit = async () => {
@@ -361,7 +361,7 @@ const PurchaseCredit = () => {
               <div className="space-y-3 text-center">
                 {/* WhatsApp Contact Button */}
                 <a
-                  href="https://wa.me/+221774285608?text=I%20need%20to%20buy%20credit"
+                  href="https://wa.me/+221774127742?text=I%20need%20to%20buy%20credit"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-block mt-4 py-3 px-6 bg-green-500 text-white text-center rounded-lg hover:bg-green-600 transition"
