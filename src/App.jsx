@@ -7,6 +7,7 @@ import Footer from "./Component/Footer";
 import { FaLongArrowAltRight } from "react-icons/fa";
 import { MdFilterList } from "react-icons/md";
 import { CiLocationOn } from "react-icons/ci";
+import { FaPhone } from "react-icons/fa";
 import {
   FaHeart,
   FaRegHeart,
@@ -284,7 +285,7 @@ const HomePage = () => {
     {
       question: "How do I purchase credits?",
       answer:
-        "Yes! We prioritize security and provide measures like vendor verification to ensure safe transactions.",
+      "You can contact our customer support team via the 'Contact Us' page or by emailing info@diaay.com.",
     },
     {
       question: "How do I earn as a partner?",
@@ -303,7 +304,7 @@ const HomePage = () => {
     e.stopPropagation();
 
     // Get the phone number from the product owner
-    const phoneNumber =  product.userId.phoneNumber || "";
+    const phoneNumber = product.userId.phoneNumber || "";
     console.log("phone:", phoneNumber);
 
     // If no phone number is available, show an alert
@@ -315,12 +316,30 @@ const HomePage = () => {
     // Construct the WhatsApp URL with pre-written message
     const productUrl = `${window.location.origin}/products/${product._id}`;
     const message = encodeURIComponent(
-      `Hello, I'm interested in getting this product: ${
-        product.name || "your product"
-      }\n${productUrl}`
+      `Bonjour, je suis intéressé par ce produit : ${
+        product.name || "votre produit"
+      }\n${productUrl}
+`
     );
 
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
+  };
+
+  const handlePhoneCall = (e, product) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Get the phone number from the product owner
+    const phoneNumber = product.userId?.phoneNumber || "";
+
+    // If no phone number is available, show an alert
+    if (!phoneNumber) {
+      alert("Seller's contact information is not available");
+      return;
+    }
+
+    // Open the phone dialer with the vendor's number
+    window.open(`tel:${phoneNumber}`, "_blank");
   };
 
   // Helper function to get values from product
@@ -517,12 +536,24 @@ const HomePage = () => {
                               {getProductLocation(product).city}
                             </span>
                           </p>
-                          <button
-                            className="text-green-500 text-xl hover:text-green-600 flex-shrink-0"
-                            onClick={(e) => handleWhatsAppRedirect(e, product)}
-                          >
-                            <FaWhatsapp />
-                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              className="text-blue-500 text-lg hover:text-blue-600 flex-shrink-0"
+                              onClick={(e) => handlePhoneCall(e, product)}
+                              title="Call seller"
+                            >
+                              <FaPhone />
+                            </button>
+                            <button
+                              className="text-green-500 text-xl hover:text-green-600 flex-shrink-0"
+                              onClick={(e) =>
+                                handleWhatsAppRedirect(e, product)
+                              }
+                              title="Chat on WhatsApp"
+                            >
+                              <FaWhatsapp />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </Link>

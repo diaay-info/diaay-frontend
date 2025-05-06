@@ -90,8 +90,10 @@ const Credit = ({ onPurchaseCreditclick }) => {
 
  
   const handlePurchaseCreditToggle = () => {
-    setIsPurchaseCredit(!isPurchaseCredit);
+    navigate("/credits/purchasecredit"); // updates the URL and triggers the conditional view
   };
+  
+  
 
   return (
     <Layout>

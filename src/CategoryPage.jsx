@@ -244,7 +244,7 @@ const CategoryPage = () => {
       <main className="container mx-auto py-8 px-4">
         <div className="flex items-center mb-6">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/categories')}
             className="mr-4 text-primary hover:underline flex items-center"
           >
             <FaArrowLeft className="mr-2" />

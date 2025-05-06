@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { FaRegCopy } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
+import Layout from "./Layout";
 
 const PurchaseCredit = () => {
   const [selectedAmount, setSelectedAmount] = useState(null);
@@ -73,7 +74,7 @@ const PurchaseCredit = () => {
     }));
   };
   const generateWhatsAppLink = () => {
-    const message = `Hello, kindly confirm payment of ${selectedAmount} XOF with reference ${paymentDetails.ReferenceId} from phone number ${paymentDetails.TeansferNumber}`;
+    const message = `Bonjour, veuillez confirmer le paiement de ${selectedAmount} XOF depuis le numéro de téléphone ${paymentDetails.transferNumber}`;
     const encodedMessage = encodeURIComponent(message);
     return `https://wa.me/+221774127742?text=${encodedMessage}`;
   };
@@ -152,6 +153,7 @@ const PurchaseCredit = () => {
   };
 
   return (
+    <Layout>
     <div className="bg-gray-100 min-h-screen p-4 md:p-6">
       {/* Error Modal */}
       {errorMessage && (
@@ -361,7 +363,7 @@ const PurchaseCredit = () => {
               <div className="space-y-3 text-center">
                 {/* WhatsApp Contact Button */}
                 <a
-                  href="https://wa.me/+221774127742?text=I%20need%20to%20buy%20credit"
+                  href="https://wa.me/+221774127742?text=J'ai%20besoin%20d'acheter%20du%20crédit"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-block mt-4 py-3 px-6 bg-green-500 text-white text-center rounded-lg hover:bg-green-600 transition"
@@ -411,7 +413,6 @@ const PurchaseCredit = () => {
                   value={paymentDetails.referenceId}
                   onChange={handlePaymentDetailChange}
                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  
                 />
               </div>
               <div>
@@ -463,6 +464,7 @@ const PurchaseCredit = () => {
         </div>
       )}
     </div>
+    </Layout>
   );
 };
 

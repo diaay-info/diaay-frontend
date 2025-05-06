@@ -7,8 +7,7 @@ const ForgotPassword = () => {
   // WhatsApp contact details
   const whatsappNumber = "+221774127742"; // Replace with actual admin WhatsApp number
   const whatsappMessage =
-    "Hello admin, I forgot my password. Here is my registered phone number: ----";
-
+    "Bonjour admin, j'ai oublié mon mot de passe. Voici mon numéro de téléphone enregistré :";
   const handleWhatsAppClick = () => {
     const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
       whatsappMessage

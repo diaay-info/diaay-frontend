@@ -127,7 +127,7 @@ const Finance = () => {
                 <table className="w-full border-collapse border border-gray-200 bg-white rounded-lg shadow-md text-sm">
                   <thead className="bg-primary text-white text-xs md:text-sm uppercase font-semibold">
                     <tr className="border-b border-gray-200">
-                      <th className="border-b p-2 md:p-3 text-left">E-mail</th>
+                      <th className="border-b p-2 md:p-3 text-left">Phone Number</th>
                       <th className="border-b p-2 md:p-3 text-left">Amount</th>
                       <th className="border-b p-2 md:p-3 text-left">
                         Payment Method
@@ -144,7 +144,7 @@ const Finance = () => {
                         onClick={() => handleRowClick(transaction._id)}
                       >
                         <td className="border-b p-2 md:p-3">
-                          {transaction.userId.email}
+                          {transaction.userId.phoneNumber}
                         </td>
                         <td className="border-b p-2 md:p-3">
                           {formatNumber(transaction.amount)}

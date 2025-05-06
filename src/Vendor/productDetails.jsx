@@ -476,7 +476,7 @@ const ProductDetails = () => {
 
                     {/* Action Buttons */}
                     <div className="pt-6 flex flex-wrap justify-end gap-3">
-                      {!editMode && (
+                      {/* {!editMode && (
                         <button
                           onClick={() => navigate("/products")}
                           className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition"
@@ -517,7 +517,7 @@ const ProductDetails = () => {
                           </svg>
                           Save Changes
                         </button>
-                      )}
+                      )} */}
 
                       <button
                         onClick={handleDelete}
