@@ -53,7 +53,7 @@ function Sidebar({ isOpen, setIsOpen }) {
             <FaThLarge className="mr-3" /> Dashboard
           </NavLink>
           <NavLink
-            to="/products"
+            to="/vendor/products"
             className={({ isActive }) =>
               `flex items-center p-3 rounded-lg text-sm ${
                 isActive

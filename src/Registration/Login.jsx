@@ -193,12 +193,12 @@ const Login = () => {
               "Login"
             )}
           </button>
-          <div className="flex items-center my-4">
+          {/* <div className="flex items-center my-4">
             <hr className="flex-grow border-gray-300" />
             <span className="px-2 text-sm text-gray-500">OR</span>
             <hr className="flex-grow border-gray-300" />
-          </div>
-          <div className="mb-6">
+          </div> */}
+          {/* <div className="mb-6">
             <button
               type="button"
               className="w-full py-2 flex items-center justify-center border rounded-lg shadow-sm text-gray-700 hover:bg-gray-100"
@@ -210,7 +210,7 @@ const Login = () => {
               />
               Login with Google
             </button>
-          </div>
+          </div> */}
         </form>
         <div className="text-center mt-4">
           <p className="text-sm text-gray-600">

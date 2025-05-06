@@ -106,7 +106,7 @@ const SignUpForm = () => {
 
   const handleContactAdmin = () => {
     const message = encodeURIComponent(
-      "I would like to sell products without subscription"
+      "Je souhaite vendre des produits sans abonnement."
     );
     window.open(`https://wa.me/+221774127742?text=${message}`, "_blank");
   };

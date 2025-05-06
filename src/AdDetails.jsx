@@ -15,6 +15,7 @@ const AdDetailss = () => {
   const [activeTab, setActiveTab] = useState("description");
   const { favorites, addToFavorites, removeFromFavorites } = useFavorites();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const [mainImage, setMainImage] = useState("");
 
   const isFavorite = favorites.some((fav) => fav._id === ad?._id);
 
@@ -29,9 +30,11 @@ const AdDetailss = () => {
       return alert("Phone number is not available.");
     const formatted = ad.userId.phoneNumber.replace(/\D/g, "");
     const msg = encodeURIComponent(
-      `Hello, good day! I'm interested in this product: ${ad.title}\n\n${window.location.href}`
+      `Bonjour, bonne journée ! Je suis intéressé par ce produit : ${ad.name}\n\n${window.location.href}
+`
     );
-    window.location.href = `https://wa.me/${formatted}?text=${msg}`;
+    // Open in a new tab instead of redirecting the current page
+    window.open(`https://wa.me/${formatted}?text=${msg}`, "_blank");
   };
 
   const toggleFavorite = () => {
@@ -50,6 +53,11 @@ const AdDetailss = () => {
     );
   };
 
+  // Function to handle thumbnail click
+  const handleThumbnailClick = (clickedImage) => {
+    setMainImage(clickedImage);
+  };
+
   useEffect(() => {
     const fetchAdDetails = async () => {
       try {
@@ -58,6 +66,10 @@ const AdDetailss = () => {
         console.log("Fetching details for id:", id);
         if (res.ok) {
           setAd(data);
+          // Set the main image when data is first loaded
+          if (data.images && data.images.length > 0) {
+            setMainImage(data.images[0]);
+          }
           fetchSimilarProducts(data.category);
         }
       } catch (err) {
@@ -167,7 +179,7 @@ const AdDetailss = () => {
             {ad ? (
               <>
                 <img
-                  src={ad.images[0] || "/placeholder.png"}
+                  src={mainImage || ad.images[0] || "/placeholder.png"}
                   alt={ad.title}
                   className="w-full h-96 object-cover rounded-2xl mb-4"
                 />
@@ -177,16 +189,10 @@ const AdDetailss = () => {
                       key={idx}
                       src={img}
                       alt={`${ad.title}-${idx + 1}`}
-                      className="w-full h-[10rem] object-cover rounded-lg cursor-pointer"
-                      onClick={() => {
-                        const newImages = [...ad.images];
-                        newImages[0] = img;
-                        newImages[idx] = ad.images[0];
-                        setAd({
-                          ...ad,
-                          productId: { ...ad.productId, images: newImages },
-                        });
-                      }}
+                      className={`w-full h-40 object-cover rounded-lg cursor-pointer ${
+                        mainImage === img ? "ring-2 ring-primary" : ""
+                      }`}
+                      onClick={() => handleThumbnailClick(img)}
                     />
                   ))}
                 </div>
@@ -396,7 +402,7 @@ const AdDetailss = () => {
               with referrals.
             </p>
             <Link to="/start">
-              <div className="flex w-[15rem] mx-auto items-center justify-center gap-4 p-3 rounded-3xl bg-primary cursor-pointer">
+              <div className="flex w-60 mx-auto items-center justify-center gap-4 p-3 rounded-3xl bg-primary cursor-pointer">
                 <p className="font-medium">Start Now</p>
                 <div className="bg-white text-primary rounded-full p-2">
                   <FaLongArrowAltRight />

@@ -16,7 +16,7 @@ import Recovery from "./Registration/Recovery.jsx";
 import ResetPassword from "./Registration/Resetpassword.jsx";
 import VendorDashboard from "./Vendor/Dashboard.jsx";
 import Products from "./Vendor/Products.jsx";
-
+import Addproducts from "./Vendor/Addproducts.jsx";
 import Ads from "./Vendor/Ads.jsx";
 import Credit from "./Vendor/Credit.jsx";
 import Settings from "./Vendor/Settings.jsx";
@@ -46,6 +46,7 @@ import TermsAndConditions from "./Component/TermsAndConditions.jsx";
 import PrivacyPolicy from "./Component/PrivacyPolicy.jsx";
 import AdminResetPassword from "./Admin/AdminResetPassword.jsx";
 import AdminCreate from "./Admin/AdminCreate.jsx";
+import PurchaseCredit from "./Vendor/PurchaseCredit.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -68,12 +69,15 @@ createRoot(document.getElementById("root")).render(
         <Route path="/recovery" element={<Recovery />} />
         <Route path="/reset" element={<ResetPassword />} />
         <Route path="/vendor/dashboard" element={<VendorDashboard />} />
-        <Route path="/products" element={<Products />} />
+        <Route path="/vendor/products" element={<Products />} />
+        <Route path="/vendor/products/add" element={<Addproducts />} />
+
         <Route path="/vendor/products/:id" element={<ProductDetails />} />
         <Route path="/ads" element={<Ads />} />
         <Route path="selectedads" element={<SelectProductForAd />} />
         <Route path="/create-ad/:productId" element={<CreateAd />} />
         <Route path="/credits" element={<Credit />} />
+        <Route path="/credits/purchasecredit" element={<PurchaseCredit />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
