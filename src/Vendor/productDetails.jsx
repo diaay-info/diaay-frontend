@@ -84,7 +84,7 @@ const ProductDetails = () => {
       });
       if (res.ok) {
         alert("Product deleted successfully");
-        navigate("/products");
+        navigate("/vendor/products");
       } else {
         alert("Failed to delete product");
       }
