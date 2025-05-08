@@ -15,10 +15,11 @@ const getCurrencyByCountry = (country) => {
   const currencyMap = {
     Nigeria: "NGN",
     Senegal: "XOF",
+    Benin: "XOF",
     "United States": "USD",
     // Add more countries as needed
   };
-  return currencyMap[country] || "USD"; // Default to USD if country not found
+  return currencyMap[country] || "XOF"; // Default to USD if country not found
 };
 
 const ProductForm = () => {

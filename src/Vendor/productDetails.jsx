@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "./Layout";
+import Swal from "sweetalert2";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -33,23 +34,6 @@ const ProductDetails = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleFeatureChange = (e) => {
-    try {
-      // Try to parse as JSON if it's a valid JSON string
-      const parsedValue = JSON.parse(e.target.value);
-      setForm({
-        ...form,
-        features: parsedValue,
-      });
-    } catch {
-      // If not valid JSON, store as string
-      setForm({
-        ...form,
-        features: e.target.value,
-      });
-    }
-  };
-
   const handleUpdate = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/products/${id}`, {
@@ -64,18 +48,43 @@ const ProductDetails = () => {
         const updatedProduct = await res.json();
         setProduct(updatedProduct);
         setEditMode(false);
-        alert("Product updated successfully");
+        Swal.fire({
+          icon: "success",
+          title: "Success!",
+          text: "Product updated successfully",
+          confirmButtonColor: "#4F46E5",
+        });
       } else {
-        alert("Failed to update product");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to update product",
+          confirmButtonColor: "#4F46E5",
+        });
       }
     } catch (error) {
       console.error("Error updating product:", error);
-      alert("Error updating product");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Error updating product",
+        confirmButtonColor: "#4F46E5",
+      });
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this product?")) return;
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#EF4444",
+      cancelButtonColor: "#6B7280",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/products/${id}`, {
@@ -83,19 +92,31 @@ const ProductDetails = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
-        alert("Product deleted successfully");
+        Swal.fire({
+          icon: "success",
+          title: "Deleted!",
+          text: "Product has been deleted.",
+          confirmButtonColor: "#4F46E5",
+        });
         navigate("/vendor/products");
       } else {
-        alert("Failed to delete product");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to delete product",
+          confirmButtonColor: "#4F46E5",
+        });
       }
     } catch (error) {
       console.error("Error deleting product:", error);
-      alert("Error deleting product");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Error deleting product",
+        confirmButtonColor: "#4F46E5",
+      });
     }
   };
-  
-
-  
 
   const handleRenew = async () => {
     if (!product || product.status !== "expired") return;
@@ -113,13 +134,28 @@ const ProductDetails = () => {
       if (res.ok) {
         const updatedProduct = await res.json();
         setProduct(updatedProduct);
-        alert("Product successfully renewed");
+        Swal.fire({
+          icon: "success",
+          title: "Success!",
+          text: "Product successfully renewed",
+          confirmButtonColor: "#10B981",
+        });
       } else {
-        alert("Failed to renew product");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to renew product",
+          confirmButtonColor: "#4F46E5",
+        });
       }
     } catch (error) {
       console.error("Error renewing product:", error);
-      alert("Error renewing product");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Error renewing product",
+        confirmButtonColor: "#4F46E5",
+      });
     } finally {
       setIsRenewing(false);
     }
@@ -392,37 +428,18 @@ const ProductDetails = () => {
 
                       <div>
                         <label className={labelClass}>Category</label>
-                        {editMode ? (
-                          <input
-                            name="category"
-                            value={form.category || ""}
-                            onChange={handleChange}
-                            className={inputClass}
-                          />
-                        ) : (
-                          <div className="bg-indigo-50 text-indigo-700 inline-block px-3 py-1 rounded-full text-sm font-medium">
-                            {product.category || "Uncategorized"}
-                          </div>
-                        )}
+                        <div className="bg-indigo-50 text-indigo-700 inline-block px-3 py-1 rounded-full text-sm font-medium">
+                          {product.category || "Uncategorized"}
+                        </div>
                       </div>
                     </div>
 
                     {/* Description */}
                     <div className="py-4">
                       <label className={labelClass}>Description</label>
-                      {editMode ? (
-                        <textarea
-                          name="description"
-                          value={form.description || ""}
-                          onChange={handleChange}
-                          rows="4"
-                          className={inputClass}
-                        />
-                      ) : (
-                        <p className="text-gray-700 whitespace-pre-line">
-                          {product.description || "No description available"}
-                        </p>
-                      )}
+                      <p className="text-gray-700 whitespace-pre-line">
+                        {product.description || "No description available"}
+                      </p>
                     </div>
 
                     {/* Features */}
@@ -440,46 +457,22 @@ const ProductDetails = () => {
                         </label>
                       </div>
 
-                      {editMode ? (
-                        <div>
-                          <textarea
-                            name="features"
-                            value={
-                              typeof form.features === "object"
-                                ? JSON.stringify(form.features, null, 2)
-                                : form.features || ""
-                            }
-                            onChange={handleFeatureChange}
-                            rows="4"
-                            className={inputClass}
-                            placeholder="Enter features as JSON array"
-                          />
-                          <p className="text-xs text-gray-500 mt-1">
-                            Format: [
-                            {
-                              '{"}name": "Feature name", "value": "Feature value"{'
-                            }
-                            '}]
+                      <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                        {product.features && product.features.length > 0 ? (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {renderFieldValue("features", product.features)}
+                          </div>
+                        ) : (
+                          <p className="text-gray-500 italic text-center py-2">
+                            No features listed
                           </p>
-                        </div>
-                      ) : (
-                        <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                          {product.features && product.features.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                              {renderFieldValue("features", product.features)}
-                            </div>
-                          ) : (
-                            <p className="text-gray-500 italic text-center py-2">
-                              No features listed
-                            </p>
-                          )}
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
 
                     {/* Action Buttons */}
                     <div className="pt-6 flex flex-wrap justify-end gap-3">
-                      {/* {!editMode && (
+                      {!editMode && (
                         <button
                           onClick={() => navigate("/products")}
                           className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition"
@@ -520,7 +513,7 @@ const ProductDetails = () => {
                           </svg>
                           Save Changes
                         </button>
-                      )} */}
+                      )}
 
                       <button
                         onClick={handleDelete}
