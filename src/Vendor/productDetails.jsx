@@ -93,6 +93,9 @@ const ProductDetails = () => {
       alert("Error deleting product");
     }
   };
+  
+
+  
 
   const handleRenew = async () => {
     if (!product || product.status !== "expired") return;

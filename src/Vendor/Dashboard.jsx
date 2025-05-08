@@ -203,7 +203,7 @@ function VendorDashboard() {
             <div className="flex flex-col items-center justify-center p-8 text-center">
               <p className="text-gray-500 mb-4">No products listed yet</p>
               <button className="bg-purple-500 text-white px-4 py-2 rounded-lg text-sm">
-                <Link to="/products">Add Your First Product</Link>
+                <Link to="/vendor/products">Add Your First Product</Link>
               </button>
             </div>
           )}
