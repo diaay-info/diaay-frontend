@@ -171,7 +171,7 @@ const ProductPage = () => {
                         {product.category || "N/A"}
                       </td>
                       <td className="px-2 py-3 whitespace-nowrap text-purple-600">
-                        {product.price ? `${product.price} XOF` : "N/A"}
+                        {product.price ? `${product.price} ` : "N/A"}
                       </td>
                       <td className="px-2 py-3 whitespace-nowrap font-semibold">
                         <span

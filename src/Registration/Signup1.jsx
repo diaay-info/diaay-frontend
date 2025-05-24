@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaHandshake, FaEye, FaEyeSlash, FaWhatsapp } from "react-icons/fa";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 const SignUpForm = () => {
   const [selectedRole, setSelectedRole] = useState("vendor");
@@ -116,12 +117,12 @@ const SignUpForm = () => {
     if (validateForm()) {
       setIsLoading(true);
       try {
-        const existingUsers = ["1234567890"]; // Example list of registered users
-        if (existingUsers.includes(formData.phone)) {
-          setUserExists(true);
-          setIsLoading(false);
-          return;
-        }
+        // const existingUsers = ["1234567890"]; // Example list of registered users
+        // if (existingUsers.includes(formData.phone)) {
+        //   setUserExists(true);
+        //   setIsLoading(false);
+        //   return;
+        // }
 
         const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
           method: "POST",
@@ -134,8 +135,9 @@ const SignUpForm = () => {
           }),
         });
 
+        const data = await response.json();
+
         if (response.ok) {
-          const data = await response.json();
           // Store user data in localStorage
           localStorage.setItem("accessToken", data.accessToken);
           localStorage.setItem("refreshToken", data.refreshToken);
@@ -160,10 +162,26 @@ const SignUpForm = () => {
               break;
           }
         } else {
-          console.log("Form submission failed");
+          // Show SweetAlert with the exact error message from the server
+          Swal.fire({
+            icon: "error",
+            title: "Registration Failed",
+            text:
+              data.message ||
+              "An unexpected error occurred during registration.",
+            confirmButtonColor: "#9333ea", // Purple to match your theme
+          });
+          console.log("Form submission failed:", data);
         }
       } catch (error) {
         console.error("Error during form submission:", error);
+        // Show SweetAlert for unexpected errors or network issues
+        Swal.fire({
+          icon: "error",
+          title: "Registration Failed",
+          text: "Network error or server unavailable. Please try again later.",
+          confirmButtonColor: "#9333ea",
+        });
       } finally {
         setIsLoading(false);
       }
@@ -322,7 +340,7 @@ const SignUpForm = () => {
                 Phone Number*
               </label>
               <PhoneInput
-                country={"sn"} // Default country (Nigeria)
+                country={"sn"} // Default country (Senegal)
                 value={formData.phone.replace(/^\+/, "")} // Remove + for display if it exists
                 onChange={handlePhoneChange}
                 inputStyle={{

@@ -89,15 +89,15 @@ const CreditDetails = () => {
               {" "}
               <h2 className="text-xl font-bold">Credit Details</h2> <hr />
               <p>
-                <strong>Vendor Name:</strong> {credit.name}
+                <strong>Vendor Email:</strong> {credit.userId.email}
               </p>{" "}
               <hr />
               <p>
-                <strong>Credits Purchased:</strong> {credit.amount}
+                <strong>Credits Purchased:</strong> {credit.credit}
               </p>{" "}
               <hr />
               <p>
-                <strong>Amount Paid:</strong> {credit.amountPaid}
+                <strong>Amount Paid:</strong> {credit.amount}
               </p>{" "}
               <hr />
               <p>
