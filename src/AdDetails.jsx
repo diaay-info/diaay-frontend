@@ -42,21 +42,38 @@ const AdDetailss = () => {
   };
 
   const nextSlide = () => {
-    setCurrentSlide((prev) =>
-      prev === Math.ceil(similarProducts.length / 2) - 1 ? 0 : prev + 1
-    );
+    // For desktop: navigate by pairs, for mobile: navigate by single products
+    const increment = window.innerWidth >= 768 ? 2 : 1;
+    setCurrentSlide((prev) => {
+      const maxSlide =
+        window.innerWidth >= 768
+          ? Math.ceil(similarProducts.length / 2) - 1
+          : similarProducts.length - 1;
+      return prev >= maxSlide ? 0 : prev + 1;
+    });
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) =>
-      prev === 0 ? Math.ceil(similarProducts.length / 2) - 1 : prev - 1
-    );
+    // For desktop: navigate by pairs, for mobile: navigate by single products
+    const increment = window.innerWidth >= 768 ? 2 : 1;
+    setCurrentSlide((prev) => {
+      const maxSlide =
+        window.innerWidth >= 768
+          ? Math.ceil(similarProducts.length / 2) - 1
+          : similarProducts.length - 1;
+      return prev <= 0 ? maxSlide : prev - 1;
+    });
   };
 
   // Function to handle thumbnail click
   const handleThumbnailClick = (clickedImage) => {
     setMainImage(clickedImage);
   };
+
+  // Reset slide when similar products change
+  useEffect(() => {
+    setCurrentSlide(0);
+  }, [similarProducts]);
 
   useEffect(() => {
     const fetchAdDetails = async () => {
@@ -285,88 +302,192 @@ const AdDetailss = () => {
           <section className="relative">
             <h2 className="text-2xl font-bold mb-6">Similar Products</h2>
             {similarProducts.length > 0 ? (
-              <div className="relative overflow-hidden">
-                <div
-                  className="flex transition-transform duration-300 ease-in-out"
-                  style={{
-                    transform: `translateX(-${currentSlide * 100}%)`,
-                    width: `${similarProducts.length * 100}%`,
-                  }}
-                >
-                  {similarProducts.map((p) => (
-                    <div
-                      key={p._id}
-                      className="flex-shrink-0 w-full md:w-1/3 lg:w-1/2 p-2"
-                    >
-                      <Link to={`/products/${p._id}`} className="block h-full">
-                        <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 h-full flex flex-col overflow-hidden border border-gray-100">
-                          <div className="relative overflow-hidden">
-                            <img
-                              src={p.images?.[0] || "/placeholder.png"}
-                              alt={p.name}
-                              className="w-full h-40 object-cover transition-transform duration-300 hover:scale-105"
-                            />
-                            <div className="absolute top-0 right-0 bg-primary text-white text-xs font-medium px-2 py-1 m-2 rounded-full">
-                              Similar
-                            </div>
-                          </div>
-                          <div className="p-4 flex flex-col flex-grow">
-                            <h3 className="text-lg font-semibold text-gray-800 mb-1 line-clamp-1">
-                              {p.name}
-                            </h3>
-                            <p className="text-primary font-bold text-xl mb-1">
-                              {p.price || "N/A"}
-                            </p>
-                            <div className="mt-auto flex items-center text-sm text-gray-500">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4 mr-1"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
+              <>
+                {/* Desktop View - Carousel showing 2 products */}
+                <div className="hidden md:block relative overflow-hidden">
+                  <div
+                    className="flex transition-transform duration-300 ease-in-out"
+                    style={{
+                      transform: `translateX(-${currentSlide * 100}%)`,
+                    }}
+                  >
+                    {Array.from({
+                      length: Math.ceil(similarProducts.length / 2),
+                    }).map((_, slideIndex) => (
+                      <div
+                        key={slideIndex}
+                        className="w-full flex-shrink-0 flex gap-6"
+                      >
+                        {similarProducts
+                          .slice(slideIndex * 2, slideIndex * 2 + 2)
+                          .map((p) => (
+                            <div key={p._id} className="w-1/2">
+                              <Link
+                                to={`/products/${p._id}`}
+                                className="block h-full"
                               >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                                />
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                                />
-                              </svg>
-                              <span className="truncate">
-                                {p.country}, {p.city}
-                              </span>
+                                <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 h-full flex flex-col overflow-hidden border border-gray-100">
+                                  <div className="relative overflow-hidden h-48">
+                                    <img
+                                      src={p.images?.[0] || "/placeholder.png"}
+                                      alt={p.name}
+                                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                                    />
+                                    <div className="absolute top-0 right-0 bg-primary text-white text-xs font-medium px-2 py-1 m-2 rounded-full">
+                                      Similar
+                                    </div>
+                                  </div>
+                                  <div className="p-4 flex flex-col flex-grow">
+                                    <h3 className="text-lg font-semibold text-gray-800 mb-1 line-clamp-2 min-h-[3.5rem]">
+                                      {p.name}
+                                    </h3>
+                                    <p className="text-primary font-bold text-xl mb-2">
+                                      {p.price || "N/A"}
+                                    </p>
+                                    <div className="mt-auto flex items-center text-sm text-gray-500">
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="h-4 w-4 mr-1 flex-shrink-0"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                        />
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                        />
+                                      </svg>
+                                      <span className="truncate">
+                                        {p.country}, {p.city}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </Link>
+                            </div>
+                          ))}
+                        {/* Fill empty space if odd number of products on last slide */}
+                        {slideIndex ===
+                          Math.ceil(similarProducts.length / 2) - 1 &&
+                          similarProducts.length % 2 === 1 && (
+                            <div className="w-1/2"></div>
+                          )}
+                      </div>
+                    ))}
+                  </div>
+                  {/* Desktop Navigation Buttons */}
+                  {similarProducts.length > 2 && (
+                    <>
+                      <button
+                        onClick={prevSlide}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg z-10 hover:bg-gray-50 transition-colors"
+                        aria-label="Previous slide"
+                      >
+                        <FaArrowLeft className="text-gray-700" />
+                      </button>
+                      <button
+                        onClick={nextSlide}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg z-10 hover:bg-gray-50 transition-colors"
+                        aria-label="Next slide"
+                      >
+                        <FaArrowRight className="text-gray-700" />
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {/* Mobile View - Carousel */}
+                <div className="md:hidden relative overflow-hidden">
+                  <div
+                    className="flex transition-transform duration-300 ease-in-out"
+                    style={{
+                      transform: `translateX(-${currentSlide * 100}%)`,
+                    }}
+                  >
+                    {similarProducts.map((p) => (
+                      <div key={p._id} className="w-full flex-shrink-0 px-2">
+                        <Link
+                          to={`/products/${p._id}`}
+                          className="block h-full"
+                        >
+                          <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 h-full flex flex-col overflow-hidden border border-gray-100">
+                            <div className="relative overflow-hidden h-48">
+                              <img
+                                src={p.images?.[0] || "/placeholder.png"}
+                                alt={p.name}
+                                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                              />
+                              <div className="absolute top-0 right-0 bg-primary text-white text-xs font-medium px-2 py-1 m-2 rounded-full">
+                                Similar
+                              </div>
+                            </div>
+                            <div className="p-4 flex flex-col flex-grow">
+                              <h3 className="text-lg font-semibold text-gray-800 mb-1 line-clamp-2 min-h-[3.5rem]">
+                                {p.name}
+                              </h3>
+                              <p className="text-primary font-bold text-xl mb-2">
+                                {p.price || "N/A"}
+                              </p>
+                              <div className="mt-auto flex items-center text-sm text-gray-500">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4 mr-1 flex-shrink-0"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                  />
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                  />
+                                </svg>
+                                <span className="truncate">
+                                  {p.country}, {p.city}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </Link>
-                    </div>
-                  ))}
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Mobile Navigation Buttons */}
+                  {similarProducts.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevSlide}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg z-10 hover:bg-gray-50 transition-colors"
+                        aria-label="Previous slide"
+                      >
+                        <FaArrowLeft className="text-gray-700" />
+                      </button>
+                      <button
+                        onClick={nextSlide}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg z-10 hover:bg-gray-50 transition-colors"
+                        aria-label="Next slide"
+                      >
+                        <FaArrowRight className="text-gray-700" />
+                      </button>
+                    </>
+                  )}
                 </div>
-                {similarProducts.length > 4 && (
-                  <>
-                    <button
-                      onClick={prevSlide}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg z-10 hover:bg-gray-50 transition-colors"
-                      aria-label="Previous slide"
-                    >
-                      <FaArrowLeft className="text-gray-700" />
-                    </button>
-                    <button
-                      onClick={nextSlide}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg z-10 hover:bg-gray-50 transition-colors"
-                      aria-label="Next slide"
-                    >
-                      <FaArrowRight className="text-gray-700" />
-                    </button>
-                  </>
-                )}
-              </div>
+              </>
             ) : (
               <div className="bg-gray-50 rounded-xl p-10 text-center">
                 <svg

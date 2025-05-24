@@ -35,7 +35,7 @@ const ProductForm = () => {
   const [selectedCountry, setSelectedCountry] = useState("Senegal"); // Default to Senegal
   const [creditBalance, setCreditBalance] = useState(0);
   const [loadingCredits, setLoadingCredits] = useState(false);
-  const [productCount, setProductCount] = useState(0);
+  // const [productCount, setProductCount] = useState(0);
   const navigate = useNavigate();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -271,8 +271,8 @@ const ProductForm = () => {
     setFeatures(updatedFeatures);
   };
 
-  // Check if user can post for free
-  const canPostForFree = productCount < 5;
+  // // Check if user can post for free
+  // const canPostForFree = productCount < 5;
 
   // Add this helper function for price formatting
   const formatPrice = (value) => {
@@ -322,11 +322,11 @@ const ProductForm = () => {
     }
 
     // Check if user already has 5 products and needs a credit
-    if (!canPostForFree && creditBalance < 1) {
+    if ( creditBalance < 1) {
       Swal.fire({
         icon: "error",
         title: "Insufficient Credits",
-        text: "You've used your 5 free product listings. You need 1 credit to add more products.",
+        text: "You've used your 2 free product listings. You need 1 credit to add more products.",
       });
       return;
     }
@@ -351,8 +351,8 @@ const ProductForm = () => {
         features: features.filter((f) => f.name && f.value),
         images: uploadedImageUrls,
         duration: 365, // Set to 1 year (365 days)
-        credit: canPostForFree ? 0 : 1, // Use 1 credit if not free
-        cost: canPostForFree ? 0 : 1000, // Set cost if using credit
+        credit: 1, // Use 1 credit if not free
+        cost:  1000, // Set cost if using credit
       };
 
       const response = await axios.post(
@@ -778,16 +778,15 @@ const ProductForm = () => {
 
                 <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
                   <p className="text-sm font-medium">
-                    {canPostForFree ? (
-                      <>
+                    
                         You can add{" "}
                         <span className="font-bold text-blue-700">
-                          {2 - productCount}
+                          2 
                         </span>{" "}
-                        more products for free
-                      </>
-                    ) : (
-                      <>
+                         products for free
+                      
+                   <br/>
+                     
                         Your Available Credits:
                         {loadingCredits ? (
                           <span className="inline-block ml-1 w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
@@ -802,8 +801,8 @@ const ProductForm = () => {
                             free listings.
                           </p>
                         )}
-                      </>
-                    )}
+                     
+                    
                   </p>
                 </div>
               </div>
@@ -867,14 +866,14 @@ const ProductForm = () => {
                 uploading ||
                 (imageFiles.length > 0 &&
                   uploadedImageUrls.length < imageFiles.length) ||
-                (!canPostForFree && creditBalance < 1)
+                ( creditBalance < 1)
               }
               className={`w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-purple-700 text-sm sm:text-base ${
                 isSubmitting ||
                 uploading ||
                 (imageFiles.length > 0 &&
                   uploadedImageUrls.length < imageFiles.length) ||
-                (!canPostForFree && creditBalance < 1)
+                ( creditBalance < 1)
                   ? "opacity-50 cursor-not-allowed"
                   : ""
               }`}
