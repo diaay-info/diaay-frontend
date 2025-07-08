@@ -195,6 +195,16 @@ const HomePage = () => {
     fetchProducts();
   }, [searchTerm, selectedCountry, currentPage, API_BASE_URL]);
 
+  useEffect(() => {
+    if (topAds.length <= 1) return; // Don't auto-play if only one slide or no slides
+
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % topAds.length);
+    }, 4000); // Change slide every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [topAds.length]);
+
   // Toggle favorite status
   const toggleFavorite = (product) => {
     setFavorites((prev) =>
@@ -285,7 +295,7 @@ const HomePage = () => {
     {
       question: "How do I purchase credits?",
       answer:
-      "You can contact our customer support team via the 'Contact Us' page or by emailing info@diaay.com.",
+        "You can contact our customer support team via the 'Contact Us' page or by emailing info@diaay.com.",
     },
     {
       question: "How do I earn as a partner?",
@@ -686,11 +696,15 @@ const HomePage = () => {
             </div>
 
             {topAds.length > 0 ? (
-              <div className="relative group">
+              <div
+                className="relative group"
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+              >
                 {/* Carousel */}
                 <div className="overflow-hidden rounded-xl">
                   <div
-                    className="flex transition-transform duration-300 ease-in-out"
+                    className="flex transition-transform duration-500 ease-in-out"
                     style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                   >
                     {topAds.map((ad) => (
@@ -714,13 +728,13 @@ const HomePage = () => {
                 {/* Navigation Arrows - Only show on hover */}
                 <button
                   onClick={prevSlide}
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white p-3 rounded-full shadow-md hover:bg-gray-100 transition-all duration-200 opacity-0 group-hover:opacity-100"
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white p-3 rounded-full shadow-md hover:bg-gray-100 transition-all duration-200 opacity-0 group-hover:opacity-100 z-10"
                 >
                   <FaChevronLeft className="text-gray-700" />
                 </button>
                 <button
                   onClick={nextSlide}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white p-3 rounded-full shadow-md hover:bg-gray-100 transition-all duration-200 opacity-0 group-hover:opacity-100"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white p-3 rounded-full shadow-md hover:bg-gray-100 transition-all duration-200 opacity-0 group-hover:opacity-100 z-10"
                 >
                   <FaChevronRight className="text-gray-700" />
                 </button>
