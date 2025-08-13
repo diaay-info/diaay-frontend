@@ -321,15 +321,15 @@ const ProductForm = () => {
       return;
     }
 
-    // Check if user already has 5 products and needs a credit
-    if ( creditBalance < 1) {
-      Swal.fire({
-        icon: "error",
-        title: "Insufficient Credits",
-        text: "You've used your 2 free product listings. You need 1 credit to add more products.",
-      });
-      return;
-    }
+    // // Check if user already has 5 products and needs a credit
+    // if (creditBalance < 1) {
+    //   Swal.fire({
+    //     icon: "error",
+    //     title: "Insufficient Credits",
+    //     text: "You've used your 2 free product listings. You need 1 credit to add more products.",
+    //   });
+    //   return;
+    // }
 
     // Get currency based on selected country
     const currency = getCurrencyByCountry(data.country);
@@ -351,8 +351,8 @@ const ProductForm = () => {
         features: features.filter((f) => f.name && f.value),
         images: uploadedImageUrls,
         duration: 365, // Set to 1 year (365 days)
-        credit: 1, // Use 1 credit if not free
-        cost:  1000, // Set cost if using credit
+        credit: 0, // Use 1 credit if not free
+        cost: 0, // Set cost if using credit
       };
 
       const response = await axios.post(
@@ -770,7 +770,7 @@ const ProductForm = () => {
                 )}
               </div>
 
-              {/* Product Listing Information */}
+              {/* Product Listing Information
               <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <h3 className="text-md font-medium text-gray-800 mb-2">
                   Product Listing Information
@@ -778,34 +778,27 @@ const ProductForm = () => {
 
                 <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
                   <p className="text-sm font-medium">
-                    
-                        You can add{" "}
-                        <span className="font-bold text-blue-700">
-                          2 
-                        </span>{" "}
-                         products for free
-                      
-                   <br/>
-                     
-                        Your Available Credits:
-                        {loadingCredits ? (
-                          <span className="inline-block ml-1 w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
-                        ) : (
-                          <span className="ml-1 font-bold text-blue-700">
-                            {creditBalance}
-                          </span>
-                        )}
-                        {creditBalance < 1 && (
-                          <p className="text-sm text-red-600 mt-1">
-                            You need 1 credit to list more products after your
-                            free listings.
-                          </p>
-                        )}
-                     
-                    
+                    You can add{" "}
+                    <span className="font-bold text-blue-700">2</span> products
+                    for free
+                    <br />
+                    Your Available Credits:
+                    {loadingCredits ? (
+                      <span className="inline-block ml-1 w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
+                    ) : (
+                      <span className="ml-1 font-bold text-blue-700">
+                        {creditBalance}
+                      </span>
+                    )}
+                    {creditBalance < 1 && (
+                      <p className="text-sm text-red-600 mt-1">
+                        You need 1 credit to list more products after your free
+                        listings.
+                      </p>
+                    )}
                   </p>
                 </div>
-              </div>
+              </div> */}
 
               {/* Features */}
               <div>
@@ -865,15 +858,13 @@ const ProductForm = () => {
                 isSubmitting ||
                 uploading ||
                 (imageFiles.length > 0 &&
-                  uploadedImageUrls.length < imageFiles.length) ||
-                ( creditBalance < 1)
+                  uploadedImageUrls.length < imageFiles.length)
               }
               className={`w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-purple-700 text-sm sm:text-base ${
                 isSubmitting ||
                 uploading ||
                 (imageFiles.length > 0 &&
-                  uploadedImageUrls.length < imageFiles.length) ||
-                ( creditBalance < 1)
+                  uploadedImageUrls.length < imageFiles.length)
                   ? "opacity-50 cursor-not-allowed"
                   : ""
               }`}
