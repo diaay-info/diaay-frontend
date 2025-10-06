@@ -363,7 +363,7 @@ const PurchaseCredit = () => {
               <div className="space-y-3 text-center">
                 {/* WhatsApp Contact Button */}
                 <a
-                  href="https://wa.me/+221774127742?text=J'ai%20besoin%20d'acheter%20du%20crédit"
+                  href="https://wa.me/+221779359683?text=J'ai%20besoin%20d'acheter%20du%20crédit"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-block mt-4 py-3 px-6 bg-green-500 text-white text-center rounded-lg hover:bg-green-600 transition"
